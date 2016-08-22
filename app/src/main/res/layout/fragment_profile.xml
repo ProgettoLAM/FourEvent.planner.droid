@@ -1,0 +1,202 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="lam.project.foureventplannerdroid.ScrollingActivity"
+        tools:showIn="@layout/activity_scrolling">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#fff"
+            android:paddingBottom="60dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:background="@drawable/header_planner"
+                android:scaleType="center"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profile_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/vale_profile"
+                app:border_color="#FF000000"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="-50dp"/>
+
+            <TextView
+                android:id="@+id/name_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Valentina Tosto"
+                android:textColor="@color/colorPrimary"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:textSize="24sp"
+                android:fontFamily="sans-serif"/>
+
+            <TextView
+                android:id="@+id/name_planner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Organizzatore di sagre"
+                android:textColor="@color/lightText"
+                android:layout_gravity="center"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/lightText"
+                    android:text="INFO GENERALI"
+                    android:layout_weight="0.07" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#eee"
+                    android:layout_marginBottom="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/birth_date_profile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-- / -- / -- "
+                        android:layout_marginBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/darkerText"
+                        android:drawableLeft="@drawable/ic_calendar"
+                        android:gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/location_profile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Italia"
+                        android:layout_marginBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/darkerText"
+                        android:drawableLeft="@drawable/ic_location_info"
+                        android:gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/gender_profile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="N.D."
+                        android:layout_marginBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/darkerText"
+                        android:drawableLeft="@drawable/ic_gender"
+                        android:gravity="center"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/lightText"
+                    android:text="INFO PRIVATE" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#eee"
+                    android:layout_marginBottom="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/email_profile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="94tinat@gmail.com"
+                        android:layout_marginBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/darkerText"
+                        android:drawableLeft="@drawable/ic_email_profile"
+                        android:gravity="center"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginBottom="24dp">
+                        <TextView
+                            android:id="@+id/pass_profile"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:inputType="textPassword"
+                            android:textSize="15sp"
+                            android:paddingLeft="8dp"
+                            android:textColor="@color/darkerText"
+                            android:drawableLeft="@drawable/ic_pass_profile"
+                            android:gravity="center"/>
+
+                        <ImageView
+                            android:id="@+id/change_pass"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentRight="true"
+                            android:background="@drawable/ic_edit"
+                            android:backgroundTint="@color/colorPrimary"
+                            />
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+</FrameLayout>

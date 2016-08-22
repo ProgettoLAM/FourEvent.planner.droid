@@ -12,9 +12,11 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
 import lam.project.foureventplannerdroid.fragment.FragmentEvent;
+import lam.project.foureventplannerdroid.fragment.FragmentProfile;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Fragment selectedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,17 +27,11 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
 
-        //Setto la pagina principale come quella di ricerca degli eventi
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.anchor_point, new FragmentEvent())
-                .commit();
-
         BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
 
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
-                Fragment selectedFragment;
 
                 if (tabId == R.id.tab_events) {
                     selectedFragment = new FragmentEvent();
@@ -43,13 +39,21 @@ public class MainActivity extends AppCompatActivity {
                     // change your content accordingly.
                 }
                 else if(tabId == R.id.tab_profile) {
+                    selectedFragment = new FragmentProfile();
 
                 }
                 else if(tabId == R.id.tab_wallet) {
 
                 }
+                //Setto la pagina principale come quella di ricerca degli eventi
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.anchor_point, selectedFragment)
+                        .commit();
             }
         });
+
+
+
     }
 
 }

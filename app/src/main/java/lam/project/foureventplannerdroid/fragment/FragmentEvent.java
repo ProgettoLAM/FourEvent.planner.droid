@@ -4,7 +4,6 @@ package lam.project.foureventplannerdroid.fragment;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +34,11 @@ public class FragmentEvent extends Fragment {
 
         private RecyclerView mRecyclerView;
         private EventAdapter mAdapter;
-        private FragmentManager fragmentManager;
 
         public static List<Event> mModel;
 
         private ImageView sadEmoticon;
         private TextView notEvents;
-        private ImageView imgEvent;
 
     public FragmentEvent() {}
 
@@ -54,8 +50,6 @@ public class FragmentEvent extends Fragment {
             setModel();
 
             final View rootView = inflater.inflate(R.layout.fragment_event, container, false);
-
-            fragmentManager = getActivity().getSupportFragmentManager();
 
             sadEmoticon = (ImageView) rootView.findViewById(R.id.sad_emoticon);
             notEvents = (TextView) rootView.findViewById(R.id.not_events);
