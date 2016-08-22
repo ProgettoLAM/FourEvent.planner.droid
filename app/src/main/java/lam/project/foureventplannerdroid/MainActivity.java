@@ -1,0 +1,56 @@
+package lam.project.foureventplannerdroid;
+
+import android.content.DialogInterface;
+import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+
+import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.OnTabSelectListener;
+
+import lam.project.foureventplannerdroid.fragment.FragmentEvent;
+
+public class MainActivity extends AppCompatActivity {
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.app_name);
+        setSupportActionBar(toolbar);
+
+        //Setto la pagina principale come quella di ricerca degli eventi
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.anchor_point, new FragmentEvent())
+                .commit();
+
+        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+
+        bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
+            @Override
+            public void onTabSelected(@IdRes int tabId) {
+                Fragment selectedFragment;
+
+                if (tabId == R.id.tab_events) {
+                    selectedFragment = new FragmentEvent();
+                    // The tab with id R.id.tab_favorites was selected,
+                    // change your content accordingly.
+                }
+                else if(tabId == R.id.tab_profile) {
+
+                }
+                else if(tabId == R.id.tab_wallet) {
+
+                }
+            }
+        });
+    }
+
+}
+

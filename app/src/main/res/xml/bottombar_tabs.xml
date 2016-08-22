@@ -1,0 +1,14 @@
+<tabs>
+    <tab
+        id="@+id/tab_events"
+        icon="@drawable/ic_event"
+        title="Eventi" />
+    <tab
+        id="@+id/tab_profile"
+        icon="@drawable/ic_profile"
+        title="Profilo" />
+    <tab
+        id="@+id/tab_wallet"
+        icon="@drawable/ic_wallet"
+        title="Portafoglio" />
+</tabs>
