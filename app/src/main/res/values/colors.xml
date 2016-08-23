@@ -9,6 +9,7 @@
 
     <color name="tabsScrollColor">#00796B</color>
     <color name="white">#fff</color>
+    <color name="lightGrey">#eee</color>
 
     <color name="red">#E53935</color>
     <color name="lightRed">#ef5350</color>

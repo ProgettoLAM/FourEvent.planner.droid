@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.app_name);
+        setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
 
         BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
