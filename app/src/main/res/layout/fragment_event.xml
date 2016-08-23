@@ -39,6 +39,6 @@
         android:layout_marginRight="@dimen/fab_margin"
         android:tint="@color/colorPrimary"
         app:backgroundTint="@color/colorAccent"
-        android:src="@drawable/ic_more" />
+        android:src="@drawable/ic_more"/>
 
 </FrameLayout>
