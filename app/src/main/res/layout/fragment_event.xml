@@ -1,7 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/events_recycler_view"
@@ -28,5 +29,16 @@
         android:textColor="#999"
         android:layout_gravity="center"
         android:visibility="invisible"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/events_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="70dp"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:tint="@color/colorPrimary"
+        app:backgroundTint="@color/colorAccent"
+        android:src="@drawable/ic_more" />
 
 </FrameLayout>

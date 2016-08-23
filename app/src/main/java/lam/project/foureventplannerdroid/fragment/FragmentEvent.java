@@ -2,6 +2,7 @@ package lam.project.foureventplannerdroid.fragment;
 
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,13 +33,15 @@ import static android.view.View.INVISIBLE;
 
 public class FragmentEvent extends Fragment {
 
-        private RecyclerView mRecyclerView;
-        private EventAdapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private EventAdapter mAdapter;
 
-        public static List<Event> mModel;
+    public static List<Event> mModel;
 
-        private ImageView sadEmoticon;
-        private TextView notEvents;
+    private ImageView sadEmoticon;
+    private TextView notEvents;
+    private FloatingActionButton fab_event;
+
 
     public FragmentEvent() {}
 
@@ -54,14 +57,19 @@ public class FragmentEvent extends Fragment {
             sadEmoticon = (ImageView) rootView.findViewById(R.id.sad_emoticon);
             notEvents = (TextView) rootView.findViewById(R.id.not_events);
 
+            fab_event = (FloatingActionButton) rootView.findViewById(R.id.events_fab);
+
             mRecyclerView = (RecyclerView) rootView.findViewById(R.id.events_recycler_view);
+            mRecyclerView.setHasFixedSize(true);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
             mAdapter = new EventAdapter(getContext(), mRecyclerView, mModel);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+            //LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
 
-            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            layoutManager.scrollToPosition(0);
+           // layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            //layoutManager.scrollToPosition(0);
 
-            mRecyclerView.setLayoutManager(layoutManager);
 
             mRecyclerView.setAdapter(mAdapter);
 
