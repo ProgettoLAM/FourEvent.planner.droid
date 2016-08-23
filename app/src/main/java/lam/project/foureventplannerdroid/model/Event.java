@@ -19,7 +19,7 @@ public class Event implements Parcelable{
 
     public final String mStartDate;
 
-    public final String mEndDate;
+    public String mEndDate;
 
     public final String mTag;
 
@@ -33,8 +33,6 @@ public class Event implements Parcelable{
 
     public int mParticipation;
 
-    public int mCurrentTicket;
-
     public int mMaxTicket;
 
     public final String mImage;
@@ -44,7 +42,7 @@ public class Event implements Parcelable{
     private Event(final String title, final String description, final String startDate,
                   final String endDate, final String tag, final String address, final float latitude,
                   final float longitude, final String price, final int participation, final String image,
-                  final int currentTic, final int maxTic){
+                  final int maxTic){
 
         this.mTitle = title;
         this.mDescription = description;
@@ -57,7 +55,6 @@ public class Event implements Parcelable{
         this.mPrice = price;
         this.mParticipation = participation;
         this.mImage = image;
-        this.mCurrentTicket = currentTic;
         this.mMaxTicket = maxTic;
     }
 
@@ -78,8 +75,8 @@ public class Event implements Parcelable{
         return this;
     }
 
-    public Event addCurrentTicket(int mCurrentTicket) {
-        this.mCurrentTicket = mCurrentTicket;
+    public Event addEndDate(String mEndDate) {
+        this.mEndDate = mEndDate;
         return this;
     }
 
@@ -94,7 +91,6 @@ public class Event implements Parcelable{
         mTitle = in.readString();
         mDescription = in.readString();
         mStartDate = in.readString();
-        mEndDate = in.readString();
         mTag = in.readString();
         mAddress = in.readString();
         mLatitude = in.readFloat();
@@ -113,9 +109,9 @@ public class Event implements Parcelable{
         present = in.readByte() == Keys.PRESENT;
         if(present) {
 
-            mCurrentTicket = in.readInt();
+            mEndDate = in.readString();
         }else{
-            mCurrentTicket = 0;
+            mEndDate = null;
         }
 
         present = in.readByte() == Keys.PRESENT;
@@ -131,8 +127,7 @@ public class Event implements Parcelable{
 
         final String title = jsonObject.getString(Keys.TITLE);
         final String description = jsonObject.getString(Keys.DESCRIPTION);
-        final String startDate = jsonObject.getString(Keys.STARTDATE);
-        final String endDate = jsonObject.getString(Keys.ENDDATE);
+        final String startDate = jsonObject.getString(Keys.START_DATE);
         final String tag = jsonObject.getString(Keys.TAG);
         final String address = jsonObject.getString(Keys.ADDRESS);
         final String price = jsonObject.getString(Keys.PRICE);
@@ -140,17 +135,20 @@ public class Event implements Parcelable{
         final float latitude = BigDecimal.valueOf(jsonObject.getDouble(Keys.LATITUDE)).floatValue();
         final float longitude = BigDecimal.valueOf(jsonObject.getDouble(Keys.LONGITUDE)).floatValue();
 
-        Builder builder = Builder.create(title, description, startDate, endDate).withTag(tag).withAddress(address)
+        Builder builder = Builder.create(title, description, startDate).withTag(tag).withAddress(address)
                 .withLocation(latitude,longitude).withPrice(price).withImage(image);
+
+        if(jsonObject.has(Keys.END_DATE)) {
+            builder.withEndDate(jsonObject.getString(Keys.END_DATE));
+        }
+
 
         if(jsonObject.has(Keys.PARTICIPATION)) {
             builder.withParticipation(jsonObject.getInt(Keys.PARTICIPATION));
         }
-        if(jsonObject.has(Keys.CURRENTTIC)) {
-            builder.withCurrentTic(jsonObject.getInt(Keys.CURRENTTIC));
-        }
-        if(jsonObject.has(Keys.MAXTIC)) {
-            builder.withMaxTic(jsonObject.getInt(Keys.MAXTIC));
+
+        if(jsonObject.has(Keys.MAX_TICKETS)) {
+            builder.withMaxTic(jsonObject.getInt(Keys.MAX_TICKETS));
         }
 
         return builder.build();
@@ -162,8 +160,7 @@ public class Event implements Parcelable{
 
         jsonObject.put(Keys.TITLE, mTitle);
         jsonObject.put(Keys.DESCRIPTION, mDescription);
-        jsonObject.put(Keys.STARTDATE, mStartDate);
-        jsonObject.put(Keys.ENDDATE, mEndDate);
+        jsonObject.put(Keys.START_DATE, mStartDate);
         jsonObject.put(Keys.TAG, mTag);
         jsonObject.put(Keys.ADDRESS, mAddress);
         jsonObject.put(Keys.LATITUDE, mLatitude);
@@ -171,14 +168,15 @@ public class Event implements Parcelable{
         jsonObject.put(Keys.PRICE, mPrice);
         jsonObject.put(Keys.IMAGE, mImage);
 
+        if(mEndDate != null) {
+            jsonObject.put(Keys.END_DATE, mEndDate);
+        }
+
         if(mParticipation != 0) {
             jsonObject.put(Keys.PARTICIPATION, mParticipation);
         }
-        if(mCurrentTicket != 0) {
-            jsonObject.put(Keys.CURRENTTIC, mCurrentTicket);
-        }
         if(mMaxTicket != 0) {
-            jsonObject.put(Keys.MAXTIC, mMaxTicket);
+            jsonObject.put(Keys.MAX_TICKETS, mMaxTicket);
         }
 
         return jsonObject;
@@ -195,7 +193,6 @@ public class Event implements Parcelable{
         dest.writeString(mTitle);
         dest.writeString(mDescription);
         dest.writeString(mStartDate);
-        dest.writeString(mEndDate);
         dest.writeString(mTag);
         dest.writeString(mAddress);
         dest.writeFloat(mLatitude);
@@ -203,16 +200,16 @@ public class Event implements Parcelable{
         dest.writeString(mPrice);
         dest.writeString(mImage);
 
-        if(mParticipation != 0) {
+        if(mEndDate != null) {
             dest.writeByte(Keys.PRESENT);
-            dest.writeInt(mParticipation);
+            dest.writeString(mEndDate);
         }
         else
             dest.writeByte(Keys.NOT_PRESENT);
 
-        if(mCurrentTicket != 0) {
+        if(mParticipation != 0) {
             dest.writeByte(Keys.PRESENT);
-            dest.writeInt(mCurrentTicket);
+            dest.writeInt(mParticipation);
         }
         else
             dest.writeByte(Keys.NOT_PRESENT);
@@ -229,16 +226,15 @@ public class Event implements Parcelable{
 
         public static final String TITLE = "title";
         public static final String DESCRIPTION = "description";
-        public static final String STARTDATE = "startDate";
-        public static final String ENDDATE = "endDate";
+        public static final String START_DATE = "start_date";
+        public static final String END_DATE = "end_date";
         public static final String TAG = "tag";
         public static final String ADDRESS = "address";
         public static final String LATITUDE = "latitude";
         public static final String LONGITUDE = "longitude";
         public static final String PRICE = "price";
-        public static final String PARTICIPATION = "participation";
-        public static final String CURRENTTIC= "currentTicket";
-        public static final String MAXTIC = "maxTicket";
+        public static final String PARTICIPATION = "participations";
+        public static final String MAX_TICKETS = "tickets";
         public static final String IMAGE = "image";
 
         public static final Byte PRESENT = 1;
@@ -262,22 +258,20 @@ public class Event implements Parcelable{
         private String mPrice;
         private int mParticipation;
         private String mImage;
-        private int mCurrentTicket;
         private int mMaxTicket;
 
 
-        private Builder(final String title, final String description, final String startDate, final String endDate){
+        private Builder(final String title, final String description, final String startDate){
 
             this.mTitle = title;
             this.mDescription = description;
             this.mStartDate = startDate;
-            this.mEndDate = endDate;
         }
 
         public static Builder create(final String title, final String description,
-                                     final String startDate, final String endDate){
+                                     final String startDate){
 
-            return new Builder(title, description, startDate, endDate);
+            return new Builder(title, description, startDate);
         }
 
         public Builder withTag(final String tag){
@@ -304,6 +298,11 @@ public class Event implements Parcelable{
             return this;
         }
 
+        public Builder withEndDate(final String endDate) {
+            this.mEndDate = endDate;
+            return this;
+        }
+
         public Builder withParticipation(final int participation) {
             this.mParticipation = participation;
             return this;
@@ -311,11 +310,6 @@ public class Event implements Parcelable{
 
         public Builder withImage(final String image) {
             this.mImage = image;
-            return this;
-        }
-
-        public Builder withCurrentTic(final int currentTicket) {
-            this.mCurrentTicket = currentTicket;
             return this;
         }
 
@@ -327,7 +321,7 @@ public class Event implements Parcelable{
         public Event build(){
 
             return new Event(mTitle, mDescription, mStartDate, mEndDate, mTag, mAddress, mLatitude,
-                            mLongitude, mPrice, mParticipation, mImage, mCurrentTicket, mMaxTicket);
+                    mLongitude, mPrice, mParticipation, mImage, mMaxTicket);
         }
     }
 }
