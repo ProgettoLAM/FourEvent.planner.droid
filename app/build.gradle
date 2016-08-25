@@ -34,7 +34,7 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jaredrummler:material-spinner:1.1.0'
     compile 'com.github.TR4Android:Swipeable-RecyclerView:0.2.0'
-    compile 'com.google.android.gms:play-services:9.0.0'
+    compile 'com.google.android.gms:play-services:9.4.0'
     compile 'com.android.support:support-v4:23.4.0'
     compile 'me.neavo:volley:2014.12.09'
     testCompile 'junit:junit:4.12'
