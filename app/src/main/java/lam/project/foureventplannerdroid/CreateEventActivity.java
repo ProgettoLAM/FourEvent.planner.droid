@@ -2,6 +2,7 @@ package lam.project.foureventplannerdroid;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -22,16 +23,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -80,10 +88,15 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private TextView endTime;
     private ImageView imgEvent;
     private TextView addressEvent;
+    private ExpandableRelativeLayout expandableLayout;
+    private NumberPicker numberPicker;
+    private SeekBar seekbar;
+    private TextView price;
 
     private String mImageUri;
 
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
+    private int REQUEST_ADDRESS = 3;
     private String userChoosenTask;
 
     private GoogleApiClient mGoogleApiClient;
@@ -103,17 +116,50 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_event);
-
-        setTitle(R.string.create_event);
+        setContentView(R.layout.activity_create_scrolling);
 
         //Per disabilitare autofocus all'apertura della Activity
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
-
         if(savedInstanceState != null) {
             mResolvingError = savedInstanceState.getBoolean(RESOLVING_ERROR_STATE_KEY, false);
         }
+
+        numberPicker = (NumberPicker) findViewById(R.id.np);
+        numberPicker.setMinValue(0);
+        numberPicker.setMaxValue(30);
+        numberPicker.setWrapSelectorWheel(true);
+
+        numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal){
+                int nTicket = newVal;
+            }
+        });
+
+        seekbar = (SeekBar) findViewById(R.id.seekBar);
+        price = (TextView) findViewById(R.id.price);
+        seekbar.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    int progress = 0;
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar,
+                                                  int progressValue, boolean fromUser) {
+                        progress = progressValue;
+                        price.setText(progress + " €");
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // Display the value in textview
+                        price.setText(progress + " €");
+                    }
+                });
+
 
         startDate = (TextView) findViewById(R.id.event_start_date);
         startTime = (TextView) findViewById(R.id.event_start_time);
@@ -121,9 +167,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         endTime = (TextView) findViewById(R.id.event_end_time);
 
         addressEvent = (TextView) findViewById(R.id.result_address);
-
-        String address = getIntent().getStringExtra("Address");
-        addressEvent.setText(address);
 
         imgEvent = (ImageView) findViewById(R.id.event_image);
         imgEvent.setOnClickListener(new View.OnClickListener() {
@@ -458,6 +501,12 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 }
             }
         }
+        if(requestCode == REQUEST_ADDRESS) {
+            if(resultCode == RESULT_OK) {
+                String address = data.getStringExtra("Address");
+                addressEvent.setText(address);
+            }
+        }
     }
 
     //Risultato dell'immagine scelta dalla galleria
@@ -502,7 +551,18 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     public void selectAddress(final View view) {
         Intent intent = new Intent(this, MapEventActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_ADDRESS);
+    }
+
+    public void expandablePrice(View view) {
+        expandableLayout = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
+        expandableLayout.toggle();
+        if(expandableLayout.isExpanded()) {
+            ((Button) view).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ticket, 0, R.drawable.ic_arrow_right, 0);
+        }
+        else {
+            ((Button) view).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ticket, 0, R.drawable.ic_arrow_down, 0);
+        }
     }
 
     //Si inizia la connessione ai servizi
@@ -734,3 +794,5 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     }
 
 }
+
+

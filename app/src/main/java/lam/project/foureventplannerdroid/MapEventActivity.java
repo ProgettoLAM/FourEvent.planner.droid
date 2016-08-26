@@ -1,6 +1,7 @@
 package lam.project.foureventplannerdroid;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -42,6 +43,7 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
     private MenuItem searchItem;
 
     private LatLng currentLatLng;
+    private String resultAddress;
 
     private FloatingActionButton mapFab;
 
@@ -133,21 +135,23 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     Log.d("MapEvent", "Query text submit!" + query);
-                    currentLatLng = getLocationFromAddress(getApplicationContext(), query);
-                    showMap(currentLatLng);
-                    mapFab.setVisibility(View.VISIBLE);
+                    if(query.equals("")) {
+                        showMap(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+                    }
+                    else {
+                        currentLatLng = getLocationFromAddress(getApplicationContext(), query);
+                        showMap(currentLatLng);
+                        mapFab.setVisibility(View.VISIBLE);
+                        resultAddress = query;
+                    }
+
                     return false;
                 }
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
                     Log.d("MapEvent", "Query text changed!" + newText);
-                    currentLatLng = getLocationFromAddress(getApplicationContext(), newText);
-                    showMap(currentLatLng);
 
-                    if(newText.equals("")) {
-                        showMap(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
-                    }
                     return false;
                 }
             });
@@ -195,10 +199,17 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     public void onClickAddress(final View view) {
-        Intent intent = new Intent(this, CreateEventActivity.class);
-        intent.putExtra("Address", currentLatLng);
-        startActivity(intent);
+        Intent resultIntent = new Intent();
+
+        if(resultAddress == null) {
+            setResult(Activity.RESULT_CANCELED, resultIntent);
+        }
+        else {
+            resultIntent.putExtra("Address", resultAddress);
+            setResult(Activity.RESULT_OK, resultIntent);
+        }
         finish();
+
     }
 
 }

@@ -74,18 +74,18 @@ public class Category implements Parcelable{
 
         public static final String ID = "id";
         public static final String NAME = "name";
-        public static final String MUSICA = "Musica";
-        public static final String TECNOLOGIA = "Tecnologia";
-        public static final String LETTURA = "Lettura";
-        public static final String SPORT = "Sport";
-        public static final String MODA = "Moda";
-        public static final String FOTOGRAFIA = "Fotografia";
-        public static final String MARKETNG = "Marketing";
-        public static final String NATURA = "Natura";
-        public static final String ARTE = "Arte";
-        public static final String CIBO = "Cibo";
-        public static final String VIAGGI = "Viaggi";
-        public static final String VIDEOGIOCHI = "Videogiochi";
+        public static final String MUSICA = "MUSICA";
+        public static final String TECNOLOGIA = "TECNOLOGIA";
+        public static final String LETTURA = "LETTURA";
+        public static final String SPORT = "SPORT";
+        public static final String MODA = "MODA";
+        public static final String FOTOGRAFIA = "FOTOGRAFIA";
+        public static final String MARKETNG = "MARKETING";
+        public static final String NATURA = "NATURA";
+        public static final String ARTE = "ARTE";
+        public static final String CIBO = "CIBO";
+        public static final String VIAGGI = "VIAGGI";
+        public static final String VIDEOGIOCHI = "VIDEOGIOCHI";
 
         public static final String[] categories = {MUSICA, TECNOLOGIA, LETTURA, SPORT, MODA,
                 FOTOGRAFIA, MARKETNG, NATURA, ARTE, CIBO, VIAGGI, VIDEOGIOCHI};
