@@ -1,4 +1,4 @@
-package lam.project.foureventplannerdroid.utils;
+package lam.project.foureventplannerdroid.utils.connection;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;

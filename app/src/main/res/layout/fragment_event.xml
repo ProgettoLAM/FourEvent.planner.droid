@@ -8,6 +8,7 @@
         android:id="@+id/events_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingBottom="45dp"
         tools:listitem="@layout/content_events_list" />
 
     <ImageView

@@ -24,8 +24,8 @@ import lam.project.foureventplannerdroid.CreateEventActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.EventAdapter;
-import lam.project.foureventplannerdroid.utils.EventListRequest;
-import lam.project.foureventplannerdroid.utils.VolleyRequest;
+import lam.project.foureventplannerdroid.utils.connection.EventListRequest;
+import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 import static android.view.View.INVISIBLE;
 
@@ -73,11 +73,6 @@ public class FragmentEvent extends Fragment {
         });
 
         mAdapter = new EventAdapter(getContext(), mRecyclerView, mModel);
-        //LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-
-       // layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        //layoutManager.scrollToPosition(0);
-
 
         mRecyclerView.setAdapter(mAdapter);
 

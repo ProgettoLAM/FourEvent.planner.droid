@@ -2,7 +2,7 @@ package lam.project.foureventplannerdroid;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -18,27 +18,28 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.NumberPicker;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -59,16 +60,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import lam.project.foureventplannerdroid.model.Category;
 import lam.project.foureventplannerdroid.model.Event;
-import lam.project.foureventplannerdroid.utils.CustomRequest;
-import lam.project.foureventplannerdroid.utils.FourEventUri;
+import lam.project.foureventplannerdroid.utils.DateConverter;
+import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
+import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.Utility;
-import lam.project.foureventplannerdroid.utils.VolleyRequest;
+import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener,
         TimePickerDialog.OnTimeSetListener,
@@ -77,23 +82,28 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private String mEmail;
 
     private String mTitle;
-    private String mTag;
+    private String mTag = "MUSICA";
     private String mAddress;
     private String mDescription;
     private String mStartDate;
+    private String mStartTime;
+    private String mImageUri;
+
 
     private TextView startDate;
     private TextView startTime;
     private TextView endDate;
     private TextView endTime;
     private ImageView imgEvent;
+    private MaterialSpinner tagEvent;
     private TextView addressEvent;
     private ExpandableRelativeLayout expandableLayout;
     private NumberPicker numberPicker;
     private SeekBar seekbar;
     private TextView price;
 
-    private String mImageUri;
+    private Snackbar snackbar;
+
 
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
     private int REQUEST_ADDRESS = 3;
@@ -112,6 +122,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     public static Location mCurrentLocation;
 
+    private ViewGroup view;
+    private Map<String,String> image;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +133,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         //Per disabilitare autofocus all'apertura della Activity
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        view = (ViewGroup) getWindow().getDecorView();
 
         if(savedInstanceState != null) {
             mResolvingError = savedInstanceState.getBoolean(RESOLVING_ERROR_STATE_KEY, false);
@@ -188,10 +203,13 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        MaterialSpinner spinner = (MaterialSpinner) findViewById(R.id.event_tag);
-        spinner.setItems(Category.Keys.categories);
-        spinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
-            @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {}
+        tagEvent = (MaterialSpinner) findViewById(R.id.event_tag);
+        tagEvent.setItems(Category.Keys.categories);
+        tagEvent.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
+            @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
+                mTag = item;
+            }
+
         });
 
         //Creazione dell'oggetto nel quale si passano le informazioni relative ai servizi da inizializzare
@@ -253,56 +271,69 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         mEmail = "spino9330@gmail.com";
     }
 
-    public void createEvent(final View view) {
+    private void saveEvent() {
 
-        getParams();
+            String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
+                    .appendEncodedPath(mEmail).getUri();
 
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
-                .appendEncodedPath(mEmail).getUri();
+            try {
 
-        try {
+                String dateTime = mStartDate + " - " + mStartTime;
 
-            Event event = Event.Builder.create(mTitle,mDescription,mStartDate)
-                    .withTag(mTag)
-                    .withAddress(mAddress)
-                    .build();
+                Event event = Event.Builder.create(mTitle, mDescription, dateTime)
+                        .withTag(mTag)
+                        .withAddress(mAddress)
+                        .withImage(image.get("image"))
+                        .build();
 
-            CustomRequest createEventRequest = new CustomRequest(
-                    Request.Method.PUT,
-                    url,
-                    event.toJson(),
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+                CustomRequest createEventRequest = new CustomRequest(
+                        Request.Method.PUT,
+                        url,
+                        event.toJson(),
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
 
-                            Snackbar.make(view,"Completato con successo!",Snackbar.LENGTH_SHORT)
-                                    .show();
+                                Snackbar.make(view, "Completato con successo!", Snackbar.LENGTH_SHORT)
+                                        .show();
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                                System.out.println(error.toString());
+                            }
                         }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
 
-                            System.out.println(error.toString());
-                        }
-                    }
+                );
 
-            );
+                VolleyRequest.get(this).add(createEventRequest);
 
-            VolleyRequest.get(this).add(createEventRequest);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
     }
 
-    private void getParams() {
+    public void createEvent(final View view) {
 
         mTitle = ((TextView)(findViewById(R.id.event_title))).getText().toString();
-        mTag = ((TextView)(findViewById(R.id.event_tag))).getText().toString();
-        mAddress = ((TextView)(findViewById(R.id.event_address))).getText().toString();
+        mAddress = addressEvent.getText().toString();
         mDescription = ((TextView)(findViewById(R.id.event_description))).getText().toString();
-        mStartDate = ((TextView)(findViewById(R.id.event_start_date))).getText().toString();
+        mStartDate = startDate.getText().toString();
+        mStartTime = startTime.getText().toString();
+
+        if(mTitle == null || mAddress == null || mDescription == null || mStartDate.equals("Data di inizio")
+                || mStartTime.equals("Ora di inizio") || mImageUri == null) {
+
+                    snackbar = Snackbar.make(view, "Compila i dati obbligatori!", Snackbar.LENGTH_LONG);
+                    View snackbarView = snackbar.getView();
+                    snackbarView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                    snackbar.show();
+        }
+        else {
+            saveEvent();
+        }
 
     }
 
@@ -344,7 +375,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int second) {
         String hourString = hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay;
         String minuteString = minute < 10 ? "0"+minute : ""+minute;
-        String time = hourString+" : "+minuteString;
+        String time = hourString+":"+minuteString;
         if(startTime.getText().toString().equals("Ora di inizio")) {
             startTime.setText(time);
         }
@@ -354,7 +385,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        String date = dayOfMonth+"/"+(++monthOfYear)+"/"+year;
+        String date = dayOfMonth+"/"+(++monthOfYear);
         if(startDate.getText().toString().equals("Data di inizio")) {
             startDate.setText(date);
         }
@@ -516,6 +547,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         if (data != null) {
             try {
                 bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+                mImageUri = System.currentTimeMillis() + ".jpg";
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -547,6 +579,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             e.printStackTrace();
         }
         imgEvent.setImageBitmap(thumbnail);
+        uploadImage();
     }
 
     public void selectAddress(final View view) {
@@ -791,6 +824,47 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         //Per la visualizzazione della lista di location (in questo caso 1) sulla UI
         @Override
         protected void onPostExecute(List<android.location.Address> addresses) {}
+    }
+
+    private void uploadImage() {
+
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
+                .appendPath("img").getUri();
+        final ProgressDialog loading = ProgressDialog.show(this, "Caricamento", "Caricamento in corso..", false, false);
+
+        StringRequest uploadImage = new StringRequest(Request.Method.PUT, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        Snackbar.make(view, "Immagine caricata!", Snackbar.LENGTH_SHORT)
+                                .show();
+                        loading.dismiss();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_SHORT)
+                                .show();
+                        loading.dismiss();
+                    }
+                }) {
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                image = new Hashtable<>();
+
+                image.put("image", mImageUri);
+
+                return image;
+            }
+        };
+
+
+        VolleyRequest.get(this).add(uploadImage);
+
     }
 
 }

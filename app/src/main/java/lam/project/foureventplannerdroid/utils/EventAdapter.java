@@ -31,6 +31,7 @@ import com.squareup.picasso.Picasso;
 import com.tr4android.recyclerviewslideitem.SwipeAdapter;
 import com.tr4android.recyclerviewslideitem.SwipeConfiguration;
 
+import java.util.Date;
 import java.util.List;
 
 import lam.project.foureventplannerdroid.R;
@@ -55,7 +56,7 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
     public class EventViewHolder extends RecyclerView.ViewHolder {
         private TextView mTitleEvent;
         private TextView mDateEvent;
-        private ImageView imgEvent;
+        private ImageView mImgEvent;
 
 
         public EventViewHolder(View itemView) {
@@ -64,9 +65,9 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
             mTitleEvent = (TextView) itemView.findViewById(R.id.title_event);
             mDateEvent = (TextView) itemView.findViewById(R.id.date_event);
 
-            imgEvent = (ImageView) itemView.findViewById(R.id.img_event);
+            mImgEvent = (ImageView) itemView.findViewById(R.id.img_event);
 
-            Picasso.with(itemView.getContext()).load("http://annina.cs.unibo.it:8080/api/event/img/img00.jpg").resize(1200,600).into(imgEvent);
+            Picasso.with(itemView.getContext()).load("http://annina.cs.unibo.it:8080/api/event/img/img00.jpg").resize(1200,600).into(mImgEvent);
         }
 
         public void bind(Event event){
