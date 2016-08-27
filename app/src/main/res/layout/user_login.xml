@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_registrazione"
+    android:gravity="center">
+
+    <LinearLayout
+        android:id="@+id/layout_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+    <ImageView
+        android:id="@+id/logoReg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/title_log"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        android:textColor="#fff"
+        android:textSize="24sp"
+        android:layout_marginTop="15dp" />
+
+    </LinearLayout>
+
+
+    <EditText
+        android:id="@+id/email_log"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:hint="Indirizzo email"
+        android:textColorHint="#BDBDBD"
+        android:inputType="textWebEmailAddress"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/layout_login"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/bottom_border"
+        android:drawableLeft="@drawable/ic_email"
+        android:drawablePadding="5dp"/>
+
+    <ImageView
+        android:id="@+id/ic_alert_email"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_warning"
+        android:layout_toRightOf="@id/email_log"
+        android:layout_below="@id/layout_login"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="10dp"
+        android:visibility="invisible"
+        />
+
+    <EditText
+        android:id="@+id/pass_log"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:hint="Password"
+        android:textColorHint="#BDBDBD"
+        android:inputType="textPassword"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/email_log"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/bottom_border"
+        android:drawableLeft="@drawable/ic_password"/>
+
+    <ImageView
+        android:id="@+id/ic_alert_pass"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_warning"
+        android:layout_toRightOf="@id/pass_log"
+        android:layout_below="@id/email_log"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="10dp"
+        android:visibility="invisible"
+        />
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="Accedi"
+        android:onClick="login"
+        android:layout_marginTop="15dp"
+        android:layout_below="@id/pass_log"
+        android:background="#ef5350"
+        android:textColor="#fff"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"/>
+
+
+</RelativeLayout>

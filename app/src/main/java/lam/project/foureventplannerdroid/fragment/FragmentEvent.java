@@ -25,6 +25,7 @@ import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.EventAdapter;
 import lam.project.foureventplannerdroid.utils.connection.EventListRequest;
+import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 import static android.view.View.INVISIBLE;
@@ -81,7 +82,8 @@ public class FragmentEvent extends Fragment {
 
     private void setModel(){
 
-        EventListRequest request = new EventListRequest(getString(R.string.url_service),
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT).getUri();
+        EventListRequest request = new EventListRequest(url,
                 new Response.Listener<List<Event>>() {
                     @Override
                     public void onResponse(List<Event> response) {

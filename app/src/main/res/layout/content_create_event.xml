@@ -139,7 +139,7 @@
                         android:textSize="16dp"
                         android:layout_marginTop="28dp"
                         android:layout_marginLeft="10dp"
-                        android:background="@drawable/bottom_border_event"
+                        android:background="@drawable/bottom_border"
                         android:textColorHint="@color/lightText"
                         android:textColor="@color/darkerText"
                         android:hint="Descrizione"

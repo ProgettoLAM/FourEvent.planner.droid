@@ -9,6 +9,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import lam.project.foureventplannerdroid.complete_profile.StepManager;
+import lam.project.foureventplannerdroid.model.User;
+import lam.project.foureventplannerdroid.utils.UserManager;
+
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -52,18 +56,19 @@ public class SplashActivity extends AppCompatActivity {
     private void goAhead() {
 
        Intent intent;
-       /* User user = UserManager.get(this).getUser();
+       User user = UserManager.get(this).getUser();
 
         //se l'utente online non c'è
         if(user == null ){
 
             StepManager.get(this).setStep(StepManager.INCOMPLETE);
+
             intent = new Intent(this,RegistrationActivity.class);
 
-        } else {*/
+        } else {
 
             intent = new Intent(this,MainActivity.class);
-       // }
+        }
 
         startActivity(intent);
         finish();

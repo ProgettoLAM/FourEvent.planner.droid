@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:paddingTop="50dp">
+
+    <EditText
+        android:id="@+id/name_info"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:hint="Nome"
+        android:textColorHint="#999"
+        android:inputType="text"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bottom_border"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_profile"
+        android:layout_toStartOf="@id/name_info"
+        android:layout_toLeftOf="@id/name_info"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="5dp"/>
+
+    <EditText
+        android:id="@+id/surname_info"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:hint="Cognome"
+        android:layout_marginTop="20dp"
+        android:textColorHint="#999"
+        android:inputType="text"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/name_info"
+        android:background="@drawable/bottom_border" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_profile"
+        android:layout_toStartOf="@id/surname_info"
+        android:layout_toLeftOf="@id/surname_info"
+        android:layout_below="@id/name_info"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="5dp"/>
+
+    <EditText
+        android:id="@+id/role_info"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:hint="Ruolo (es: organizzatore di sagre)"
+        android:layout_marginTop="20dp"
+        android:textColorHint="#999"
+        android:inputType="text"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/surname_info"
+        android:background="@drawable/bottom_border" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_role"
+        android:layout_toStartOf="@id/role_info"
+        android:layout_toLeftOf="@id/role_info"
+        android:layout_below="@id/surname_info"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="8dp"/>
+
+
+    <EditText
+        android:id="@+id/location_info"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:hint="Località"
+        android:textColorHint="#999"
+        android:layout_marginTop="20dp"
+        android:inputType="text"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/role_info"
+        android:background="@drawable/bottom_border" />
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_location_info"
+        android:layout_toLeftOf="@id/location_info"
+        android:layout_below="@id/role_info"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="15dp"/>
+
+    <LinearLayout
+        android:id="@+id/birth_date"
+        android:layout_below="@id/location_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="18dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/date_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_calendar"
+            android:layout_marginTop="15dp"/>
+
+        <TextView
+            android:id="@+id/date_info"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="20dp"
+            android:text="Data di nascita"
+            android:textColor="#999"/>
+
+    </LinearLayout>
+
+
+    <RadioGroup
+        android:id="@+id/radio_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/birth_date">
+
+        <RadioButton
+            android:id="@+id/radio_male"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/male"
+            android:textColor="#999"
+            android:textSize="16dp"
+            android:paddingRight="15sp"
+            android:layout_marginLeft="19dp"
+            android:layout_marginTop="20dp"
+            android:buttonTint="@color/colorAccent"/>
+
+        <RadioButton
+            android:id="@+id/radio_female"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/female"
+            android:textColor="#999"
+            android:textSize="15sp"
+            android:layout_marginTop="20dp"
+            android:buttonTint="@color/colorAccent"/>
+
+    </RadioGroup>
+
+    <View
+        android:layout_below="@id/radio_info"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="100dp"
+        android:background="#eee" />
+
+
+
+
+
+</RelativeLayout>

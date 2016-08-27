@@ -42,6 +42,17 @@
         </activity>
 
         <activity
+            android:name=".RegistrationActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".LoginActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".complete_profile.CompleteProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+
+        <activity
             android:name=".CreateEventActivity"
             android:theme="@style/Theme.myTheme.NoActionBar"/>
 
