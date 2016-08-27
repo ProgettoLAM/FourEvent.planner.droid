@@ -89,7 +89,7 @@
                         android:layout_height="wrap_content"
                         android:text="Indirizzo"
                         android:textSize="16sp"
-                        android:paddingRight="16dp"
+                        android:paddingRight="8dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="12dp"
                         android:textColor="@color/lightText"
@@ -109,6 +109,7 @@
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:background="@drawable/ic_gps"
+                        android:backgroundTint="@color/colorPrimary"
                         android:layout_toRightOf="@id/event_address"
                         android:layout_toEndOf="@id/event_address"
                         android:layout_alignBaseline="@id/event_address"
@@ -123,7 +124,7 @@
                         android:layout_height="wrap_content"
                         android:text=""
                         android:textSize="16sp"
-                        android:paddingLeft="16dp"
+                        android:paddingLeft="8dp"
                         android:layout_marginTop="12dp"
                         android:layout_toRightOf="@id/btn_address"
                         android:layout_toEndOf="@id/btn_address"
@@ -151,7 +152,7 @@
                         android:tint="@color/red"
                         android:layout_below="@id/result_address"
                         android:layout_alignParentLeft="true"
-                        android:layout_marginTop="20dp"/>
+                        android:layout_marginTop="10dp"/>
 
                 </RelativeLayout>
 
@@ -329,8 +330,8 @@
                     android:layout_height="wrap_content"
                     android:background="@color/colorAccent"
                     android:textColor="@color/darkerText"
-                    android:padding="8dp"
-                    android:layout_marginRight="6dp"
+                    android:padding="16dp"
+                    android:layout_marginRight="16dp"
                     android:layout_marginTop="20dp"
                     android:text="Crea evento"
                     android:onClick="createEvent"/>
