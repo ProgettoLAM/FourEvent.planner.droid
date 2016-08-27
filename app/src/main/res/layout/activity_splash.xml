@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SplashActivity"
+    android:background="#FBC02D">
+
+    <ImageView
+        android:id="@+id/splash_imageview"
+        android:layout_width="@dimen/splash_size"
+        android:layout_height="@dimen/splash_size"
+        android:src="@mipmap/ic_launcher"
+        android:layout_marginTop="206dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/nameApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FourEvent planner"
+        android:textColor="#E53935"
+        android:textSize="32sp"
+        android:fontFamily="Helvetica"
+        android:layout_below="@id/splash_imageview"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tutti gli eventi a portata di touch"
+        android:textColor="#E53935"
+        android:textSize="16sp"
+        android:fontFamily="Helvetica"
+        android:layout_below="@id/nameApp"
+        android:layout_centerHorizontal="true"/>
+
+
+</RelativeLayout>
