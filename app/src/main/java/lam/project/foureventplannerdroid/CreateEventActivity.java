@@ -544,11 +544,29 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         if (data != null) {
             try {
                 bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                bm.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+
+                mImageUri = System.currentTimeMillis() + ".jpg";
+
+                File destination = new File(Environment.getExternalStorageDirectory(),
+                        mImageUri);
+                FileOutputStream fo;
+                destination.createNewFile();
+                fo = new FileOutputStream(destination);
+                fo.write(bytes.toByteArray());
+                fo.close();
+
+                imgEvent.setImageBitmap(bm);
+                uploadImage(destination);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        imgEvent.setImageBitmap(bm);
+
+
     }
 
     //Risultato dell'immagine scattata dalla fotocamera
