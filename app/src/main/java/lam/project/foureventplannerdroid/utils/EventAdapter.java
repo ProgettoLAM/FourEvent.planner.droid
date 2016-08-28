@@ -36,6 +36,7 @@ import java.util.List;
 
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
+import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 
 import static android.view.View.INVISIBLE;
 
@@ -67,13 +68,19 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
 
             mImgEvent = (ImageView) itemView.findViewById(R.id.img_event);
 
-            Picasso.with(itemView.getContext()).load("http://annina.cs.unibo.it:8080/api/event/img/img00.jpg").resize(1200,600).into(mImgEvent);
+
         }
 
         public void bind(Event event){
 
             mTitleEvent.setText(event.mTitle);
             mDateEvent.setText(event.mStartDate);
+
+            String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
+                    .appendPath("img").appendPath(event.mId).getUri();
+
+            Picasso.with(itemView.getContext()).load(url).resize(1200,600).into(mImgEvent);
+
 
         }
     }

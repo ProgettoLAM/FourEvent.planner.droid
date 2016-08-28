@@ -23,6 +23,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import lam.project.foureventplannerdroid.R;
+import lam.project.foureventplannerdroid.model.User;
+import lam.project.foureventplannerdroid.utils.UserManager;
+import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
+import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
+import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 
 /**
@@ -44,7 +49,7 @@ public class FragmentProfile extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        //final User user = UserManager.get().getUser();
+        final User user = UserManager.get().getUser();
 
         ImageView editPass = (ImageView) view.findViewById(R.id.change_pass);
 
@@ -55,7 +60,7 @@ public class FragmentProfile extends Fragment {
         TextView locationProfile = (TextView) view.findViewById(R.id.location_profile);
         TextView genderProfile = (TextView) view.findViewById(R.id.gender_profile);
 
-        /*passProfile.setText(user.password);
+        passProfile.setText(user.password);
         emailProfile.setText(user.email);
         nameProfile.setText(user.name);
         birthDateProfile.setText(user.birthDate);
@@ -65,7 +70,7 @@ public class FragmentProfile extends Fragment {
         }
         else if(user.gender.equals("M")) {
             genderProfile.setText("Maschio");
-        }*/
+        }
 
 
         editPass.setOnClickListener(new View.OnClickListener() {
@@ -91,11 +96,13 @@ public class FragmentProfile extends Fragment {
                         oldPassword = oldPasswordField.getText().toString();
                         newPassword = newPasswordField.getText().toString();
 
-                        /*if(user.password.equals(oldPassword) && newPassword.length() >= 8) {
+                        if(user.password.equals(oldPassword) && newPassword.length() >= 8) {
 
                            try {
 
-                                String url = getResources().getString(R.string.backend_uri_change_pass) + "/" + user.email;
+                               String url = FourEventUri.Builder.create(FourEventUri.Keys.USER)
+                                       .appendPath("changepassword").appendEncodedPath(user.email)
+                                       .getUri();
 
                                 JSONObject obj = new JSONObject("{'oldPassword':'"+user.password+"', 'newPassword':'"+newPassword+"'}");
 
@@ -135,7 +142,7 @@ public class FragmentProfile extends Fragment {
 
                                 e.printStackTrace();
                             }
-                        }*/
+                        }
                         if(newPassword.length() < 8) {
                             snackbar = Snackbar
                                     .make(getView(), "La password deve essere almeno di 8 caratteri", Snackbar.LENGTH_LONG);

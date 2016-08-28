@@ -24,7 +24,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,11 +34,9 @@ import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -60,19 +57,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import lam.project.foureventplannerdroid.model.Category;
 import lam.project.foureventplannerdroid.model.Event;
-import lam.project.foureventplannerdroid.utils.DateConverter;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.Utility;
+import lam.project.foureventplannerdroid.utils.connection.MultipartRequest;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener,
@@ -283,7 +278,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 Event event = Event.Builder.create(mTitle, mDescription, dateTime)
                         .withTag(mTag)
                         .withAddress(mAddress)
-                        .withImage(image.get("image"))
+                        .withImage(mImageUri)
                         .build();
 
                 CustomRequest createEventRequest = new CustomRequest(
@@ -313,6 +308,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            finish();
     }
 
     public void createEvent(final View view) {
@@ -547,7 +544,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         if (data != null) {
             try {
                 bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
-                mImageUri = System.currentTimeMillis() + ".jpg";
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -579,7 +575,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             e.printStackTrace();
         }
         imgEvent.setImageBitmap(thumbnail);
-        uploadImage();
+        uploadImage(destination);
     }
 
     public void selectAddress(final View view) {
@@ -826,44 +822,31 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         protected void onPostExecute(List<android.location.Address> addresses) {}
     }
 
-    private void uploadImage() {
+    private void uploadImage(File toUploadFile) {
 
         String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
                 .appendPath("img").getUri();
+
         final ProgressDialog loading = ProgressDialog.show(this, "Caricamento", "Caricamento in corso..", false, false);
 
-        StringRequest uploadImage = new StringRequest(Request.Method.PUT, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        Snackbar.make(view, "Immagine caricata!", Snackbar.LENGTH_SHORT)
-                                .show();
-                        loading.dismiss();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_SHORT)
-                                .show();
-                        loading.dismiss();
-                    }
-                }) {
-
+        MultipartRequest mMultipartRequest = new MultipartRequest(url, new Response.ErrorListener() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-
-                image = new Hashtable<>();
-
-                image.put("image", mImageUri);
-
-                return image;
+            public void onErrorResponse(VolleyError error) {
+                Snackbar.make(view, "Errore nel caricamento dell'immagine", Snackbar.LENGTH_SHORT)
+                        .show();
+                loading.dismiss();
             }
-        };
+            }, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Snackbar.make(view, response, Snackbar.LENGTH_SHORT)
+                            .show();
+                    mImageUri = response;
+                    loading.dismiss();
+                }
+            },toUploadFile,"filename");
 
-
-        VolleyRequest.get(this).add(uploadImage);
+        VolleyRequest.get(this).add(mMultipartRequest);
 
     }
 
