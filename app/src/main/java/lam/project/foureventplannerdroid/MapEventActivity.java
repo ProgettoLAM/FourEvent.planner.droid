@@ -65,18 +65,11 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
         if(mCurrentLocation != null) {
 
             currentLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-            geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-
-            try {
-                addresses = geocoder.getFromLocation(currentLatLng.latitude, currentLatLng.longitude, 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            String address = addresses.get(0).getAddressLine(0);
+            List<Address> result = getLocationName(currentLatLng);
+            String address = result.get(0).getAddressLine(0);
             String splitAddress = address.replace(",", "");
-            String city = addresses.get(0).getLocality();
-            mapFab.setVisibility(View.VISIBLE);
+            String city = result.get(0).getLocality();
+
             resultAddress = splitAddress + ", " + city;
         }
 
@@ -158,9 +151,12 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
                     }
                     else if(!query.equals("")) {
                         currentLatLng = getLocationFromAddress(getApplicationContext(), query);
+                        List<Address> result = getLocationName(currentLatLng);
+                        String address = result.get(0).getAddressLine(0);
+                        String splitAddress = address.replace(",", "");
+                        String city = result.get(0).getLocality();
                         showMap(currentLatLng);
-                        mapFab.setVisibility(View.VISIBLE);
-                        resultAddress = query;
+                        resultAddress = splitAddress + ", "+ city;
                     }
 
                     return false;
@@ -230,4 +226,17 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
 
     }
 
+    private List<Address> getLocationName(LatLng currentLatLng) {
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+
+        mapFab.setVisibility(View.VISIBLE);
+
+        try {
+            return addresses = geocoder.getFromLocation(currentLatLng.latitude, currentLatLng.longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
 }

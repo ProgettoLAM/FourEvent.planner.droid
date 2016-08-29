@@ -3,18 +3,15 @@ package lam.project.foureventplannerdroid.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by spino on 29/07/16.
  */
-public class User implements Parcelable{
+public class Planner implements Parcelable{
 
     public final String email;
 
@@ -32,8 +29,8 @@ public class User implements Parcelable{
 
     public float balance;
 
-    private User(final String email, final String password, final String name,
-                 final String birthDate, final String location, final String role, final String gender, final float balance){
+    private Planner(final String email, final String password, final String name,
+                    final String birthDate, final String location, final String role, final String gender, final float balance){
 
         this.email = email;
         this.password = password;
@@ -45,15 +42,15 @@ public class User implements Parcelable{
         this.balance = balance;
     }
 
-    public static final Creator<User> CREATOR = new Creator<User>() {
+    public static final Creator<Planner> CREATOR = new Creator<Planner>() {
         @Override
-        public User createFromParcel(Parcel in) {
-            return new User(in);
+        public Planner createFromParcel(Parcel in) {
+            return new Planner(in);
         }
 
         @Override
-        public User[] newArray(int size) {
-            return new User[size];
+        public Planner[] newArray(int size) {
+            return new Planner[size];
         }
     };
 
@@ -62,37 +59,37 @@ public class User implements Parcelable{
         this.balance += amount;
     }
 
-    public User addName(String name) {
+    public Planner addName(String name) {
         this.name = name;
         return this;
     }
 
-    public User addLocation(String location) {
+    public Planner addLocation(String location) {
         this.location = location;
         return this;
     }
 
-    public User addRole(String role) {
+    public Planner addRole(String role) {
         this.role = role;
         return this;
     }
 
-    public User addGender(String gender) {
+    public Planner addGender(String gender) {
         this.gender = gender;
         return this;
     }
 
-    public User addBirthDate(String birthDate) {
+    public Planner addBirthDate(String birthDate) {
         this.birthDate = birthDate;
         return this;
     }
 
-    public User updatePassword(String password) {
+    public Planner updatePassword(String password) {
         this.password = password;
         return this;
     }
 
-    protected User(Parcel in) {
+    protected Planner(Parcel in) {
 
         email = in.readString();
         password = in.readString();
@@ -137,7 +134,7 @@ public class User implements Parcelable{
     }
 
 
-    public static User fromJson(final JSONObject jsonObject) throws JSONException{
+    public static Planner fromJson(final JSONObject jsonObject) throws JSONException{
 
         final String email = jsonObject.getString(Keys.EMAIL);
         final String password = jsonObject.getString(Keys.PASSWORD);
@@ -175,9 +172,9 @@ public class User implements Parcelable{
             builder.withBalance(balance);
         }
 
-        User user = builder.build();
+        Planner planner = builder.build();
 
-        return user;
+        return planner;
     }
 
     public JSONObject toJson() throws JSONException {
@@ -356,8 +353,8 @@ public class User implements Parcelable{
             return this;
         }
 
-        public User build(){
-            return new User(mEmail,mPassword,mName,mBirthDate,mLocation, mRole, mGender,mBalance);
+        public Planner build(){
+            return new Planner(mEmail,mPassword,mName,mBirthDate,mLocation, mRole, mGender,mBalance);
         }
     }
 }
