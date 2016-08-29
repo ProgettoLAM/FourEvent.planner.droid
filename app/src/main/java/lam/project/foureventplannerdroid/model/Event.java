@@ -42,8 +42,6 @@ public class Event implements Parcelable{
 
     public final String mImage;
 
-    public boolean mIsPreferred;
-
     private Event(final String id, final String title, final String description, final String startDate,
                   final String endDate, final String tag, final String address, final float latitude,
                   final float longitude, final String price, final int participation, final String image,

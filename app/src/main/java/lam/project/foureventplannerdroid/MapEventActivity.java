@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import static lam.project.foureventplannerdroid.CreateEventActivity.mCurrentLocation;
 
@@ -47,6 +48,9 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
 
     private FloatingActionButton mapFab;
 
+    private Geocoder geocoder;
+    private List<Address> addresses;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,17 +60,31 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
 
         view = (ViewGroup) getWindow().getDecorView();
 
+        mapFab = (FloatingActionButton) findViewById(R.id.map_fab);
+
         if(mCurrentLocation != null) {
 
             currentLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        }
+            geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
 
-        mapFab = (FloatingActionButton) findViewById(R.id.map_fab);
+            try {
+                addresses = geocoder.getFromLocation(currentLatLng.latitude, currentLatLng.longitude, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String address = addresses.get(0).getAddressLine(0);
+            String splitAddress = address.replace(",", "");
+            String city = addresses.get(0).getLocality();
+            mapFab.setVisibility(View.VISIBLE);
+            resultAddress = splitAddress + ", " + city;
+        }
 
         //Per ottenere il SupportMapFragment e notificare quando la mappa è pronta per l'uso
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
     }
 
@@ -138,7 +156,7 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
                     if(query.equals("")) {
                         showMap(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
                     }
-                    else {
+                    else if(!query.equals("")) {
                         currentLatLng = getLocationFromAddress(getApplicationContext(), query);
                         showMap(currentLatLng);
                         mapFab.setVisibility(View.VISIBLE);

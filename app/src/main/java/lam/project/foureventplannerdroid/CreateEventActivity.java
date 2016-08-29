@@ -82,7 +82,12 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private String mDescription;
     private String mStartDate;
     private String mStartTime;
+    private String mEndDate;
+    private String mEndTime;
     private String mImageUri;
+    private int nTicket;
+    private String progress;
+
 
 
     private TextView startDate;
@@ -118,7 +123,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     public static Location mCurrentLocation;
 
     private ViewGroup view;
-    private Map<String,String> image;
 
 
     @Override
@@ -143,7 +147,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal){
-                int nTicket = newVal;
+                nTicket = newVal;
             }
         });
 
@@ -151,12 +155,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         price = (TextView) findViewById(R.id.price);
         seekbar.setOnSeekBarChangeListener(
                 new SeekBar.OnSeekBarChangeListener() {
-                    int progress = 0;
 
                     @Override
                     public void onProgressChanged(SeekBar seekBar,
                                                   int progressValue, boolean fromUser) {
-                        progress = progressValue;
+                        progress = String.valueOf(progressValue);
                         price.setText(progress + " €");
                     }
 
@@ -266,51 +269,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         mEmail = "spino9330@gmail.com";
     }
 
-    private void saveEvent() {
-
-            String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
-                    .appendEncodedPath(mEmail).getUri();
-
-            try {
-
-                String dateTime = mStartDate + " - " + mStartTime;
-
-                Event event = Event.Builder.create(mTitle, mDescription, dateTime)
-                        .withTag(mTag)
-                        .withAddress(mAddress)
-                        .withImage(mImageUri)
-                        .build();
-
-                CustomRequest createEventRequest = new CustomRequest(
-                        Request.Method.PUT,
-                        url,
-                        event.toJson(),
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-
-                                Snackbar.make(view, "Completato con successo!", Snackbar.LENGTH_SHORT)
-                                        .show();
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                                System.out.println(error.toString());
-                            }
-                        }
-
-                );
-
-                VolleyRequest.get(this).add(createEventRequest);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            finish();
-    }
 
     public void createEvent(final View view) {
 
@@ -319,6 +277,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         mDescription = ((TextView)(findViewById(R.id.event_description))).getText().toString();
         mStartDate = startDate.getText().toString();
         mStartTime = startTime.getText().toString();
+        mEndDate = endDate.getText().toString();
+        mEndTime = endTime.getText().toString();
+
 
         if(mTitle == null || mAddress == null || mDescription == null || mStartDate.equals("Data di inizio")
                 || mStartTime.equals("Ora di inizio") || mImageUri == null) {
@@ -331,7 +292,62 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         else {
             saveEvent();
         }
+    }
 
+    private void saveEvent() {
+
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                .appendEncodedPath(mEmail).getUri();
+
+        try {
+
+            String dateTimeStart = mStartDate + " - " + mStartTime;
+
+            Event event = Event.Builder.create(mTitle, mDescription, dateTimeStart)
+                    .withTag(mTag)
+                    .withAddress(mAddress)
+                    .withImage(mImageUri)
+                    .withPrice(progress)
+                    .build();
+
+            if(!mEndDate.equals("Data di fine") && !mEndTime.equals("Ora di fine")) {
+                String dateTimeEnd = mEndDate + " - "+mEndTime;
+                event.addEndDate(dateTimeEnd);
+            }
+
+            if(nTicket > 0) {
+                event.addMaxTicket(nTicket);
+            }
+
+            CustomRequest createEventRequest = new CustomRequest(
+                    Request.Method.PUT,
+                    url,
+                    event.toJson(),
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            Snackbar.make(view, "Completato con successo!", Snackbar.LENGTH_SHORT)
+                                    .show();
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                            System.out.println(error.toString());
+                        }
+                    }
+
+            );
+
+            VolleyRequest.get(this).add(createEventRequest);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        finish();
     }
 
     private final TextWatcher watcher = new TextWatcher() {
@@ -845,7 +861,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
                 .appendPath("img").getUri();
 
-        final ProgressDialog loading = ProgressDialog.show(this, "Caricamento", "Caricamento in corso..", false, false);
+        final ProgressDialog loading = ProgressDialog.show(this, "Immagine dell'evento", "Caricamento in corso..", false, false);
 
         MultipartRequest mMultipartRequest = new MultipartRequest(url, new Response.ErrorListener() {
             @Override
@@ -857,7 +873,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             }, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Snackbar.make(view, response, Snackbar.LENGTH_SHORT)
+                    Snackbar.make(view, "Immagine caricata!", Snackbar.LENGTH_SHORT)
                             .show();
                     mImageUri = response;
                     loading.dismiss();
