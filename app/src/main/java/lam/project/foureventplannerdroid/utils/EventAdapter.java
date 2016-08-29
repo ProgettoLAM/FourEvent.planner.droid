@@ -16,8 +16,10 @@
 
 package lam.project.foureventplannerdroid.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -34,6 +36,7 @@ import com.tr4android.recyclerviewslideitem.SwipeConfiguration;
 import java.util.Date;
 import java.util.List;
 
+import lam.project.foureventplannerdroid.EventDetailActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
@@ -44,11 +47,14 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
     private final List<Event> mModel;
     private View view;
 
+    private Activity mSenderActivity;
 
     private Context mContext;
     private RecyclerView mRecyclerView;
 
-    public EventAdapter(Context context, RecyclerView recyclerView, final List<Event> model) {
+    public EventAdapter(Activity senderActivity, Context context, RecyclerView recyclerView, final List<Event> model) {
+
+        mSenderActivity = senderActivity;
         mContext = context;
         mRecyclerView = recyclerView;
         this.mModel = model;
@@ -60,7 +66,7 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
         private ImageView mImgEvent;
 
 
-        public EventViewHolder(View itemView) {
+        public EventViewHolder(final View itemView) {
             super(itemView);
 
             mTitleEvent = (TextView) itemView.findViewById(R.id.title_event);
@@ -69,6 +75,14 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
             mImgEvent = (ImageView) itemView.findViewById(R.id.img_event);
 
 
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    mSenderActivity.startActivity(new Intent(itemView.getContext(),
+                            EventDetailActivity.class));
+                }
+            });
         }
 
         public void bind(Event event){

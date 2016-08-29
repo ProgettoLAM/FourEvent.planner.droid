@@ -73,7 +73,7 @@ public class FragmentEvent extends Fragment {
             }
         });
 
-        mAdapter = new EventAdapter(getContext(), mRecyclerView, mModel);
+        mAdapter = new EventAdapter(getActivity(), getContext(), mRecyclerView, mModel);
 
         mRecyclerView.setAdapter(mAdapter);
 
