@@ -21,8 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import lam.project.foureventplannerdroid.complete_profile.StepManager;
-import lam.project.foureventplannerdroid.model.User;
-import lam.project.foureventplannerdroid.utils.UserManager;
+import lam.project.foureventplannerdroid.model.Planner;
+import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
@@ -105,7 +105,8 @@ public class LoginActivity extends AppCompatActivity {
 
             try {
 
-                String url = FourEventUri.Builder.create(FourEventUri.Keys.USER).getUri();
+                String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                        .appendPath("authenticate").getUri();
 
                 final JSONObject user = new JSONObject("{\"email\": \""+email+"\", \"password\" : \""+password+"\"}");
 
@@ -119,11 +120,13 @@ public class LoginActivity extends AppCompatActivity {
                                     String email = response.getString("_id");
 
                                     response.remove("_id");
-                                    response.put(User.Keys.EMAIL,email);
+                                    response.put(Planner.Keys.EMAIL,email);
 
-                                    next(User.fromJson(response));
+                                    next(Planner.fromJson(response));
                                 }
-                                catch (JSONException ex ) {}
+                                catch (JSONException ex ) {
+                                    ex.printStackTrace();
+                                }
 
                                 progressDialog.dismiss();
 
@@ -154,9 +157,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void next(User user){
+    private void next(Planner planner){
 
-        UserManager.get(this).save(user);
+        PlannerManager.get(this).save(planner);
 
         //non visualizzo lo stepper
         StepManager.get(this).setStep(StepManager.COMPLETE);

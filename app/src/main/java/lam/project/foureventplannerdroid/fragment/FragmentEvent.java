@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lam.project.foureventplannerdroid.CreateEventActivity;
+import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.EventAdapter;
@@ -82,7 +83,9 @@ public class FragmentEvent extends Fragment {
 
     private void setModel(){
 
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT).getUri();
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
+                .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+
         EventListRequest request = new EventListRequest(url,
                 new Response.Listener<List<Event>>() {
                     @Override

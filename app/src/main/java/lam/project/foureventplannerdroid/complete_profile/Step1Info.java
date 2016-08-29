@@ -20,8 +20,8 @@ import com.github.fcannizzaro.materialstepper.AbstractStep;
 import java.util.Calendar;
 
 import lam.project.foureventplannerdroid.R;
-import lam.project.foureventplannerdroid.model.User;
-import lam.project.foureventplannerdroid.utils.UserManager;
+import lam.project.foureventplannerdroid.model.Planner;
+import lam.project.foureventplannerdroid.utils.PlannerManager;
 
 /**
  * Created by Vale on 11/08/2016.
@@ -34,6 +34,7 @@ public class Step1Info extends AbstractStep{
 
     private EditText txtName;
     private EditText txtSurname;
+    private EditText txtRole;
     private EditText txtLocation;
     private RadioGroup radioGroup;
 
@@ -61,6 +62,7 @@ public class Step1Info extends AbstractStep{
         LinearLayout birth_date = (LinearLayout) rootView.findViewById(R.id.birth_date);
         dateInfo = (TextView) rootView.findViewById(R.id.date_info);
         txtName = (EditText) rootView.findViewById(R.id.name_info);
+        txtRole = (EditText) rootView.findViewById(R.id.role_info);
         txtSurname = (EditText) rootView.findViewById(R.id.surname_info);
         txtLocation = (EditText) rootView.findViewById(R.id.location_info);
         radioGroup = (RadioGroup) rootView.findViewById(R.id.radio_info);
@@ -90,23 +92,31 @@ public class Step1Info extends AbstractStep{
         if(isNotEmptyName){
 
             //setto il nome dell'utente
-            User mCurrentUser = UserManager.get().getUser();
-            mCurrentUser.addName(txtName.getText().toString()+ " "
+            Planner mCurrentPlanner = PlannerManager.get().getUser();
+            mCurrentPlanner.addName(txtName.getText().toString()+ " "
                     + txtSurname.getText().toString());
+
+            //controllo che esista il ruolo
+            String role = txtRole.getText().toString();
+
+            if(!role.matches("")) {
+
+                mCurrentPlanner.addRole(role);
+            }
 
             //controllo che esista la location
             String location = txtLocation.getText().toString();
 
             if(!location.matches("")) {
 
-                mCurrentUser.addLocation(location);
+                mCurrentPlanner.addLocation(location);
             }
 
             //controllo che esista il giorno di nascita
             String birthDate = dateInfo.getText().toString();
             if(!birthDate.matches("")) {
 
-                mCurrentUser.addBirthDate(birthDate);
+                mCurrentPlanner.addBirthDate(birthDate);
             }
 
             //controllo che esista il sesso
@@ -114,10 +124,10 @@ public class Step1Info extends AbstractStep{
 
             if(selectedId != -1) {
                 RadioButton genderField = (RadioButton) getActivity().findViewById(selectedId);
-                mCurrentUser.addGender(genderField.getText().toString());
+                mCurrentPlanner.addGender(genderField.getText().toString());
             }
 
-            getStepDataFor(1).putParcelable(User.Keys.USER, mCurrentUser);
+            getStepDataFor(1).putParcelable(Planner.Keys.USER, mCurrentPlanner);
 
         }
 

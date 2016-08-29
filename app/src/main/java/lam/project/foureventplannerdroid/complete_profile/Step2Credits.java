@@ -16,8 +16,8 @@ import org.json.JSONObject;
 
 import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
-import lam.project.foureventplannerdroid.model.User;
-import lam.project.foureventplannerdroid.utils.UserManager;
+import lam.project.foureventplannerdroid.model.Planner;
+import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
@@ -28,7 +28,7 @@ import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 public class Step2Credits extends AbstractStep {
 
-    User createdUser;
+    Planner createdPlanner;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,26 +45,26 @@ public class Step2Credits extends AbstractStep {
     @Override
     public void onNext() {
 
-        createdUser = getStepDataFor(1).getParcelable(User.Keys.USER);
+        createdPlanner = getStepDataFor(1).getParcelable(Planner.Keys.USER);
 
-        String uri = FourEventUri.Builder.create(FourEventUri.Keys.USER)
-                .appendPath(createdUser.email)
+        String uri = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                .appendEncodedPath(createdPlanner.email)
                 .getUri();
 
-        if(createdUser != null) {
+        if(createdPlanner != null) {
 
             try {
 
                 CustomRequest request = new CustomRequest(Request.Method.POST,
                         uri,
-                    createdUser.toJson(),
+                    createdPlanner.toJson(),
 
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
 
                             StepManager.get(getContext()).setStep(StepManager.COMPLETE);
-                            UserManager.get().save(createdUser);
+                            PlannerManager.get().save(createdPlanner);
 
                             Intent intent = new Intent(getContext(), MainActivity.class);
                             startActivity(intent);

@@ -8,38 +8,38 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import lam.project.foureventplannerdroid.R;
-import lam.project.foureventplannerdroid.model.User;
+import lam.project.foureventplannerdroid.model.Planner;
 
 
 /**
  * Created by spino on 30/07/16.
  */
-public final class UserManager {
+public final class PlannerManager {
 
-    private static UserManager sInstance;
+    private static PlannerManager sInstance;
 
     private final SharedPreferences mSharedPreferences;
 
-    private User mChacedUser;
+    private Planner mChacedPlanner;
 
-    private UserManager(final Context context){
+    private PlannerManager(final Context context){
 
         String SHARED_PREFERENCES_NAME = context.getResources().getString(R.string.shared_preferences_name);
 
         mSharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
-    public static UserManager get(Context context){
+    public static PlannerManager get(Context context){
 
         if(sInstance == null){
 
-            sInstance = new UserManager(context);
+            sInstance = new PlannerManager(context);
         }
 
         return sInstance;
     }
 
-    public static UserManager get(){
+    public static PlannerManager get(){
 
         if(sInstance == null){
 
@@ -49,20 +49,21 @@ public final class UserManager {
         return sInstance;
     }
 
-    public @NonNull User getUser(){
+    public @NonNull
+    Planner getUser(){
 
-        if(mChacedUser != null){
+        if(mChacedPlanner != null){
 
-            return mChacedUser;
+            return mChacedPlanner;
         }
 
-        final String userAsString = mSharedPreferences.getString(User.Keys.USER,null);
+        final String userAsString = mSharedPreferences.getString(Planner.Keys.USER,null);
 
         if (userAsString != null){
 
             try{
 
-                mChacedUser = User.fromJson(new JSONObject(userAsString));
+                mChacedPlanner = Planner.fromJson(new JSONObject(userAsString));
             }
             catch (JSONException je){
 
@@ -70,17 +71,17 @@ public final class UserManager {
             }
         }
 
-        return mChacedUser;
+        return mChacedPlanner;
     }
 
-    public boolean save(@NonNull final User user){
+    public boolean save(@NonNull final Planner planner){
 
-        mChacedUser = user;
+        mChacedPlanner = planner;
 
         try{
 
-            JSONObject item = user.toJson();
-            return mSharedPreferences.edit().putString(User.Keys.USER,item.toString()).commit();
+            JSONObject item = planner.toJson();
+            return mSharedPreferences.edit().putString(Planner.Keys.USER,item.toString()).commit();
         }
         catch (JSONException js){
 
@@ -92,7 +93,7 @@ public final class UserManager {
 
     public boolean remove() {
 
-        mChacedUser = null;
-        return mSharedPreferences.edit().remove(User.Keys.USER).commit();
+        mChacedPlanner = null;
+        return mSharedPreferences.edit().remove(Planner.Keys.USER).commit();
     }
 }

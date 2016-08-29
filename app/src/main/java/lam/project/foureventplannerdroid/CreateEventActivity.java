@@ -60,7 +60,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import lam.project.foureventplannerdroid.model.Category;
 import lam.project.foureventplannerdroid.model.Event;
@@ -265,8 +264,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 })
                 .build();
 
-
-        mEmail = "spino9330@gmail.com";
     }
 
 
@@ -296,8 +293,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     private void saveEvent() {
 
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
-                .appendEncodedPath(mEmail).getUri();
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
+                .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
 
         try {
 

@@ -23,8 +23,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import lam.project.foureventplannerdroid.R;
-import lam.project.foureventplannerdroid.model.User;
-import lam.project.foureventplannerdroid.utils.UserManager;
+import lam.project.foureventplannerdroid.model.Planner;
+import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
@@ -49,7 +49,7 @@ public class FragmentProfile extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        final User user = UserManager.get().getUser();
+        final Planner planner = PlannerManager.get().getUser();
 
         ImageView editPass = (ImageView) view.findViewById(R.id.change_pass);
 
@@ -60,15 +60,15 @@ public class FragmentProfile extends Fragment {
         TextView locationProfile = (TextView) view.findViewById(R.id.location_profile);
         TextView genderProfile = (TextView) view.findViewById(R.id.gender_profile);
 
-        passProfile.setText(user.password);
-        emailProfile.setText(user.email);
-        nameProfile.setText(user.name);
-        birthDateProfile.setText(user.birthDate);
-        locationProfile.setText(user.location);
-        if(user.gender.equals("F")) {
+        passProfile.setText(planner.password);
+        emailProfile.setText(planner.email);
+        nameProfile.setText(planner.name);
+        birthDateProfile.setText(planner.birthDate);
+        locationProfile.setText(planner.location);
+        if(planner.gender.equals("F")) {
             genderProfile.setText("Femmina");
         }
-        else if(user.gender.equals("M")) {
+        else if(planner.gender.equals("M")) {
             genderProfile.setText("Maschio");
         }
 
@@ -96,15 +96,15 @@ public class FragmentProfile extends Fragment {
                         oldPassword = oldPasswordField.getText().toString();
                         newPassword = newPasswordField.getText().toString();
 
-                        if(user.password.equals(oldPassword) && newPassword.length() >= 8) {
+                        if(planner.password.equals(oldPassword) && newPassword.length() >= 8) {
 
                            try {
 
-                               String url = FourEventUri.Builder.create(FourEventUri.Keys.USER)
-                                       .appendPath("changepassword").appendEncodedPath(user.email)
+                               String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                                       .appendPath("changepassword").appendEncodedPath(planner.email)
                                        .getUri();
 
-                                JSONObject obj = new JSONObject("{'oldPassword':'"+user.password+"', 'newPassword':'"+newPassword+"'}");
+                                JSONObject obj = new JSONObject("{'oldPassword':'"+ planner.password+"', 'newPassword':'"+newPassword+"'}");
 
                                 CustomRequest request = new CustomRequest(Request.Method.POST, url, obj,
 
@@ -117,9 +117,9 @@ public class FragmentProfile extends Fragment {
 
                                                 snackbar.show();
 
-                                                user.updatePassword(newPassword);
+                                                planner.updatePassword(newPassword);
 
-                                                UserManager.get().save(user);
+                                                PlannerManager.get().save(planner);
 
                                                 dialog.cancel();
 

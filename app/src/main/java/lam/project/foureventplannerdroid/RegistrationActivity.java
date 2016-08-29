@@ -22,8 +22,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import lam.project.foureventplannerdroid.complete_profile.StepManager;
-import lam.project.foureventplannerdroid.model.User;
-import lam.project.foureventplannerdroid.utils.UserManager;
+import lam.project.foureventplannerdroid.model.Planner;
+import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
@@ -114,20 +114,21 @@ public class RegistrationActivity extends AppCompatActivity {
 
             progressDialog.show();
 
-            final User user = User.Builder.create(email, password).build();
+            final Planner planner = Planner.Builder.create(email, password).build();
 
             try {
 
-                String url = FourEventUri.Builder.create(FourEventUri.Keys.USER).getUri();
+                String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                        .appendPath("register").getUri();
 
-                CustomRequest request = new CustomRequest(Request.Method.PUT, url, user.toJson(),
+                CustomRequest request = new CustomRequest(Request.Method.PUT, url, planner.toJson(),
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
 
                             progressDialog.dismiss();
 
-                            next(user);
+                            next(planner);
 
                         }
                     }, new Response.ErrorListener() {
@@ -163,14 +164,14 @@ public class RegistrationActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void next(User user){
+    private void next(Planner planner){
 
-        UserManager.get(this).save(user);
+        PlannerManager.get(this).save(planner);
         StepManager.get(this).setStep(StepManager.INCOMPLETE);
 
         Intent intent = new Intent(this, MainActivity.class);
 
-        intent.putExtra(User.Keys.USER, user);
+        intent.putExtra(Planner.Keys.USER, planner);
 
         startActivity(intent);
         finish();

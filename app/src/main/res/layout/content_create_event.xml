@@ -92,6 +92,7 @@
                         android:paddingRight="8dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="12dp"
+                        android:layout_marginBottom="30dp"
                         android:textColor="@color/lightText"
                         android:layout_below="@id/event_tag" />
 
@@ -128,7 +129,6 @@
                         android:layout_marginTop="12dp"
                         android:layout_toRightOf="@id/btn_address"
                         android:layout_toEndOf="@id/btn_address"
-                        android:layout_marginBottom="16dp"
                         android:textColor="@color/lightText"
                         android:layout_below="@id/event_tag" />
 
@@ -137,7 +137,6 @@
                         android:layout_width="280dp"
                         android:layout_height="wrap_content"
                         android:textSize="16dp"
-                        android:layout_marginTop="28dp"
                         android:layout_marginLeft="10dp"
                         android:background="@drawable/bottom_border"
                         android:textColorHint="@color/lightText"
@@ -152,7 +151,7 @@
                         android:tint="@color/red"
                         android:layout_below="@id/result_address"
                         android:layout_alignParentLeft="true"
-                        android:layout_marginTop="10dp"/>
+                        android:layout_marginTop="23dp"/>
 
                 </RelativeLayout>
 
@@ -207,7 +206,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="40dp"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginRight="15dp"
                         android:text="Data di fine"
                         android:textSize="16dp"
                         android:textColor="#999"
