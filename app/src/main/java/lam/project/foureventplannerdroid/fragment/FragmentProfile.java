@@ -65,13 +65,18 @@ public class FragmentProfile extends Fragment {
         nameProfile.setText(planner.name);
         birthDateProfile.setText(planner.birthDate);
         locationProfile.setText(planner.location);
-        if(planner.gender.equals("F")) {
-            genderProfile.setText("Femmina");
-        }
-        else if(planner.gender.equals("M")) {
-            genderProfile.setText("Maschio");
-        }
 
+        if(planner.gender != null) {
+
+            if(planner.gender.equals("F")) {
+
+                genderProfile.setText("Femmina");
+
+            } else if(planner.gender.equals("M")) {
+
+                genderProfile.setText("Maschio");
+            }
+        }
 
         editPass.setOnClickListener(new View.OnClickListener() {
 
