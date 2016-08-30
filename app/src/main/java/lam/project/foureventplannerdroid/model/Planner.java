@@ -15,8 +15,6 @@ public class Planner implements Parcelable{
 
     public final String email;
 
-    public String password;
-
     public String name;
 
     public String birthDate;
@@ -31,12 +29,11 @@ public class Planner implements Parcelable{
 
     public String image;
 
-    private Planner(final String email, final String password, final String name,
+    private Planner(final String email, final String name,
                     final String birthDate, final String location, final String role, final String gender,
                     final float balance, final String image){
 
         this.email = email;
-        this.password = password;
         this.name = name;
         this.birthDate = birthDate;
         this.location = location;
@@ -96,7 +93,6 @@ public class Planner implements Parcelable{
     protected Planner(Parcel in) {
 
         email = in.readString();
-        password = in.readString();
         balance = in.readFloat();
 
         boolean present = in.readByte() == Keys.PRESENT;
@@ -146,9 +142,8 @@ public class Planner implements Parcelable{
     public static Planner fromJson(final JSONObject jsonObject) throws JSONException{
 
         final String email = jsonObject.getString(Keys.EMAIL);
-        final String password = jsonObject.getString(Keys.PASSWORD);
 
-        Builder builder = Builder.create(email,password);
+        Builder builder = Builder.create(email);
 
         if (jsonObject.has(Keys.NAME)) {
             builder.withName(jsonObject.getString(Keys.NAME));
@@ -196,7 +191,6 @@ public class Planner implements Parcelable{
         final JSONObject jsonObject = new JSONObject();
 
         jsonObject.put(Keys.EMAIL, email);
-        jsonObject.put(Keys.PASSWORD, password);
         jsonObject.put(Keys.BALANCE,balance);
 
         if (name != null) {
@@ -240,7 +234,6 @@ public class Planner implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(email);
-        dest.writeString(password);
         dest.writeFloat(balance);
 
         if (name != null) {
@@ -290,8 +283,6 @@ public class Planner implements Parcelable{
 
         public static final String EMAIL = "email";
 
-        public static final String PASSWORD = "password";
-
         public static final String NAME = "name";
 
         public static final String BIRTH_DATE = "birth_date";
@@ -317,8 +308,6 @@ public class Planner implements Parcelable{
 
         private String mEmail;
 
-        private String mPassword;
-
         private String mName;
 
         private String mBirthDate;
@@ -336,15 +325,14 @@ public class Planner implements Parcelable{
         //TODO completare la classe, aggiungendo i parametri, completare i metodi e usare la classe
         //TODO parcelable, utilizzare il metodo opzionale anche per trasformazione JSON
 
-        private Builder(final String email,final String password){
+        private Builder(final String email){
 
             this.mEmail = email;
-            this.mPassword = password;
         }
 
-        public static Builder create(final String email, final String password){
+        public static Builder create(final String email){
 
-            return new Builder(email,password);
+            return new Builder(email);
         }
 
         public Builder withName(final String name){
@@ -390,7 +378,7 @@ public class Planner implements Parcelable{
         }
 
         public Planner build(){
-            return new Planner(mEmail,mPassword,mName,mBirthDate,mLocation, mRole, mGender, mBalance, mImage);
+            return new Planner(mEmail,mName,mBirthDate,mLocation, mRole, mGender, mBalance, mImage);
         }
     }
 }

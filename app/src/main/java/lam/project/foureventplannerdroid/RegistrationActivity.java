@@ -114,14 +114,16 @@ public class RegistrationActivity extends AppCompatActivity {
 
             progressDialog.show();
 
-            final Planner planner = Planner.Builder.create(email, password).build();
+            final Planner planner = Planner.Builder.create(email).build();
 
             try {
+
+                JSONObject plannerJson = new JSONObject("{'email':'"+planner.email+"','password':'"+password+"'}");
 
                 String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
                         .appendPath("register").getUri();
 
-                CustomRequest request = new CustomRequest(Request.Method.PUT, url, planner.toJson(),
+                CustomRequest request = new CustomRequest(Request.Method.PUT, url, plannerJson,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
