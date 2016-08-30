@@ -88,9 +88,11 @@ public class FragmentProfile extends Fragment {
         imgProfile = (CircleImageView) view.findViewById(R.id.profile_image);
 
 
-        /*if(planner.image == null) {
-            if(planner.gender.equals("F")) {
-                imgProfile.setImageResource(R.drawable.img_female);
+        if(planner.image == null) {
+            if(planner.gender != null) {
+                if(planner.gender.equals("F")) {
+                    imgProfile.setImageResource(R.drawable.img_female);
+                }
             }
         }
         else {
@@ -98,7 +100,7 @@ public class FragmentProfile extends Fragment {
                     .appendPath("img").appendEncodedPath(planner.email).getUri();
 
             Picasso.with(getContext()).load(url).into(imgProfile);
-        }*/
+        }
 
         imgProfile.setOnClickListener(new View.OnClickListener() {
             @Override
