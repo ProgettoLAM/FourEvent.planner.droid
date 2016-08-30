@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -37,17 +38,18 @@ import static android.view.View.INVISIBLE;
  * Created by Vale on 21/08/2016.
  */
 
-public class FragmentEvent extends Fragment {
+public class EventFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private EventAdapter mAdapter;
+    private static final String NAME = "Eventi";
 
     public static List<Event> mModel = new LinkedList<>();
 
     private ImageView sadEmoticon;
     private TextView notEvents;
 
-    public FragmentEvent() {}
+    public EventFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,6 +58,8 @@ public class FragmentEvent extends Fragment {
         setModel();
 
         final View rootView = inflater.inflate(R.layout.fragment_event, container, false);
+
+        setTitle();
 
         sadEmoticon = (ImageView) rootView.findViewById(R.id.sad_emoticon);
         notEvents = (TextView) rootView.findViewById(R.id.not_events);
@@ -120,5 +124,9 @@ public class FragmentEvent extends Fragment {
 
         setModel();
         super.onResume();
+    }
+
+    private void setTitle () {
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(NAME);
     }
 }

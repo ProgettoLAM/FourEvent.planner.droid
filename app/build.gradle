@@ -39,6 +39,7 @@ dependencies {
     compile 'com.github.TR4Android:Swipeable-RecyclerView:0.2.0'
     compile 'com.google.android.gms:play-services:9.4.0'
     compile 'me.neavo:volley:2014.12.09'
+    compile 'com.github.vipulasri:timelineview:1.0.3'
     compile "org.apache.httpcomponents:httpcore:4.2.4"
     compile "org.apache.httpcomponents:httpmime:4.2.4"
     testCompile 'junit:junit:4.12'

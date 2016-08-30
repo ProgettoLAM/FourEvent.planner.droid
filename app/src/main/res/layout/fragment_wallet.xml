@@ -1,0 +1,83 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/header_wallet"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/colorPrimary">
+
+            <TextView
+                android:id="@+id/user_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:textSize="32sp"
+                android:textColor="@color/material_stepper_inactive_circle_text"
+                android:layout_marginTop="20dp" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:progressDrawable="@drawable/circular"/>
+
+            <ImageView
+                android:id="@+id/symbol_euro"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_symbol_euro"
+                android:tint="@color/white"
+                android:layout_marginTop="15dp"
+                android:layout_centerHorizontal="true"
+                android:layout_toLeftOf="@id/user_balance"/>
+
+
+        </RelativeLayout>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_wallet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:backgroundTint="@color/colorAccent"
+            app:fabSize="normal"
+            android:tint="@color/darkerText"
+            app:elevation="2dp"
+            app:srcCompat="@drawable/ic_recharge"
+            android:scaleType="center"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/header_wallet"
+            android:layout_marginTop="-30dp"
+            android:layout_marginRight="16dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/fab_wallet">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ultime transazioni"
+                android:textColor="@color/colorPrimary"
+                android:gravity="center_horizontal"
+                android:textSize="24sp" />
+
+            <include layout="@layout/content_timeline" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+
+</FrameLayout>

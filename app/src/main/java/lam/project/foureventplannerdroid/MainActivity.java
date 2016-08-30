@@ -8,19 +8,17 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
 import lam.project.foureventplannerdroid.complete_profile.CompleteProfileActivity;
 import lam.project.foureventplannerdroid.complete_profile.StepManager;
-import lam.project.foureventplannerdroid.fragment.FragmentEvent;
-import lam.project.foureventplannerdroid.fragment.FragmentProfile;
+import lam.project.foureventplannerdroid.fragment.EventFragment;
+import lam.project.foureventplannerdroid.fragment.ProfileFragment;
+import lam.project.foureventplannerdroid.fragment.WalletFragment;
 import lam.project.foureventplannerdroid.model.Planner;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
 
@@ -51,14 +49,14 @@ public class MainActivity extends AppCompatActivity {
                 public void onTabSelected(@IdRes int tabId) {
 
                     if (tabId == R.id.tab_events) {
-                        selectedFragment = new FragmentEvent();
+                        selectedFragment = new EventFragment();
                         // The tab with id R.id.tab_favorites was selected,
                         // change your content accordingly.
                     } else if (tabId == R.id.tab_profile) {
-                        selectedFragment = new FragmentProfile();
+                        selectedFragment = new ProfileFragment();
 
                     } else if (tabId == R.id.tab_wallet) {
-
+                        selectedFragment = new WalletFragment();
                     }
                     //Setto la pagina principale come quella di ricerca degli eventi
                     getSupportFragmentManager().beginTransaction()

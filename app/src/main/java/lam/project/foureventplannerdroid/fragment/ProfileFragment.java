@@ -52,8 +52,9 @@ import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FragmentProfile extends Fragment {
+public class ProfileFragment extends Fragment {
 
+    private static final String NAME = "Profilo";
     private String oldPassword;
     private String newPassword;
     private Snackbar snackbar;
@@ -66,7 +67,7 @@ public class FragmentProfile extends Fragment {
 
     private Planner planner;
 
-    public FragmentProfile() {}
+    public ProfileFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,6 +76,8 @@ public class FragmentProfile extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Profilo");
 
         final View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        setTitle();
 
         planner = PlannerManager.get().getUser();
 
@@ -246,6 +249,9 @@ public class FragmentProfile extends Fragment {
 
         return view;
 
+    }
+    private void setTitle () {
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(NAME);
     }
 
     private void selectImage() {
