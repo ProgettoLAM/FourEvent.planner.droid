@@ -122,7 +122,7 @@ public class FragmentProfile extends Fragment {
 
                                                 snackbar.show();
 
-                                                planner.updatePassword(newPassword);
+                                                //planner.updatePassword(newPassword);
 
                                                 PlannerManager.get().save(planner);
 

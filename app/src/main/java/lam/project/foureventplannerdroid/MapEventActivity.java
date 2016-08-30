@@ -151,12 +151,21 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
                     }
                     else if(!query.equals("")) {
                         currentLatLng = getLocationFromAddress(getApplicationContext(), query);
-                        List<Address> result = getLocationName(currentLatLng);
-                        String address = result.get(0).getAddressLine(0);
-                        String splitAddress = address.replace(",", "");
-                        String city = result.get(0).getLocality();
-                        showMap(currentLatLng);
-                        resultAddress = splitAddress + ", "+ city;
+                        if(currentLatLng == null) {
+                            Snackbar snackbar = Snackbar.make(view, "L' indirizzo selezionato non esiste", Snackbar.LENGTH_LONG);
+                            snackbar.show();
+                            snackbar.getView().setBackgroundColor(getResources().getColor(R.color.lightRed));
+
+                        }
+                        else {
+                            List<Address> result = getLocationName(currentLatLng);
+                            String address = result.get(0).getAddressLine(0);
+                            String splitAddress = address.replace(",", "");
+                            String city = result.get(0).getLocality();
+                            showMap(currentLatLng);
+                            resultAddress = splitAddress + ", "+ city;
+                        }
+
                     }
 
                     return false;
