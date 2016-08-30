@@ -82,7 +82,7 @@ public class FragmentEvent extends Fragment {
 
     private void setModel(){
 
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT).appendPath("planner")
                 .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
 
         EventListRequest request = new EventListRequest(url,
