@@ -151,6 +151,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:layout_below="@id/birth_date">
 
         <RadioButton
@@ -177,16 +178,12 @@
 
     </RadioGroup>
 
-    <View
+    <!--<View
         android:layout_below="@id/radio_info"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_marginTop="100dp"
-        android:background="#eee" />
-
-
-
-
+        android:background="#eee" />-->
 
 </RelativeLayout>
 
