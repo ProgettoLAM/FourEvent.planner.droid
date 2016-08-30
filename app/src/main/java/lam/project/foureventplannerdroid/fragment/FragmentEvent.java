@@ -18,6 +18,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import lam.project.foureventplannerdroid.CreateEventActivity;
@@ -40,7 +42,7 @@ public class FragmentEvent extends Fragment {
     private RecyclerView mRecyclerView;
     private EventAdapter mAdapter;
 
-    public static List<Event> mModel;
+    public static List<Event> mModel = new LinkedList<>();
 
     private ImageView sadEmoticon;
     private TextView notEvents;
@@ -53,7 +55,6 @@ public class FragmentEvent extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mModel = new ArrayList<>();
         setModel();
 
         final View rootView = inflater.inflate(R.layout.fragment_event, container, false);
@@ -93,6 +94,7 @@ public class FragmentEvent extends Fragment {
 
                         mModel.clear();
                         mModel.addAll(response);
+                        Collections.reverse(mModel);
 
                         mAdapter.notifyDataSetChanged();
 
@@ -104,9 +106,6 @@ public class FragmentEvent extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Snackbar.make(getView(), "Error: " + error.getLocalizedMessage(), Snackbar.LENGTH_SHORT)
-                                .setAction("action", null)
-                                .show();
 
                         sadEmoticon.setVisibility(View.VISIBLE);
                         notEvents.setVisibility(View.VISIBLE);
@@ -116,5 +115,12 @@ public class FragmentEvent extends Fragment {
                 });
 
         VolleyRequest.get(getContext()).add(request);
+    }
+
+    @Override
+    public void onResume() {
+
+        setModel();
+        super.onResume();
     }
 }
