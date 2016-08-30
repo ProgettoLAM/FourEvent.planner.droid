@@ -47,8 +47,6 @@ public class FragmentEvent extends Fragment {
     private ImageView sadEmoticon;
     private TextView notEvents;
 
-    private FloatingActionButton mEventFab;
-
     public FragmentEvent() {}
 
     @Override
@@ -66,7 +64,7 @@ public class FragmentEvent extends Fragment {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mEventFab = (FloatingActionButton) rootView.findViewById(R.id.events_fab);
+        FloatingActionButton mEventFab = (FloatingActionButton) rootView.findViewById(R.id.events_fab);
         mEventFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

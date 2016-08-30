@@ -60,13 +60,13 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
         this.mModel = model;
     }
 
-    public class EventViewHolder extends RecyclerView.ViewHolder {
+    private class EventViewHolder extends RecyclerView.ViewHolder {
         private TextView mTitleEvent;
         private TextView mDateEvent;
         private ImageView mImgEvent;
 
 
-        public EventViewHolder(final View itemView) {
+        EventViewHolder(final View itemView) {
             super(itemView);
 
             mTitleEvent = (TextView) itemView.findViewById(R.id.title_event);
@@ -85,7 +85,7 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
             });
         }
 
-        public void bind(Event event){
+        void bind(Event event){
 
             mTitleEvent.setText(event.mTitle);
             mDateEvent.setText(event.mStartDate);
@@ -93,7 +93,7 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
             String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
                     .appendPath("img").appendPath(event.mId).getUri();
 
-            Picasso.with(itemView.getContext()).load(url).resize(1200,600).into(mImgEvent);
+            Picasso.with(itemView.getContext()).load(url).into(mImgEvent);
 
 
         }
