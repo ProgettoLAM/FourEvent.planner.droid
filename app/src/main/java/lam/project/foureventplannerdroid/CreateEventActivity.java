@@ -293,20 +293,17 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     private void saveEvent() {
 
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
-                .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT).getUri();
 
         try {
 
             String dateTimeStart = mStartDate + " - " + mStartTime;
 
-            Event event = Event.Builder.create(mTitle, mDescription, dateTimeStart)
-                    .withTag(mTag)
-                    .withAddress(mAddress)
-                    .withImage(mImageUri)
-                    .withPrice(progress)
-                    .build();
+            Event event = Event.Builder.create(mTitle, mDescription, dateTimeStart,
+                    MainActivity.mCurrentPlanner.email).withTag(mTag).withAddress(mAddress)
+                    .withImage(mImageUri).withPrice(progress).build();
 
+            //controllo strano. inutile
             if(!mEndDate.equals("Data di fine") && !mEndTime.equals("Ora di fine")) {
                 String dateTimeEnd = mEndDate + " - "+mEndTime;
                 event.addEndDate(dateTimeEnd);
@@ -522,13 +519,21 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == SELECT_FILE)
+
+            if (requestCode == SELECT_FILE){
+
                 onSelectFromGalleryResult(data);
-            else if (requestCode == REQUEST_CAMERA)
+
+            } else if (requestCode == REQUEST_CAMERA) {
+
                 onCaptureImageResult(data);
+            }
         }
+
         if (requestCode == REQUEST_RESOLVE_ERROR) {
 
             mResolvingError = false;
@@ -542,8 +547,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 }
             }
         }
+
         if(requestCode == REQUEST_ADDRESS) {
+
             if(resultCode == RESULT_OK) {
+
                 String address = data.getStringExtra("Address");
                 addressEvent.setText(address);
             }
@@ -600,8 +608,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             fo = new FileOutputStream(destination);
             fo.write(bytes.toByteArray());
             fo.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -863,22 +869,38 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         MultipartRequest mMultipartRequest = new MultipartRequest(url, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Snackbar.make(view, "Errore nel caricamento dell'immagine", Snackbar.LENGTH_SHORT)
-                        .show();
+
+                Snackbar errorSnackbar = Snackbar.make(startDate,
+                        "Errore nel caricamento dell'immagine", Snackbar.LENGTH_LONG);
+
+                errorSnackbar.getView().setBackgroundColor(ContextCompat
+                        .getColor(getApplicationContext(), R.color.lightRed));
+
+                errorSnackbar.show();
+
                 loading.dismiss();
+
+
             }
             }, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Snackbar.make(view, "Immagine caricata!", Snackbar.LENGTH_SHORT)
-                            .show();
+
+                    Snackbar successSnackbar = Snackbar.make(startDate, "Immagine caricata!",
+                            Snackbar.LENGTH_SHORT);
+
+                    successSnackbar.getView().setBackgroundColor(ContextCompat
+                            .getColor(getApplicationContext(), R.color.lightGreen));
+
+                    successSnackbar.show();
+
                     mImageUri = response;
                     loading.dismiss();
+
                 }
             },toUploadFile,"filename");
 
         VolleyRequest.get(this).add(mMultipartRequest);
-
     }
 
 }
