@@ -5,6 +5,7 @@
 
 
     <string name="title_activity_map_event">Scegli l\'indirizzo</string>
+    <string name="events_not_found">Eventi non trovati</string>
 
     <!-- Altro -->
     <string name="male">M</string>
