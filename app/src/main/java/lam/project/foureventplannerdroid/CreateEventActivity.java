@@ -69,6 +69,8 @@ import lam.project.foureventplannerdroid.utils.Utility;
 import lam.project.foureventplannerdroid.utils.connection.MultipartRequest;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
+import static lam.project.foureventplannerdroid.MainActivity.mCurrentPlanner;
+
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener,
         TimePickerDialog.OnTimeSetListener,
         DatePickerDialog.OnDateSetListener {
@@ -300,7 +302,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             String dateTimeStart = mStartDate + " - " + mStartTime;
 
             Event event = Event.Builder.create(mTitle, mDescription, dateTimeStart,
-                    MainActivity.mCurrentPlanner.email).withTag(mTag).withAddress(mAddress)
+                    mCurrentPlanner.email).withTag(mTag).withAddress(mAddress)
                     .withImage(mImageUri).withPrice(progress).build();
 
             //controllo strano. inutile

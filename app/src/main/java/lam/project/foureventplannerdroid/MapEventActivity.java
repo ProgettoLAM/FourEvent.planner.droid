@@ -106,8 +106,6 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
             return;
         }
 
-        //currentLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-
         mMap.addMarker(new MarkerOptions().position(position));
         final CameraUpdate cameraUpdate = CameraUpdateFactory
                 .newLatLngZoom(position, DEFAULT_ZOOM);
@@ -221,6 +219,7 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
         return currentLatLng;
     }
 
+    //Metodo del fab per ritornare l'address, se presente, nei dettagli di un evento
     public void onClickAddress(final View view) {
         Intent resultIntent = new Intent();
 
@@ -247,5 +246,11 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
             return null;
         }
 
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        startActivity(new Intent(this,CreateEventActivity.class));
     }
 }
