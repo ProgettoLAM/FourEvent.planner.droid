@@ -407,14 +407,25 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     private void datePicker() {
         Calendar now = Calendar.getInstance();
-        DatePickerDialog dpd = DatePickerDialog.newInstance(
+        DatePickerDialog dpd;
+        String date = startDate.getText().toString();
+
+        if(!date.equals("Data di inizio")) {
+            String[] dateComplete = date.split("/");
+            now.set(Calendar.YEAR, Integer.parseInt(dateComplete[1]), Integer.parseInt(dateComplete[0]));
+
+        }
+
+        dpd = DatePickerDialog.newInstance(
                 CreateEventActivity.this,
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)
         );
 
+
         dpd.show(getFragmentManager(), "Datepickerdialog");
+
     }
 
     private void timePicker() {

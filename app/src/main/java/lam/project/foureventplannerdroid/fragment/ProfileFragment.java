@@ -103,7 +103,7 @@ public class ProfileFragment extends Fragment {
         }
         else {
 
-            String filepath = "/sdcard/Pictures/"+ planner.image;
+            /*String filepath = "/sdcard/Pictures/"+ planner.image;
             File imagefile = new File(filepath);
             FileInputStream fis = null;
             try {
@@ -115,17 +115,8 @@ public class ProfileFragment extends Fragment {
             Bitmap bm = BitmapFactory.decodeStream(fis);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bm.compress(Bitmap.CompressFormat.JPEG, 100 , baos);
-            imgProfile.setImageBitmap(bm);
+            imgProfile.setImageBitmap(bm);*/
 
-           /* String photoPath = Environment.getExternalStorageDirectory().getAbsolutePath()+ "/1472657262693.jpg";
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);*/
-
-            /*String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
-                    .appendPath("img").appendEncodedPath(planner.email).getUri();
-
-            Picasso.with(getContext()).load(url).into(imgProfile);*/
         }
 
         imgProfile.setOnClickListener(new View.OnClickListener() {

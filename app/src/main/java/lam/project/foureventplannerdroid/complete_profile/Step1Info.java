@@ -350,11 +350,19 @@ public class Step1Info extends AbstractStep{
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+
             final Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.YEAR,-18);
             int yy = calendar.get(Calendar.YEAR);
             int mm = calendar.get(Calendar.MONTH);
             int dd = calendar.get(Calendar.DAY_OF_MONTH);
-            return new DatePickerDialog(getActivity(), this, yy, mm, dd);
+
+            DatePickerDialog pickerDialog = new DatePickerDialog(getActivity(), this, yy, mm, dd);
+            pickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
+
+            pickerDialog.setTitle("");
+
+            return pickerDialog;
         }
 
         public void onDateSet(DatePicker view, int yy, int mm, int dd) {
