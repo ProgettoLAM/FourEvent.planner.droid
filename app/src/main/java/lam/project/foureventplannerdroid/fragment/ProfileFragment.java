@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -99,10 +102,30 @@ public class ProfileFragment extends Fragment {
             }
         }
         else {
-            String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+
+            String filepath = "/sdcard/Pictures/"+ planner.image;
+            File imagefile = new File(filepath);
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(imagefile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Bitmap bm = BitmapFactory.decodeStream(fis);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bm.compress(Bitmap.CompressFormat.JPEG, 100 , baos);
+            imgProfile.setImageBitmap(bm);
+
+           /* String photoPath = Environment.getExternalStorageDirectory().getAbsolutePath()+ "/1472657262693.jpg";
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);*/
+
+            /*String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
                     .appendPath("img").appendEncodedPath(planner.email).getUri();
 
-            Picasso.with(getContext()).load(url).into(imgProfile);
+            Picasso.with(getContext()).load(url).into(imgProfile);*/
         }
 
         imgProfile.setOnClickListener(new View.OnClickListener() {
@@ -330,14 +353,14 @@ public class ProfileFragment extends Fragment {
     //Risultato dell'immagine scelta dalla galleria
     @SuppressWarnings("deprecation")
     private void onSelectFromGalleryResult(Intent data) {
-        Bitmap bm = null;
+        Bitmap bm;
         if (data != null) {
             try {
                 bm = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 bm.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
 
-                mImageUri = System.currentTimeMillis() + ".jpg";
+                mImageUri = planner.image + ".jpg";
 
                 File destination = new File(Environment.getExternalStorageDirectory(),
                         mImageUri);
@@ -346,6 +369,8 @@ public class ProfileFragment extends Fragment {
                 fo = new FileOutputStream(destination);
                 fo.write(bytes.toByteArray());
                 fo.close();
+                MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
+                        destination.getAbsolutePath(), destination.getName(), destination.getName());
 
                 imgProfile.setImageBitmap(bm);
                 uploadImage(destination);
@@ -366,7 +391,7 @@ public class ProfileFragment extends Fragment {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
 
-        mImageUri = System.currentTimeMillis() + ".jpg";
+        mImageUri = planner.image + ".jpg";
 
         File destination = new File(Environment.getExternalStorageDirectory(),
                 mImageUri);
@@ -377,6 +402,8 @@ public class ProfileFragment extends Fragment {
             fo = new FileOutputStream(destination);
             fo.write(bytes.toByteArray());
             fo.close();
+            MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
+                    destination.getAbsolutePath(), destination.getName(), destination.getName());
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

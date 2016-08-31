@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.logout:
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Logout");
-                builder.setMessage("Vuoi davvero uscire dall'app?");
+                builder.setMessage("Vuoi uscire da FourEvent?");
                 builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

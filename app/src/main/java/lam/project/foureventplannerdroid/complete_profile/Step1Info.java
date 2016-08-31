@@ -60,6 +60,7 @@ public class Step1Info extends AbstractStep{
     private EditText txtRole;
     private EditText txtLocation;
     private RadioGroup radioGroup;
+    private Planner mCurrentPlanner = PlannerManager.get().getUser();
 
     private String mImageUri;
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
@@ -127,7 +128,6 @@ public class Step1Info extends AbstractStep{
         if(isNotEmptyName){
 
             //setto il nome dell'utente
-            Planner mCurrentPlanner = PlannerManager.get().getUser();
             mCurrentPlanner.addName(txtName.getText().toString()+ " "
                     + txtSurname.getText().toString());
 
@@ -255,22 +255,24 @@ public class Step1Info extends AbstractStep{
     //Risultato dell'immagine scelta dalla galleria
     @SuppressWarnings("deprecation")
     private void onSelectFromGalleryResult(Intent data) {
-        Bitmap bm = null;
+        Bitmap bm;
         if (data != null) {
             try {
                 bm = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 bm.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
 
-                mImageUri = System.currentTimeMillis() + ".jpg";
+                mImageUri = mCurrentPlanner.email + ".jpg";
 
-                File destination = new File(Environment.getExternalStorageDirectory(),
-                        mImageUri);
+                File destination = new File(Environment.getExternalStorageDirectory(), mImageUri);
                 FileOutputStream fo;
                 destination.createNewFile();
                 fo = new FileOutputStream(destination);
+
                 fo.write(bytes.toByteArray());
                 fo.close();
+                MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
+                        destination.getAbsolutePath(), destination.getName(), null);
 
                 imgUser.setImageBitmap(bm);
                 uploadImage(destination);
@@ -291,7 +293,7 @@ public class Step1Info extends AbstractStep{
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
 
-        mImageUri = System.currentTimeMillis() + ".jpg";
+        mImageUri =  mCurrentPlanner.email + ".jpg";
 
         File destination = new File(Environment.getExternalStorageDirectory(),
                 mImageUri);
@@ -302,6 +304,8 @@ public class Step1Info extends AbstractStep{
             fo = new FileOutputStream(destination);
             fo.write(bytes.toByteArray());
             fo.close();
+            MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
+                    destination.getAbsolutePath(), destination.getName(), null);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
