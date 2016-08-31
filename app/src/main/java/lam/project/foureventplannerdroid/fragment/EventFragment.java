@@ -29,14 +29,13 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import lam.project.foureventplannerdroid.CreateEventActivity;
 import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
-import lam.project.foureventplannerdroid.utils.EventAdapter;
+import lam.project.foureventplannerdroid.utils.recyclerview.EventAdapter;
 import lam.project.foureventplannerdroid.utils.connection.EventListRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
@@ -102,7 +101,7 @@ public class EventFragment extends Fragment {
             }
         });
 
-        mAdapter = new EventAdapter(getActivity(), getContext(), mRecyclerView, mModel);
+        mAdapter = new EventAdapter(getActivity(), mModel);
 
         mRecyclerView.setAdapter(mAdapter);
 

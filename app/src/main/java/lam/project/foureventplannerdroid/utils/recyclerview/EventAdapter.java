@@ -14,92 +14,54 @@
  * limitations under the License.
  */
 
-package lam.project.foureventplannerdroid.utils;
+package lam.project.foureventplannerdroid.utils.recyclerview;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-import com.tr4android.recyclerviewslideitem.SwipeAdapter;
-import com.tr4android.recyclerviewslideitem.SwipeConfiguration;
-
-import java.util.Date;
 import java.util.List;
 
-import lam.project.foureventplannerdroid.EventDetailActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
-import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 
-import static android.view.View.INVISIBLE;
 
-public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
+public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
     private final List<Event> mModel;
-    private View view;
 
     private Activity mSenderActivity;
 
-    private Context mContext;
-    private RecyclerView mRecyclerView;
 
-    public EventAdapter(Activity senderActivity, Context context, RecyclerView recyclerView, final List<Event> model) {
+    public EventAdapter(final Activity senderActivity, final List<Event> model) {
 
-        mSenderActivity = senderActivity;
-        mContext = context;
-        mRecyclerView = recyclerView;
+        this.mSenderActivity = senderActivity;
+
         this.mModel = model;
     }
 
-    private class EventViewHolder extends RecyclerView.ViewHolder {
-        private TextView mTitleEvent;
-        private TextView mDateEvent;
-        private ImageView mImgEvent;
+    @Override
+    public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        final View layout = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.content_events_list,parent,false);
 
-
-        EventViewHolder(final View itemView) {
-            super(itemView);
-
-            mTitleEvent = (TextView) itemView.findViewById(R.id.title_event);
-            mDateEvent = (TextView) itemView.findViewById(R.id.date_event);
-
-            mImgEvent = (ImageView) itemView.findViewById(R.id.img_event);
-
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    mSenderActivity.startActivity(new Intent(itemView.getContext(),
-                            EventDetailActivity.class));
-                }
-            });
-        }
-
-        void bind(Event event){
-
-            mTitleEvent.setText(event.mTitle);
-            mDateEvent.setText(event.mStartDate);
-
-            String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
-                    .appendPath("img").appendPath(event.mId).getUri();
-
-            Picasso.with(itemView.getContext()).load(url).into(mImgEvent);
-
-
-        }
+        return new EventViewHolder(mSenderActivity,mModel,layout);
     }
 
     @Override
+    public void onBindViewHolder(EventViewHolder holder, int position) {
+        holder.bind(mModel.get(position));
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return mModel.size();
+    }
+}
+
+    /*@Override
     public RecyclerView.ViewHolder onCreateSwipeViewHolder(ViewGroup parent, int i) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.content_events_list, parent, true);
@@ -131,7 +93,7 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
     @Override
     public void onSwipe(final int position, int direction) {
 
-        if(direction == SWIPE_RIGHT) {
+       /* if(direction == SWIPE_RIGHT) {
             AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
             builder.setMessage("Sei sicuro di voler eliminare l'evento?")
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -158,16 +120,10 @@ public class EventAdapter extends SwipeAdapter implements View.OnClickListener {
 
     }
 
-    @Override
-    public void onClick(View view) {
-        // We need to get the parent of the parent to actually have the proper view
-        int position = mRecyclerView.getChildAdapterPosition((View) view.getParent().getParent());
-        Toast toast = Toast.makeText(mContext, "Clicked item at position " + position, Toast.LENGTH_SHORT);
-        toast.show();
-    }
 
-    @Override
+
+    /*@Override
     public int getItemCount() {
         return mModel.size();
-    }
-}
+    }*/
+

@@ -48,6 +48,14 @@
             android:name=".CreateEventActivity"
             android:theme="@style/Theme.myTheme.NoActionBar" />
         <activity
+            android:name=".EventDetailActivity"
+            android:theme="@style/Theme.myTheme.NoActionBar">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="lam.project.foureventplannerdroid.MainActivity" />
+        </activity>
+        <activity
             android:name=".MapEventActivity"
             android:label="@string/title_activity_map_event">
             <meta-data
@@ -59,7 +67,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".EventDetailActivity"></activity>
     </application>
 
 </manifest>

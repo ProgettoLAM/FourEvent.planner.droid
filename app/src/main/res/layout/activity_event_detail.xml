@@ -1,13 +1,171 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_event_detail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingTop="20dp"
+    android:background="@color/white"
     tools:context="lam.project.foureventplannerdroid.EventDetailActivity">
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/age_chart"
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/gender_chart"
+        android:layout_width="match_parent"
+        android:layout_height="195dp"
+        android:layout_below="@id/age_chart"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:layout_below="@id/gender_chart">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
+
+            <TextView
+                android:id="@+id/num_ticket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Partecipanti"
+                android:layout_marginRight="16dp"
+                android:textSize="20sp"
+                android:textColor="@color/darkerText"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/details_ticket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10/20"
+                android:textColor="@color/lightText"
+                android:textSize="20sp"
+                android:layout_toRightOf="@id/num_ticket"
+                android:layout_marginTop="8dp" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/btn_more_ticket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/ic_more"
+                android:tint="@color/colorPrimary"
+                app:fabSize="mini"
+                android:layout_alignParentRight="true" />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#eee"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <Button
+                android:id="@+id/btn_popular"
+                android:layout_width="130dp"
+                android:layout_height="40dp"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/white"
+                android:text="Pubblicizza"
+                android:layout_marginLeft="20dp"
+                android:textSize="14dp"
+                />
+
+
+            <Button
+                android:id="@+id/btn_message"
+                android:layout_width="130dp"
+                android:layout_height="40dp"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/white"
+                android:text="Messaggio"
+                android:textSize="14dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="20dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:drawableLeft="@drawable/ic_email"
+                android:layout_below="@id/btn_popular"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/btn_popular"
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/price_popular"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginTop="8dp"
+                    android:layout_centerHorizontal="true"
+                    android:text="20"
+                    android:textSize="20dp" />
+
+                <ImageView
+                    android:id="@+id/symbol_euro"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="20dp"
+                    android:tint="@color/colorPrimary"
+                    android:layout_toRightOf="@id/price_popular"
+                    android:src="@drawable/ic_symbol_euro" />
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="130dp"
+                    android:layout_height="1dp"
+                    android:background="@color/white"
+                    android:layout_below="@id/price_popular"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="8dp" />
+
+                <TextView
+                    android:id="@+id/price_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimary"
+                    android:text="10"
+                    android:textSize="20dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/price_popular"/>
+
+                <ImageView
+                    android:id="@id/symbol_euro"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="20dp"
+                    android:src="@drawable/ic_symbol_euro"
+                    android:tint="@color/colorPrimary"
+                    android:layout_toRightOf="@id/price_message"
+                    android:layout_below="@id/divider"/>
+
+            </RelativeLayout>
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>
