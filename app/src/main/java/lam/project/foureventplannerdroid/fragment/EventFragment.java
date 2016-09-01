@@ -35,6 +35,7 @@ import lam.project.foureventplannerdroid.CreateEventActivity;
 import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
+import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.recyclerview.EventAdapter;
 import lam.project.foureventplannerdroid.utils.connection.EventListRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
@@ -153,30 +154,11 @@ public class EventFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        String responseBody = null;
 
-                        try {
-
-                            responseBody = new String( error.networkResponse.data, "utf-8" );
-                            JSONObject jsonObject = new JSONObject( responseBody );
-                            String errorText = (String) jsonObject.get("message");
-                            mEventNotFound.setText(errorText);
-                            showAndHideViews();
-
-
-                        } catch (NullPointerException | UnsupportedEncodingException  | JSONException e) {
-
-                            if( e instanceof NullPointerException) {
-
-                                Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container)
-                                        ,"Impossibile raggiungere il server",Snackbar.LENGTH_INDEFINITE);
-                                snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
-                                snackbar.show();
-                            }
-
-                            showAndHideViews();
-                            e.printStackTrace();
-                        }
+                        Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container)
+                                , HandlerManager.handleError(error),Snackbar.LENGTH_INDEFINITE);
+                        snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
+                        snackbar.show();
 
                     }
                 });

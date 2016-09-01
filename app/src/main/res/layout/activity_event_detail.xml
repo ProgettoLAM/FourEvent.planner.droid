@@ -228,7 +228,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Check-in partecipanti"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:layout_centerVertical="true" />
 
         <RelativeLayout
@@ -246,26 +246,28 @@
                 />
 
             <Button
-                android:id="@+id/button_buy"
+                android:id="@+id/button_nfc"
                 android:layout_width="140dp"
                 android:layout_height="40dp"
-                android:background="@color/violet"
-                android:textColor="@color/white"
+                android:background="@color/white"
+                android:textColor="@color/violet"
                 android:text="Sincronizza NFC"
                 android:textSize="14dp"
-                android:layout_toRightOf="@id/divider" />
+                android:layout_toRightOf="@id/divider"
+                style="?android:attr/borderlessButtonStyle"/>
 
             <Button
-                android:id="@+id/button_profile"
+                android:id="@+id/button_qr"
                 android:layout_width="140dp"
                 android:layout_height="40dp"
-                android:background="@color/violet"
-                android:textColor="@color/white"
+                android:background="@color/white"
+                android:textColor="@color/violet"
                 android:text="Scansiona QR"
                 android:textSize="14dp"
                 android:layout_marginTop="16dp"
-                android:layout_below="@id/button_buy"
-                android:layout_toRightOf="@id/divider"/>
+                android:layout_below="@id/button_nfc"
+                android:layout_toRightOf="@id/divider"
+                style="?android:attr/borderlessButtonStyle"/>
 
         </RelativeLayout>
 

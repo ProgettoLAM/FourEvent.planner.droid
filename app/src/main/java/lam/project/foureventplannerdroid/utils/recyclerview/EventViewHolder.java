@@ -59,6 +59,7 @@ final class EventViewHolder extends RecyclerView.ViewHolder {
         mTitleEvent.setText(event.mTitle);
         mDateEvent.setText(event.mStartDate);
 
+
         String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
                 .appendPath("img").appendPath(event.mId).getUri();
 

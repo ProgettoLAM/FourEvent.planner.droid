@@ -6,13 +6,6 @@
     android:orientation="vertical"
     android:padding="20dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Di quanto vuoi aumentare il numero di biglietti?"
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,11 +16,12 @@
             android:layout_height="wrap_content"
             android:text="100 biglietti"
             android:textColor="@color/darkerText"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:layout_weight="1"/>
 
         <Button
             android:id="@+id/btn_1_ticket"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:tag="100"
@@ -50,11 +44,12 @@
             android:layout_height="wrap_content"
             android:text="300 biglietti"
             android:textColor="@color/darkerText"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:layout_weight="1"/>
 
         <Button
             android:id="@+id/btn_2_ticket"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:gravity="right"
@@ -77,11 +72,12 @@
             android:layout_height="wrap_content"
             android:text="500 biglietti"
             android:textColor="@color/darkerText"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:layout_weight="1"/>
 
         <Button
             android:id="@+id/btn_3_ticket"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:gravity="right"
@@ -102,12 +98,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Illimitato"
+            android:layout_weight="1"
             android:textColor="@color/darkerText"
             android:textSize="18sp" />
 
         <Button
             android:id="@+id/btn_4_ticket"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:gravity="right"

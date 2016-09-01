@@ -1,14 +1,15 @@
 package lam.project.foureventplannerdroid;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.UserManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,10 +42,10 @@ import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
-public class EventDetailActivity extends AppCompatActivity {
+public class EventDetailActivity extends Activity {
 
     private AlertDialog dialog;
-    private AlertDialog.Builder builder;
+
     private Button.OnClickListener listenerButton;
     private TextView detailsParticipation;
     private TextView pricePopular;
@@ -61,7 +62,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
     public static String OPEN_FRAGMENT_WALLET = "Portafoglio";
 
-    private ViewGroup view;
+    private ViewGroup v;
 
 
 
@@ -69,11 +70,9 @@ public class EventDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
-
-        view = (ViewGroup) getWindow().getDecorView();
+        v = (ViewGroup) getWindow().getDecorView();
 
         ageChart = (PieChart) findViewById(R.id.age_chart);
-
         genderChart = (PieChart) findViewById(R.id.gender_chart);
 
         detailsParticipation = (TextView) findViewById(R.id.details_ticket);
@@ -81,7 +80,6 @@ public class EventDetailActivity extends AppCompatActivity {
         priceMessage = (TextView) findViewById(R.id.price_message);
 
         addData(yDataGender, xDataGender, genderChart);
-
         addData(yDataAge, xDataAge, ageChart);
 
         mCurrentEvent = getIntent().getParcelableExtra(Event.Keys.EVENT);
@@ -92,11 +90,9 @@ public class EventDetailActivity extends AppCompatActivity {
 
                 try {
 
-                    dialog.dismiss();
-
                     String value = ((Button) v).getText().toString().split(" ")[0];
                     Float amount = Float.parseFloat(value);
-                    String numParticipation = (String) view.getTag();
+                    String numParticipation = (String) v.getTag();
 
                     buyParticipation(amount, numParticipation);
 
@@ -189,14 +185,15 @@ public class EventDetailActivity extends AppCompatActivity {
 
     public void moreTickets(final View view) {
 
-        builder = new AlertDialog.Builder(view.getContext());
-        builder.setTitle("Aumenta il numero");
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+        builder.setTitle("Aumenta il numero dei biglietti");
 
-        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, (ViewGroup) view, false);
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, v, false);
 
-        viewInflated.findViewById(R.id.button_1_recharge).setOnClickListener(listenerButton);
-        viewInflated.findViewById(R.id.button_2_recharge).setOnClickListener(listenerButton);
-        viewInflated.findViewById(R.id.button_3_recharge).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.btn_1_ticket).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.btn_2_ticket).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.btn_3_ticket).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.btn_4_ticket).setOnClickListener(listenerButton);
 
         builder.setView(viewInflated);
 
@@ -207,13 +204,14 @@ public class EventDetailActivity extends AppCompatActivity {
             }
         });
 
-        builder.show();
+        dialog = builder.show();
     }
 
     public void popularEvent(final View view) {
 
         String message;
         String title;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         DialogInterface.OnClickListener positiveListener;
         String positiveListenerText;
@@ -309,11 +307,12 @@ public class EventDetailActivity extends AppCompatActivity {
         });
         builder.setPositiveButton(positiveListenerText, positiveListener);
 
-        dialog = builder.show();
+        builder.show();
     }
 
     public void messageParticipation(final View view) {
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         DialogInterface.OnClickListener positiveListener;
         String positiveListenerText;
         final int price = Integer.parseInt(priceMessage.getText().toString());
@@ -404,12 +403,13 @@ public class EventDetailActivity extends AppCompatActivity {
         });
         builder.setPositiveButton(positiveListenerText, positiveListener);
 
-        dialog = builder.show();
+        builder.show();
     }
 
     private void buyParticipation(Float amount, final String numParticipation) throws JSONException {
 
         final float balance = MainActivity.mCurrentPlanner.balance;
+        dialog.dismiss();
 
         if(amount < balance) {
 
@@ -471,23 +471,7 @@ public class EventDetailActivity extends AppCompatActivity {
             }
         }
         else {
-            builder.setTitle("Credito insufficiente");
-            builder.setMessage("Non hai abbastanza crediti per acquistare questo numero di biglietti, ricarica il portafoglio!!");
-            builder.setPositiveButton("Ricarica il portafoglio", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
-                    startActivity(openFragmentBIntent);
-                }
-            });
-            builder.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-            dialog = builder.show();
+            displayMessage("Credito insufficiente, ricarica il portafoglio!");
         }
 
     }
@@ -510,7 +494,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
     private void displayMessage(String snackBarString) {
 
-        Snackbar snackbarError = Snackbar.make(view, snackBarString,
+        Snackbar snackbarError = Snackbar.make(v, snackBarString,
                 Snackbar.LENGTH_LONG);
 
         View snackbarView = snackbarError.getView();
@@ -535,7 +519,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
             detailsParticipation.setText("10 /" + numParticipation);
 
-            Snackbar responseSnackBar = Snackbar.make(view,
+            Snackbar responseSnackBar = Snackbar.make(v,
                     response.getString("message"), Snackbar.LENGTH_LONG);
 
             responseSnackBar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));

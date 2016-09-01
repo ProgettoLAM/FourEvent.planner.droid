@@ -32,6 +32,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
     private final List<Event> mModel;
 
     private Activity mSenderActivity;
+    private View divider;
+
 
 
     public EventAdapter(final Activity senderActivity, final List<Event> model) {
@@ -46,11 +48,18 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
         final View layout = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.content_events_list,parent,false);
 
+        divider = (View) layout.findViewById(R.id.divider);
+
+
         return new EventViewHolder(mSenderActivity,mModel,layout);
     }
 
     @Override
     public void onBindViewHolder(EventViewHolder holder, int position) {
+        if( position == getItemCount() - 1 ){
+
+            divider.setVisibility(View.INVISIBLE);
+        }
         holder.bind(mModel.get(position));
 
     }

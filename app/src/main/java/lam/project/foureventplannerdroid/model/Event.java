@@ -3,6 +3,7 @@ package lam.project.foureventplannerdroid.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,6 +41,8 @@ public class Event implements Parcelable{
 
     private int mMaxTicket;
 
+    public Double mDistance;
+
     private final String mImage;
 
     private final String mAuthor;
@@ -47,7 +50,7 @@ public class Event implements Parcelable{
     private Event(final String id, final String title, final String description, final String startDate,
                   final String endDate, final String tag, final String address, final float latitude,
                   final float longitude, final String price, final int participation, final String image,
-                  final int maxTic, final String author){
+                  final int maxTic, final String author, final Double distance){
 
         this.mId = id;
         this.mTitle = title;
@@ -63,6 +66,8 @@ public class Event implements Parcelable{
         this.mImage = image;
         this.mMaxTicket = maxTic;
         this.mAuthor = author;
+        this.mDistance = distance;
+
     }
 
     public static final Creator<Event> CREATOR = new Creator<Event>() {
@@ -90,6 +95,11 @@ public class Event implements Parcelable{
     public Event addMaxTicket(int mMaxTicket) {
         this.mMaxTicket = mMaxTicket;
         return this;
+    }
+
+    public boolean hasDistance() {
+
+        return mDistance != null;
     }
 
     private Event(Parcel in) {
@@ -150,8 +160,12 @@ public class Event implements Parcelable{
         final String address = jsonObject.getString(Keys.ADDRESS);
         final String price = jsonObject.getString(Keys.PRICE);
         final String image = jsonObject.getString(Keys.IMAGE);
-        final float latitude = BigDecimal.valueOf(jsonObject.getDouble(Keys.LATITUDE)).floatValue();
-        final float longitude = BigDecimal.valueOf(jsonObject.getDouble(Keys.LONGITUDE)).floatValue();
+
+        //prendere latitudine e longitudine
+        JSONArray coordinates = jsonObject.getJSONObject("loc").getJSONArray("coordinates");
+
+        final float latitude = BigDecimal.valueOf(coordinates.getDouble(1)).floatValue();
+        final float longitude = BigDecimal.valueOf(coordinates.getDouble(0)).floatValue();
 
         Builder builder = Builder.create(title, description, startDate,author).withTag(tag).withAddress(address)
                 .withLocation(latitude,longitude).withPrice(price).withImage(image);
@@ -173,6 +187,11 @@ public class Event implements Parcelable{
 
         if(jsonObject.has(Keys.MAX_TICKETS)) {
             builder.withMaxTic(jsonObject.getInt(Keys.MAX_TICKETS));
+        }
+
+        if(jsonObject.has(Keys.DISTANCE)) {
+
+            builder.withDistance(jsonObject.getDouble(Keys.DISTANCE) / 1000);
         }
 
 
@@ -287,6 +306,7 @@ public class Event implements Parcelable{
         static final String MAX_TICKETS = "tickets";
         static final String IMAGE = "image";
         static final String AUTHOR = "author";
+        static final String DISTANCE = "distance";
         public static final String EVENT = "event";
 
 
@@ -310,6 +330,7 @@ public class Event implements Parcelable{
         private String mImage;
         private int mMaxTicket;
         private String mAuthor;
+        private Double mDistance;
 
 
         private Builder(final String title, final String description, final String startDate, final String author){
@@ -375,10 +396,15 @@ public class Event implements Parcelable{
             return this;
         }
 
+        Builder withDistance(final Double distance) {
+            this.mDistance = distance;
+            return this;
+        }
+
         public Event build(){
 
             return new Event(mId,mTitle, mDescription, mStartDate, mEndDate, mTag, mAddress, mLatitude,
-                            mLongitude, mPrice, mParticipation, mImage, mMaxTicket,mAuthor);
+                            mLongitude, mPrice, mParticipation, mImage, mMaxTicket,mAuthor, mDistance);
         }
     }
 }

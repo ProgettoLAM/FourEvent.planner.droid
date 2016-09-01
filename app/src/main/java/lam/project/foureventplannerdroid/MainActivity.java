@@ -61,13 +61,6 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment = new WalletFragment();
                     }
 
-                    if (getIntent().hasExtra(OPEN_FRAGMENT_WALLET))
-                    {
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.anchor_point, new WalletFragment())
-                                .commit();
-                    }
-
                     //Setto la pagina principale come quella di ricerca degli eventi
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.anchor_point, selectedFragment)
@@ -75,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+            if (getIntent().hasExtra(OPEN_FRAGMENT_WALLET))
+            {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.anchor_point, new WalletFragment())
+                        .commit();
+            }
 
 
         } else {
