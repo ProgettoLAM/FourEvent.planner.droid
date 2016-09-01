@@ -9,64 +9,105 @@
     android:background="@color/white"
     tools:context="lam.project.foureventplannerdroid.EventDetailActivity">
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/age_chart"
+    <RelativeLayout
+        android:id="@+id/layout_participation"
         android:layout_width="match_parent"
-        android:layout_height="200dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp">
 
-    <com.github.mikephil.charting.charts.PieChart
-        android:id="@+id/gender_chart"
-        android:layout_width="match_parent"
-        android:layout_height="195dp"
-        android:layout_below="@id/age_chart"/>
+        <TextView
+            android:id="@+id/num_ticket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Partecipanti"
+            android:layout_marginRight="16dp"
+            android:textSize="20sp"
+            android:textColor="@color/darkerText"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/details_ticket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10/20"
+            android:textColor="@color/lightText"
+            android:textSize="20sp"
+            android:layout_toRightOf="@id/num_ticket"
+            android:layout_marginTop="8dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btn_more_ticket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            app:backgroundTint="#d95089"
+            app:elevation="0dp"
+            android:src="@drawable/ic_more"
+            android:tint="@color/white"
+            app:fabSize="mini"
+            android:layout_alignParentRight="true" />
+
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/label_gender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sesso"
+        android:layout_marginLeft="80dp"
+        android:layout_marginBottom="8dp"
+        android:textSize="14sp"
+        android:textColor="@color/darkerText"
+        android:layout_below="@id/layout_participation"/>
+
+    <TextView
+        android:id="@+id/label_age"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Età"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="85dp"
+        android:textSize="14sp"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/darkerText"
+        android:layout_below="@id/layout_participation"/>
 
     <LinearLayout
+        android:id="@+id/layout_charts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/label_gender"
+        android:layout_marginBottom="20dp">
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/age_chart"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_height="180dp"
+            android:layout_weight="0.5"/>
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/gender_chart"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_height="180dp"
+            android:layout_weight="0.5"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_premium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="8dp"
-        android:layout_below="@id/gender_chart">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp">
-
-            <TextView
-                android:id="@+id/num_ticket"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Partecipanti"
-                android:layout_marginRight="16dp"
-                android:textSize="20sp"
-                android:textColor="@color/darkerText"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:id="@+id/details_ticket"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="10/20"
-                android:textColor="@color/lightText"
-                android:textSize="20sp"
-                android:layout_toRightOf="@id/num_ticket"
-                android:layout_marginTop="8dp" />
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/btn_more_ticket"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
-                android:layout_marginRight="8dp"
-                android:src="@drawable/ic_more"
-                android:tint="@color/colorPrimary"
-                app:fabSize="mini"
-                android:layout_alignParentRight="true" />
-
-
-        </RelativeLayout>
+        android:layout_below="@id/layout_charts">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -79,7 +120,7 @@
                 android:id="@+id/btn_popular"
                 android:layout_width="130dp"
                 android:layout_height="40dp"
-                android:background="@color/colorPrimary"
+                android:background="@color/violet"
                 android:textColor="@color/white"
                 android:text="Pubblicizza"
                 android:layout_marginLeft="20dp"
@@ -91,7 +132,7 @@
                 android:id="@+id/btn_message"
                 android:layout_width="130dp"
                 android:layout_height="40dp"
-                android:background="@color/colorPrimary"
+                android:background="@color/violet"
                 android:textColor="@color/white"
                 android:text="Messaggio"
                 android:textSize="14dp"
@@ -112,7 +153,7 @@
                     android:id="@+id/price_popular"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/violet"
                     android:layout_marginTop="8dp"
                     android:layout_centerHorizontal="true"
                     android:text="20"
@@ -125,7 +166,7 @@
                     android:layout_marginLeft="4dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="20dp"
-                    android:tint="@color/colorPrimary"
+                    android:tint="@color/violet"
                     android:layout_toRightOf="@id/price_popular"
                     android:src="@drawable/ic_symbol_euro" />
 
@@ -142,7 +183,7 @@
                     android:id="@+id/price_message"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/violet"
                     android:text="10"
                     android:textSize="20dp"
                     android:layout_marginTop="16dp"
@@ -157,7 +198,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="20dp"
                     android:src="@drawable/ic_symbol_euro"
-                    android:tint="@color/colorPrimary"
+                    android:tint="@color/violet"
                     android:layout_toRightOf="@id/price_message"
                     android:layout_below="@id/divider"/>
 
@@ -166,6 +207,66 @@
 
         </RelativeLayout>
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/layout_premium">
+
+        <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tickets_premium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Check-in partecipanti"
+            android:textSize="18sp"
+            android:layout_centerVertical="true" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/tickets_premium"
+            android:gravity="end">
+
+            <View
+                android:id="@id/divider"
+                android:layout_width="1dp"
+                android:layout_height="100dp"
+                android:background="#eee"
+                android:layout_marginRight="16dp"
+                />
+
+            <Button
+                android:id="@+id/button_buy"
+                android:layout_width="140dp"
+                android:layout_height="40dp"
+                android:background="@color/violet"
+                android:textColor="@color/white"
+                android:text="Sincronizza NFC"
+                android:textSize="14dp"
+                android:layout_toRightOf="@id/divider" />
+
+            <Button
+                android:id="@+id/button_profile"
+                android:layout_width="140dp"
+                android:layout_height="40dp"
+                android:background="@color/violet"
+                android:textColor="@color/white"
+                android:text="Scansiona QR"
+                android:textSize="14dp"
+                android:layout_marginTop="16dp"
+                android:layout_below="@id/button_buy"
+                android:layout_toRightOf="@id/divider"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
     </LinearLayout>
 
 </RelativeLayout>

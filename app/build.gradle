@@ -40,7 +40,7 @@ dependencies {
     compile 'com.google.android.gms:play-services:9.4.0'
     compile 'me.neavo:volley:2014.12.09'
     compile 'com.github.vipulasri:timelineview:1.0.3'
-    compile 'com.github.PhilJay:MPAndroidChart:v3.0.0-beta1'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.6'
     compile "org.apache.httpcomponents:httpcore:4.2.4"
     compile "org.apache.httpcomponents:httpmime:4.2.4"
     testCompile 'junit:junit:4.12'

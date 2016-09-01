@@ -1,46 +1,46 @@
 package lam.project.foureventplannerdroid;
 
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
 
-import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class EventDetailActivity extends AppCompatActivity implements OnChartValueSelectedListener {
+public class EventDetailActivity extends AppCompatActivity {
 
-    LineChart ageChart;
-    PieChart mChart;
+    private PieChart ageChart;
+    private PieChart genderChart;
+    private float[] yDataGender = {30,70};
+    private String[] xDataGender = {"Maschi", "Femmine"};
+    private float[] yDataAge = {50, 20, 30};
+    private String[] xDataAge = {"16-24", "25-35", ">35"};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
 
-        ageChart = (LineChart) findViewById(R.id.age_chart);
-        mChart = (PieChart) findViewById(R.id.gender_chart);
+        ageChart = (PieChart) findViewById(R.id.age_chart);
 
-        Float[] dataObjects = new Float[]{16f,17f, 18f};
+        genderChart = (PieChart) findViewById(R.id.gender_chart);
+
+        addData(yDataGender, xDataGender, genderChart);
+
+        addData(yDataAge, xDataAge, ageChart);
+
+
+
+        /*Float[] dataObjects = new Float[]{16f,17f, 18f};
 
         List<Entry> entries = new ArrayList<Entry>();
 
@@ -119,28 +119,7 @@ public class EventDetailActivity extends AppCompatActivity implements OnChartVal
         dataSet.setSliceSpace(3f);
         dataSet.setSelectionShift(5f);
 
-        // add a lot of colors
 
-        ArrayList<Integer> colors = new ArrayList<Integer>();
-
-        for (int c : ColorTemplate.VORDIPLOM_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.JOYFUL_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.COLORFUL_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.LIBERTY_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.PASTEL_COLORS)
-            colors.add(c);
-
-        colors.add(ColorTemplate.getHoloBlue());
-
-        dataSet.setColors(colors);
         //dataSet.setSelectionShift(0f);
 
         PieData data = new PieData(dataSet);
@@ -152,28 +131,84 @@ public class EventDetailActivity extends AppCompatActivity implements OnChartVal
         // undo all highlights
         mChart.highlightValues(null);
 
+        mChart.invalidate();*/
+    }
+
+    private void addData(float[] yData, String[] xData, PieChart mChart) {
+
+        //Disattivare la rotazione al touch
+        mChart.setRotationAngle(0);
+        mChart.setRotationEnabled(false);
+
+        //Configurazione pieChart per il gender
+        mChart.setUsePercentValues(true);
+        mChart.setDescription(null);
+
+        //Attivare l'hole e configurarlo
+        mChart.setDrawHoleEnabled(true);
+        mChart.setHoleColor(R.color.white);
+        mChart.setHoleRadius(7);
+        mChart.setTransparentCircleRadius(10);
+        mChart.setDrawSliceText(false);
+
+        //Personalizzazione della legenda
+        Legend l = genderChart.getLegend();
+        l.setPosition(Legend.LegendPosition.BELOW_CHART_CENTER);
+        l.setXEntrySpace(10);
+        l.setYEntrySpace(2);
+
+        ArrayList<Entry> yVals = new ArrayList<>();
+        ArrayList<String> xVals = new ArrayList<>();
+
+        for(int i = 0; i < yData.length; i++)
+            yVals.add(new Entry(yData[i], i));
+
+        for(int i = 0; i < xData.length; i++)
+            xVals.add(xData[i]);
+
+        //Creazione del pie dataset
+        PieDataSet dataSet = new PieDataSet(yVals, null);
+        dataSet.setSliceSpace(0);
+        dataSet.setSelectionShift(5);
+
+        //Aggiungere i colori al chart
+
+        ArrayList<Integer> colors = new ArrayList<Integer>();
+
+       /* for (int c : ColorTemplate.VORDIPLOM_COLORS)
+            colors.add(c);*/
+
+        for (int c : ColorTemplate.JOYFUL_COLORS)
+            colors.add(c);
+
+       /* for (int c : ColorTemplate.COLORFUL_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.LIBERTY_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.PASTEL_COLORS)
+            colors.add(c);*/
+
+        colors.add(ColorTemplate.getHoloBlue());
+
+        dataSet.setColors(colors);
+
+        //Instanziare l'oggetto PieData
+        PieData data = new PieData(xVals, dataSet);
+        data.setValueFormatter(new PercentFormatter());
+        data.setValueTextSize(12f);
+        data.setValueTextColor(R.color.white);
+
+        //Si aggiunge l'oggetto data al chart
+        mChart.setData(data);
+
+        //Undo tutti gli highlights
+        mChart.highlightValues(null);
+
+        //Update piechart
         mChart.invalidate();
-    }
 
-    @Override
-    public void onValueSelected(Entry e, Highlight h) {
 
-    }
-
-    @Override
-    public void onNothingSelected() {
-
-    }
-
-    private SpannableString generateCenterSpannableText() {
-
-        SpannableString s = new SpannableString("Età");
-        s.setSpan(new RelativeSizeSpan(1.7f), 0, 14, 0);
-        s.setSpan(new StyleSpan(Typeface.NORMAL), 14, s.length() - 15, 0);
-        s.setSpan(new ForegroundColorSpan(Color.GRAY), 14, s.length() - 15, 0);
-        s.setSpan(new RelativeSizeSpan(.8f), 14, s.length() - 15, 0);
-        s.setSpan(new StyleSpan(Typeface.ITALIC), s.length() - 14, s.length(), 0);
-        s.setSpan(new ForegroundColorSpan(ColorTemplate.getHoloBlue()), s.length() - 14, s.length(), 0);
-        return s;
     }
 }

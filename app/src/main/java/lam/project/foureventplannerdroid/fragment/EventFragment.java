@@ -124,7 +124,7 @@ public class EventFragment extends Fragment {
 
     private void setModel(){
 
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT).appendPath("planner")
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER).appendPath(FourEventUri.Keys.EVENT)
                 .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
 
         EventListRequest request = new EventListRequest(url,
@@ -168,7 +168,8 @@ public class EventFragment extends Fragment {
 
                             if( e instanceof NullPointerException) {
 
-                                Snackbar snackbar = Snackbar.make(mEventNotFound,"Impossibile raggiungere il server",Snackbar.LENGTH_INDEFINITE);
+                                Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container)
+                                        ,"Impossibile raggiungere il server",Snackbar.LENGTH_INDEFINITE);
                                 snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
                                 snackbar.show();
                             }

@@ -393,7 +393,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     }
 
     @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+    public void onDateSet(DatePickerDialog view,  int year, int monthOfYear, int dayOfMonth) {
         String date = dayOfMonth+"/"+(++monthOfYear);
         if(startDate.getText().toString().equals("Data di inizio")) {
             startDate.setText(date);
@@ -408,13 +408,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private void datePicker() {
         Calendar now = Calendar.getInstance();
         DatePickerDialog dpd;
-        String date = startDate.getText().toString();
-
-        if(!date.equals("Data di inizio")) {
-            String[] dateComplete = date.split("/");
-            now.set(Calendar.YEAR, Integer.parseInt(dateComplete[1]), Integer.parseInt(dateComplete[0]));
-
-        }
 
         dpd = DatePickerDialog.newInstance(
                 CreateEventActivity.this,
@@ -422,7 +415,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)
         );
-
+        dpd.setMinDate(now);
+        dpd.setThemeDark(true);
 
         dpd.show(getFragmentManager(), "Datepickerdialog");
 
@@ -443,6 +437,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 Log.d("TimePicker", "Dialog was cancelled");
             }
         });
+        tpd.setThemeDark(true);
         tpd.show(getFragmentManager(), "Timepickerdialog");
     }
 
