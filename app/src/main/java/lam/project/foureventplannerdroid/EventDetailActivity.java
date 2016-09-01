@@ -1,10 +1,25 @@
 package lam.project.foureventplannerdroid;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.UserManager;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
-import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.LineChart;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
@@ -13,9 +28,29 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
 import java.util.ArrayList;
 
+import lam.project.foureventplannerdroid.model.Event;
+import lam.project.foureventplannerdroid.model.Record;
+import lam.project.foureventplannerdroid.utils.PlannerManager;
+import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
+import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
+import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
+
 public class EventDetailActivity extends AppCompatActivity {
+
+    private AlertDialog dialog;
+    private AlertDialog.Builder builder;
+    private Button.OnClickListener listenerButton;
+    private TextView detailsParticipation;
+    private TextView pricePopular;
+    private TextView priceMessage;
+
+    private Event mCurrentEvent;
 
     private PieChart ageChart;
     private PieChart genderChart;
@@ -24,114 +59,54 @@ public class EventDetailActivity extends AppCompatActivity {
     private float[] yDataAge = {50, 20, 30};
     private String[] xDataAge = {"16-24", "25-35", ">35"};
 
+    public static String OPEN_FRAGMENT_WALLET = "Portafoglio";
+
+    private ViewGroup view;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
 
+        view = (ViewGroup) getWindow().getDecorView();
+
         ageChart = (PieChart) findViewById(R.id.age_chart);
 
         genderChart = (PieChart) findViewById(R.id.gender_chart);
+
+        detailsParticipation = (TextView) findViewById(R.id.details_ticket);
+        pricePopular = (TextView) findViewById(R.id.price_popular);
+        priceMessage = (TextView) findViewById(R.id.price_message);
 
         addData(yDataGender, xDataGender, genderChart);
 
         addData(yDataAge, xDataAge, ageChart);
 
+        mCurrentEvent = getIntent().getParcelableExtra(Event.Keys.EVENT);
 
+        listenerButton = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        /*Float[] dataObjects = new Float[]{16f,17f, 18f};
+                try {
 
-        List<Entry> entries = new ArrayList<Entry>();
+                    dialog.dismiss();
 
-        for (Float data : dataObjects) {
+                    String value = ((Button) v).getText().toString().split(" ")[0];
+                    Float amount = Float.parseFloat(value);
+                    String numParticipation = (String) view.getTag();
 
-            // turn your data into Entry objects
-            entries.add(new Entry(data, data));
-        }
-        LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
-        dataSet.setColor(R.color.lightRed);
-        dataSet.setValueTextColor(R.color.colorPrimary); // styling, ...
+                    buyParticipation(amount, numParticipation);
 
-        LineData lineData = new LineData(dataSet);
-        ageChart.setData(lineData);
+                }
+                catch (JSONException ex) {
+                    Log.d("Error", ex+"");
+                }
+            }
+        };
 
-        mChart.setUsePercentValues(true);
-        mChart.setDescription("");
-        mChart.setExtraOffsets(5, 10, 5, 5);
-
-        mChart.setDragDecelerationFrictionCoef(0.95f);
-
-        mChart.setCenterText(generateCenterSpannableText());
-
-        mChart.setDrawHoleEnabled(true);
-        mChart.setHoleColor(Color.WHITE);
-
-        mChart.setTransparentCircleColor(Color.WHITE);
-        mChart.setTransparentCircleAlpha(110);
-
-        mChart.setHoleRadius(58f);
-        mChart.setTransparentCircleRadius(61f);
-
-        mChart.setDrawCenterText(true);
-
-        mChart.setRotationAngle(0);
-        // enable rotation of the chart by touch
-        mChart.setRotationEnabled(true);
-        mChart.setHighlightPerTapEnabled(true);
-
-        // mChart.setUnit(" €");
-        // mChart.setDrawUnitsInChart(true);
-
-        // add a selection listener
-        mChart.setOnChartValueSelectedListener(this);
-
-        setData(4, 100);
-
-        mChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
-        // mChart.spin(2000, 0, 360);
-
-        Legend l = mChart.getLegend();
-        l.setPosition(Legend.LegendPosition.RIGHT_OF_CHART);
-        l.setXEntrySpace(7f);
-        l.setYEntrySpace(0f);
-        l.setYOffset(0f);
-
-        // entry label styling
-        mChart.setEntryLabelColor(Color.WHITE);
-        mChart.setEntryLabelTextSize(12f);
-    }
-
-
-    private void setData(int count, float range) {
-
-        float mult = range;
-
-        ArrayList<PieEntry> entries = new ArrayList<PieEntry>();
-
-        // NOTE: The order of the entries when being added to the entries array determines their position around the center of
-        // the chart.
-        for (int i = 0; i < count ; i++) {
-            entries.add(new PieEntry((float) ((Math.random() * mult) + mult / 5)));
-        }
-
-        PieDataSet dataSet = new PieDataSet(entries, "Election Results");
-        dataSet.setSliceSpace(3f);
-        dataSet.setSelectionShift(5f);
-
-
-        //dataSet.setSelectionShift(0f);
-
-        PieData data = new PieData(dataSet);
-        data.setValueFormatter(new PercentFormatter());
-        data.setValueTextSize(11f);
-        data.setValueTextColor(Color.WHITE);
-        mChart.setData(data);
-
-        // undo all highlights
-        mChart.highlightValues(null);
-
-        mChart.invalidate();*/
     }
 
     private void addData(float[] yData, String[] xData, PieChart mChart) {
@@ -211,4 +186,368 @@ public class EventDetailActivity extends AppCompatActivity {
 
 
     }
+
+    public void moreTickets(final View view) {
+
+        builder = new AlertDialog.Builder(view.getContext());
+        builder.setTitle("Aumenta il numero");
+
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, (ViewGroup) view, false);
+
+        viewInflated.findViewById(R.id.button_1_recharge).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.button_2_recharge).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.button_3_recharge).setOnClickListener(listenerButton);
+
+        builder.setView(viewInflated);
+
+        builder.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void popularEvent(final View view) {
+
+        String message;
+        String title;
+
+        DialogInterface.OnClickListener positiveListener;
+        String positiveListenerText;
+        final int price = Integer.parseInt(pricePopular.getText().toString());
+
+        if (price <= MainActivity.mCurrentPlanner.balance) {
+
+            message = "La sponsorizzazione ha un costo di " + price + " €." +
+                    "\n\nHai un totale di " + MainActivity.mCurrentPlanner.balance + " €.\nVuoi pubblicizzarlo?";
+
+            title = "Inserisci l'evento tra i popolari";
+
+            positiveListenerText = "Acquista";
+            positiveListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialog, int which) {
+
+                    String url = FourEventUri.Builder.create(FourEventUri.Keys.RECORD)
+                            .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+
+                    try {
+
+                        JSONObject record = Record.Builder
+                                .create(-price, Record.Keys.SPONSOR, MainActivity.mCurrentPlanner.email)
+                                .withEvent(mCurrentEvent.mId)
+                                .build().toJson();
+
+                        CustomRequest createRecordRequest = new CustomRequest(Request.Method.PUT,
+                                url, record,
+                                new Response.Listener<JSONObject>() {
+
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+
+
+                                    }
+                                }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                                String json;
+
+                                NetworkResponse response = error.networkResponse;
+                                if (response != null && response.data != null) {
+                                    switch (response.statusCode) {
+                                        case 403:
+                                            json = new String(response.data);
+                                            json = trimMessage(json, "message");
+                                            if (json != null) displayMessage(json);
+                                            break;
+
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                        });
+
+                        VolleyRequest.get(view.getContext()).add(createRecordRequest);
+
+                    } catch (JSONException | ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+        } else {
+
+            title = "Credito insufficiente";
+            message = "Non hai abbastanza crediti per pubblicizzare l'evento, ricarica il portafoglio!!";
+
+            positiveListenerText = "Ricarica portafoglio";
+            positiveListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
+                    startActivity(openFragmentBIntent);
+                }
+            };
+        }
+
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setNegativeButton("Cancella", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton(positiveListenerText, positiveListener);
+
+        dialog = builder.show();
+    }
+
+    public void messageParticipation(final View view) {
+
+        DialogInterface.OnClickListener positiveListener;
+        String positiveListenerText;
+        final int price = Integer.parseInt(priceMessage.getText().toString());
+
+        if (price <= MainActivity.mCurrentPlanner.balance) {
+
+            View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, (ViewGroup) view, false);
+
+            builder.setView(viewInflated);
+
+            positiveListenerText = "Invia";
+            positiveListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialog, int which) {
+
+                    String url = FourEventUri.Builder.create(FourEventUri.Keys.RECORD)
+                            .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+
+                    try {
+
+                        JSONObject record = Record.Builder
+                                .create(-price, Record.Keys.MESSAGE, MainActivity.mCurrentPlanner.email)
+                                .withEvent(mCurrentEvent.mId)
+                                .build().toJson();
+
+                        CustomRequest createRecordRequest = new CustomRequest(Request.Method.PUT,
+                                url, record,
+                                new Response.Listener<JSONObject>() {
+
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+
+                                    }
+                                }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                                String json;
+
+                                NetworkResponse response = error.networkResponse;
+                                if (response != null && response.data != null) {
+                                    switch (response.statusCode) {
+                                        case 403:
+                                            json = new String(response.data);
+                                            json = trimMessage(json, "message");
+                                            if (json != null) displayMessage(json);
+                                            break;
+
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                        });
+
+                        VolleyRequest.get(view.getContext()).add(createRecordRequest);
+
+                    } catch (JSONException | ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+        } else {
+
+            builder.setTitle("Credito insufficiente");
+            builder.setMessage("Non hai abbastanza crediti per inviare un messaggio, ricarica il portafoglio!!");
+
+            positiveListenerText = "Ricarica portafoglio";
+            positiveListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
+                    startActivity(openFragmentBIntent);
+                }
+            };
+        }
+
+        builder.setNegativeButton("Cancella", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton(positiveListenerText, positiveListener);
+
+        dialog = builder.show();
+    }
+
+    private void buyParticipation(Float amount, final String numParticipation) throws JSONException {
+
+        final float balance = MainActivity.mCurrentPlanner.balance;
+
+        if(amount < balance) {
+
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+
+            progressDialog.setMessage("Aumento dei biglietti in corso...");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+
+
+            String url = FourEventUri.Builder.create(FourEventUri.Keys.RECORD)
+                    .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+
+            try {
+
+                JSONObject record = Record.Builder
+                        .create(-amount, Record.Keys.BUY_TICKETS, MainActivity.mCurrentPlanner.email)
+                        .withEvent(mCurrentEvent.mId)
+                        .build().toJson();
+
+                CustomRequest createRecordRequest = new CustomRequest(Request.Method.PUT,
+                        url, record,
+                        new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                                handleResponse(response, numParticipation);
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        String json;
+
+                        NetworkResponse response = error.networkResponse;
+                        if (response != null && response.data != null) {
+                            switch (response.statusCode) {
+                                case 403:
+                                    json = new String(response.data);
+                                    json = trimMessage(json, "message");
+                                    if (json != null) displayMessage(json);
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                });
+
+                VolleyRequest.get().add(createRecordRequest);
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            builder.setTitle("Credito insufficiente");
+            builder.setMessage("Non hai abbastanza crediti per acquistare questo numero di biglietti, ricarica il portafoglio!!");
+            builder.setPositiveButton("Ricarica il portafoglio", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
+                    startActivity(openFragmentBIntent);
+                }
+            });
+            builder.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            dialog = builder.show();
+        }
+
+    }
+
+    //region handle response + error
+
+    private String trimMessage(String json, String key) {
+        String trimmedString;
+
+        try {
+            JSONObject obj = new JSONObject(json);
+            trimmedString = obj.getString(key);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return trimmedString;
+    }
+
+    private void displayMessage(String snackBarString) {
+
+        Snackbar snackbarError = Snackbar.make(view, snackBarString,
+                Snackbar.LENGTH_LONG);
+
+        View snackbarView = snackbarError.getView();
+
+        snackbarView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+
+        snackbarError.show();
+    }
+
+    private void handleResponse(JSONObject response, String numParticipation) {
+
+        try {
+
+            //TODO modificare in questo modo anche wallet per le ricariche
+            Record insertedRecord = Record.fromJson(response.getJSONObject(Record.Keys.RECORD));
+
+            MainActivity.mCurrentPlanner.updateBalance(insertedRecord.mAmount);
+
+            PlannerManager.get().save(MainActivity.mCurrentPlanner);
+
+            dialog.dismiss();
+
+            detailsParticipation.setText("10 /" + numParticipation);
+
+            Snackbar responseSnackBar = Snackbar.make(view,
+                    response.getString("message"), Snackbar.LENGTH_LONG);
+
+            responseSnackBar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
+
+            responseSnackBar.show();
+
+        } catch (JSONException e) {
+
+            e.printStackTrace();
+            dialog.dismiss();
+        }
+
+    }
+
 }

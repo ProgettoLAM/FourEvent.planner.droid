@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Di quanto vuoi aumentare il numero di biglietti?"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100 biglietti"
+            android:textColor="@color/darkerText"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/btn_1_ticket"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:tag="100"
+            android:gravity="right"
+            android:textColor="@color/colorPrimary"
+            android:theme="@style/MyButton"
+            android:text="5 €"
+            android:onClick="onRecharge"
+            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="300 biglietti"
+            android:textColor="@color/darkerText"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/btn_2_ticket"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="right"
+            android:tag="300"
+            android:textColor="@color/colorPrimary"
+            android:theme="@style/MyButton"
+            android:text="15 €"
+            android:onClick="onRecharge"
+            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="500 biglietti"
+            android:textColor="@color/darkerText"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/btn_3_ticket"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="right"
+            android:textColor="@color/colorPrimary"
+            android:theme="@style/MyButton"
+            android:tag="500"
+            android:text="30 €"
+            android:onClick="onRecharge"
+            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Illimitato"
+            android:textColor="@color/darkerText"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/btn_4_ticket"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="right"
+            android:textColor="@color/colorPrimary"
+            android:theme="@style/MyButton"
+            android:text="50 €"
+            android:tag="unlimited"
+            android:onClick="onRecharge"
+            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+    </LinearLayout>
+
+</LinearLayout>

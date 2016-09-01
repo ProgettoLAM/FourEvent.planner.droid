@@ -8,6 +8,7 @@ import java.text.ParseException;
 
 import lam.project.foureventplannerdroid.utils.DateConverter;
 
+
 /**
  * Created by spino on 22/08/16.
  */
@@ -78,7 +79,7 @@ public class Record {
 
         if(mDate != null) {
 
-            jsonObject.put(Keys.DATE, DateConverter.toMillis(mDate));
+            jsonObject.put(Keys.DATE,DateConverter.toMillis(mDate));
         }
 
         if(mId != null) {
@@ -142,8 +143,12 @@ public class Record {
         public static String TYPE = "type";
         public static String USER = "user";
         public static String EVENT = "event";
+        public static String RECORD =  "record";
 
         public static final String RECHARGE = "Ricarica conto";
-        public static final String BUY = "Acquisto biglietto";
+        public static final String BUY_TICKETS = "Acquisto numero di biglietti";
+        public static final String SPONSOR = "Inserisci l'evento tra i popolari";
+        public static final String MESSAGE = "Invia un messaggio";
+
     }
 }

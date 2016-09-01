@@ -16,11 +16,15 @@ import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 
+import static lam.project.foureventplannerdroid.fragment.EventFragment.mModel;
+
 /**
  * Created by Vale on 31/08/2016.
  */
 
 final class EventViewHolder extends RecyclerView.ViewHolder {
+
+    private List<Event> mModel;
     private TextView mTitleEvent;
     private TextView mDateEvent;
     private ImageView mImgEvent;
@@ -29,16 +33,21 @@ final class EventViewHolder extends RecyclerView.ViewHolder {
     EventViewHolder(final Activity activity, final List<Event> model, final View itemView) {
         super(itemView);
 
+        mModel = model;
         mTitleEvent = (TextView) itemView.findViewById(R.id.title_event);
         mDateEvent = (TextView) itemView.findViewById(R.id.date_event);
-
         mImgEvent = (ImageView) itemView.findViewById(R.id.img_event);
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.startActivity(new Intent(itemView.getContext(),
-                        EventDetailActivity.class));
+
+                Intent intent = new Intent(itemView.getContext(), EventDetailActivity.class);
+
+                Event event = mModel.get(getAdapterPosition());
+                intent.putExtra(Event.Keys.EVENT,event);
+
+                activity.startActivity(intent);
             }
         });
 

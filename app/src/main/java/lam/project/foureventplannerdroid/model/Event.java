@@ -287,6 +287,8 @@ public class Event implements Parcelable{
         static final String MAX_TICKETS = "tickets";
         static final String IMAGE = "image";
         static final String AUTHOR = "author";
+        public static final String EVENT = "event";
+
 
         static final Byte PRESENT = 1;
         static final Byte NOT_PRESENT = 0;

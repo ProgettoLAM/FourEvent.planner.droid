@@ -22,6 +22,8 @@ import lam.project.foureventplannerdroid.fragment.WalletFragment;
 import lam.project.foureventplannerdroid.model.Planner;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
 
+import static lam.project.foureventplannerdroid.EventDetailActivity.OPEN_FRAGMENT_WALLET;
+
 public class MainActivity extends AppCompatActivity {
 
     private Fragment selectedFragment;
@@ -58,12 +60,22 @@ public class MainActivity extends AppCompatActivity {
                     } else if (tabId == R.id.tab_wallet) {
                         selectedFragment = new WalletFragment();
                     }
+
+                    if (getIntent().hasExtra(OPEN_FRAGMENT_WALLET))
+                    {
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.anchor_point, new WalletFragment())
+                                .commit();
+                    }
+
                     //Setto la pagina principale come quella di ricerca degli eventi
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.anchor_point, selectedFragment)
                             .commit();
+
                 }
             });
+
 
         } else {
 

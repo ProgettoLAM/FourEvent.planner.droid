@@ -47,6 +47,7 @@
             app:elevation="0dp"
             android:src="@drawable/ic_more"
             android:tint="@color/white"
+            android:onClick="moreTickets"
             app:fabSize="mini"
             android:layout_alignParentRight="true" />
 
@@ -123,8 +124,9 @@
                 android:background="@color/violet"
                 android:textColor="@color/white"
                 android:text="Pubblicizza"
+                android:onClick="popularEvent"
                 android:layout_marginLeft="20dp"
-                android:textSize="14dp"
+                android:textSize="14sp"
                 />
 
 
@@ -135,7 +137,8 @@
                 android:background="@color/violet"
                 android:textColor="@color/white"
                 android:text="Messaggio"
-                android:textSize="14dp"
+                android:onClick="messageParticipation"
+                android:textSize="14sp"
                 android:layout_marginTop="8dp"
                 android:layout_marginLeft="20dp"
                 android:paddingLeft="8dp"
@@ -157,7 +160,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_centerHorizontal="true"
                     android:text="20"
-                    android:textSize="20dp" />
+                    android:textSize="20sp" />
 
                 <ImageView
                     android:id="@+id/symbol_euro"
@@ -185,7 +188,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/violet"
                     android:text="10"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:layout_marginTop="16dp"
                     android:layout_centerHorizontal="true"
                     android:layout_below="@id/price_popular"/>
