@@ -265,7 +265,7 @@ public class WalletFragment extends Fragment {
         progressDialog.setCanceledOnTouchOutside(false);
 
 
-        String uri = FourEventUri.Builder.create(FourEventUri.Keys.RECORD)
+        String uri = FourEventUri.Builder.create(FourEventUri.Keys.RECORD).appendPath(FourEventUri.Keys.PLANNER)
                 .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
 
         try {

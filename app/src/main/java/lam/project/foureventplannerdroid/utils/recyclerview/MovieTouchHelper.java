@@ -6,6 +6,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
+import lam.project.foureventplannerdroid.R;
+
 /**
  * Created by Vale on 02/09/2016.
  */
@@ -29,7 +31,6 @@ public class MovieTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public void onSwiped(final RecyclerView.ViewHolder viewHolder,final int direction) {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(mSenderActivity);
         builder.setTitle("Elimina evento");
         builder.setMessage("Vuoi davvero eliminare l'evento?");
