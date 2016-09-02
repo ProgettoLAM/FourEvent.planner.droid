@@ -21,17 +21,16 @@ public class Planner implements Parcelable{
 
     public String location;
 
-    public String role;
+    private String role;
 
     public String gender;
 
     public float balance;
 
-    public String image;
 
     private Planner(final String email, final String name,
                     final String birthDate, final String location, final String role, final String gender,
-                    final float balance, final String image){
+                    final float balance){
 
         this.email = email;
         this.name = name;
@@ -40,7 +39,6 @@ public class Planner implements Parcelable{
         this.role = role;
         this.gender = gender;
         this.balance = balance;
-        this.image = image;
     }
 
     public static final Creator<Planner> CREATOR = new Creator<Planner>() {
@@ -85,11 +83,6 @@ public class Planner implements Parcelable{
         return this;
     }
 
-    public Planner updateImage(String image) {
-        this.image = image;
-        return this;
-    }
-
     protected Planner(Parcel in) {
 
         email = in.readString();
@@ -129,13 +122,6 @@ public class Planner implements Parcelable{
         }
         else
             gender = null;
-
-        present = in.readByte() == Keys.PRESENT;
-        if(present) {
-            image = in.readString();
-        }
-        else
-            image = null;
     }
 
 
@@ -176,11 +162,6 @@ public class Planner implements Parcelable{
             builder.withBalance(balance);
         }
 
-        if(jsonObject.has(Keys.IMAGE)){
-
-            builder.withImage(jsonObject.getString(Keys.IMAGE));
-        }
-
         Planner planner = builder.build();
 
         return planner;
@@ -216,11 +197,6 @@ public class Planner implements Parcelable{
         if (gender != null) {
 
             jsonObject.put(Keys.GENDER, gender);
-        }
-
-        if (image != null) {
-
-            jsonObject.put(Keys.IMAGE, image);
         }
 
         return jsonObject;
@@ -270,13 +246,6 @@ public class Planner implements Parcelable{
         }
         else
             dest.writeByte(Keys.NOT_PRESENT);
-
-        if (image != null) {
-            dest.writeByte(Keys.PRESENT);
-            dest.writeString(image);
-        }
-        else
-            dest.writeByte(Keys.NOT_PRESENT);
     }
 
     public static class Keys{
@@ -296,8 +265,6 @@ public class Planner implements Parcelable{
         public static final String USER = "user";
 
         public static final String BALANCE = "balance";
-
-        public static final String IMAGE = "image";
 
         public static final Byte PRESENT = 1;
 
@@ -319,8 +286,6 @@ public class Planner implements Parcelable{
         private String mGender;
 
         private float mBalance;
-
-        private String mImage;
 
         //TODO completare la classe, aggiungendo i parametri, completare i metodi e usare la classe
         //TODO parcelable, utilizzare il metodo opzionale anche per trasformazione JSON
@@ -371,14 +336,8 @@ public class Planner implements Parcelable{
             return this;
         }
 
-        public Builder withImage(final String image) {
-
-            this.mImage = image;
-            return this;
-        }
-
         public Planner build(){
-            return new Planner(mEmail,mName,mBirthDate,mLocation, mRole, mGender, mBalance, mImage);
+            return new Planner(mEmail,mName,mBirthDate,mLocation, mRole, mGender, mBalance);
         }
     }
 }

@@ -142,10 +142,6 @@ public class Step1Info extends AbstractStep{
             mCurrentPlanner.addName(txtName.getText().toString()+ " "
                     + txtSurname.getText().toString());
 
-            if(mImageUri != null) {
-                mCurrentPlanner.updateImage(mImageUri);
-            }
-
             //controllo che esista il ruolo
             String role = txtRole.getText().toString();
 

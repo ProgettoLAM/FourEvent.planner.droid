@@ -158,7 +158,7 @@ public class EventFragment extends Fragment {
                                 , HandlerManager.handleError(error),Snackbar.LENGTH_INDEFINITE);
                         snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
                         snackbar.show();*/
-                        mEventNotFound.setText(HandlerManager.handleError(error));
+                        mEventNotFound.setText(HandlerManager.getInstance().handleError(error));
                         showAndHideViews();
 
                     }

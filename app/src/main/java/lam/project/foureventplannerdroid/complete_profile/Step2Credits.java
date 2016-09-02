@@ -76,7 +76,7 @@ public class Step2Credits extends AbstractStep {
                             @Override
                             public void onErrorResponse(VolleyError error) {
 
-                                Log.d("STEP2",HandlerManager.handleError(error));
+                                HandlerManager.getInstance().handleError(error,getView());
                             }
                         }
                 );

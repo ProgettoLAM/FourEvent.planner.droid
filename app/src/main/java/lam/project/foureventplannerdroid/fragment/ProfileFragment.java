@@ -42,12 +42,15 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Planner;
+import lam.project.foureventplannerdroid.utils.ImageManager;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.Utility;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
+import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.connection.MultipartRequest;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
@@ -62,8 +65,6 @@ public class ProfileFragment extends Fragment {
     private String newPassword;
     private Snackbar snackbar;
     private CircleImageView imgProfile;
-
-    private String mImageUri;
 
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
     private String userChoosenTask;
@@ -93,31 +94,7 @@ public class ProfileFragment extends Fragment {
         TextView genderProfile = (TextView) view.findViewById(R.id.gender_profile);
         imgProfile = (CircleImageView) view.findViewById(R.id.profile_image);
 
-
-        if(planner.image == null) {
-            if(planner.gender != null) {
-                if(planner.gender.equals("F")) {
-                    imgProfile.setImageResource(R.drawable.img_female);
-                }
-            }
-        }
-        else {
-
-            /*String filepath = "/sdcard/Pictures/"+ planner.image;
-            File imagefile = new File(filepath);
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(imagefile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            Bitmap bm = BitmapFactory.decodeStream(fis);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bm.compress(Bitmap.CompressFormat.JPEG, 100 , baos);
-            imgProfile.setImageBitmap(bm);*/
-
-        }
+        getOrFetchImage();
 
         imgProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,127 +120,128 @@ public class ProfileFragment extends Fragment {
             }
         }
 
-        editPass.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                builder.setTitle("Cambia la password");
-
-                View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.dialog_change_password, (ViewGroup) getView(), false);
-
-                final EditText oldPasswordField = (EditText) viewInflated.findViewById(R.id.old_password);
-                final EditText newPasswordField = (EditText) viewInflated.findViewById(R.id.new_password);
-
-                builder.setView(viewInflated);
-
-                // Set up the buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-
-                        oldPassword = oldPasswordField.getText().toString();
-                        newPassword = newPasswordField.getText().toString();
-
-                        if(newPassword.length() >= 8) {
-
-                            try {
-                                String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
-                                        .appendPath("changepassword").appendEncodedPath(planner.email)
-                                        .getUri();
-
-                                JSONObject obj = new JSONObject("{'oldPassword':'"+oldPassword+"', 'newPassword':'"+newPassword+"'}");
-
-                                CustomRequest request = new CustomRequest(Request.Method.POST, url, obj,
-
-                                        new Response.Listener<JSONObject>() {
-                                            @Override
-                                            public void onResponse(JSONObject response) {
-
-                                                try{
-
-                                                    snackbar = Snackbar
-                                                            .make(getActivity().findViewById(R.id.container),
-                                                                  response.getString("message"), Snackbar.LENGTH_LONG);
-
-                                                    snackbar.getView()
-                                                            .setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightGreen));
-                                                    snackbar.show();
-
-                                                    dialog.dismiss();
-
-                                                } catch (JSONException e) {
-
-                                                    e.printStackTrace();
-                                                }
-
-
-                                            }
-                                        }, new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-
-
-                                        try {
-                                            String responseBody = new String( error.networkResponse.data, "utf-8" );
-                                            JSONObject jsonObject = new JSONObject( responseBody );
-
-                                            String errorText = (String) jsonObject.get("message");
-
-                                            snackbar = Snackbar
-                                                    .make(getActivity().findViewById(R.id.container),
-                                                          errorText, Snackbar.LENGTH_LONG);
-
-                                            snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
-
-                                            snackbar.show();
-
-                                        } catch (NullPointerException | UnsupportedEncodingException | JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                });
-
-                                VolleyRequest.get(getContext()).add(request);
-
-                            } catch (JSONException e) {
-
-                                e.printStackTrace();
-                            }
-                        }
-                        else if(newPassword.length() < 8) {
-                            snackbar = Snackbar
-                                    .make(getActivity().findViewById(R.id.container),
-                                            "La password deve essere almeno di 8 caratteri", Snackbar.LENGTH_LONG);
-                            snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
-                            snackbar.show();
-                        }
-
-                        else {
-                            snackbar = Snackbar
-                                    .make(getActivity().findViewById(R.id.container),
-                                            "Password errata, riprova!", Snackbar.LENGTH_LONG);
-                            snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
-                            snackbar.show();
-
-                        }
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
-            }
-        });
+        editPass.setOnClickListener(changePasswordListener);
 
         return view;
 
     }
+
+    View.OnClickListener changePasswordListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setTitle("Cambia la password");
+
+            View viewInflated = LayoutInflater.from(getContext())
+                    .inflate(R.layout.dialog_change_password, (ViewGroup) getView(), false);
+
+            final EditText oldPasswordField = (EditText) viewInflated.findViewById(R.id.old_password);
+            final EditText newPasswordField = (EditText) viewInflated.findViewById(R.id.new_password);
+
+            builder.setView(viewInflated);
+
+            //region positiveListener
+
+            DialogInterface.OnClickListener positiveListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    oldPassword = oldPasswordField.getText().toString();
+                    newPassword = newPasswordField.getText().toString();
+
+                    if(canExecute(oldPassword,newPassword)) {
+
+                        try{
+
+                            String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                                    .appendPath("changepassword").appendEncodedPath(planner.email)
+                                    .getUri();
+
+                            JSONObject obj = new JSONObject("{'oldPassword':'"+oldPassword+"', 'newPassword':'"+newPassword+"'}");
+
+                            CustomRequest changePasswordRequest = new CustomRequest(Request.Method.POST, url, obj,
+                                    new Response.Listener<JSONObject>() {
+                                        @Override
+                                        public void onResponse(JSONObject response) {
+
+                                            HandlerManager.getInstance().handleSuccess(response,getView());
+                                        }
+                                    },
+                                    new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+
+                                            HandlerManager.getInstance().handleError(error,getView());
+                                        }
+                                    });
+
+                            VolleyRequest.get(getContext()).add(changePasswordRequest);
+                            dialog.dismiss();
+
+                        } catch (JSONException e) {
+
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            };
+
+            //endregion
+
+            //region negativeListener
+
+            DialogInterface.OnClickListener negativeListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    dialog.cancel();
+                }
+            };
+
+            //endregion
+
+            builder.setPositiveButton("OK",positiveListener);
+            builder.setNegativeButton("CANCELLA",negativeListener);
+
+            builder.show();
+        }
+    };
+
+    private boolean canExecute(String oldPassword, String newPassword) {
+
+        boolean showSnack = false;
+        String message = "";
+
+        if(newPassword.matches("") || oldPassword.matches("")) {
+
+            message = "Inserire entrambe le password";
+            showSnack = true;
+        }
+
+        else if(newPassword.length() < 8) {
+
+            message = "La password deve essere almeno di 8 caratteri";
+            showSnack = true;
+        }
+
+        else if(oldPassword.equals(newPassword)) {
+
+            message = "Le password sono coincidenti";
+            showSnack = true;
+        }
+
+        if(showSnack) {
+
+            snackbar = Snackbar.make(getActivity().findViewById(R.id.container),message, Snackbar.LENGTH_LONG);
+            snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
+            snackbar.show();
+            return false;
+        }
+        else
+            return true;
+    }
+
     private void setTitle () {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(NAME);
     }
@@ -344,66 +322,31 @@ public class ProfileFragment extends Fragment {
     //Risultato dell'immagine scelta dalla galleria
     @SuppressWarnings("deprecation")
     private void onSelectFromGalleryResult(Intent data) {
-        Bitmap bm;
-        if (data != null) {
-            try {
-                bm = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                bm.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
 
-                mImageUri = planner.image + ".jpg";
+        try {
+            Bitmap thumbnail = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
+            File createdImage = ImageManager.get().writeImage(MainActivity.mCurrentPlanner.email,thumbnail);
 
-                File destination = new File(Environment.getExternalStorageDirectory(),
-                        mImageUri);
-                FileOutputStream fo;
-                destination.createNewFile();
-                fo = new FileOutputStream(destination);
-                fo.write(bytes.toByteArray());
-                fo.close();
-                MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
-                        destination.getAbsolutePath(), destination.getName(), destination.getName());
-
-                imgProfile.setImageBitmap(bm);
-                uploadImage(destination);
-
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(createdImage != null){
+                imgProfile.setImageBitmap(thumbnail);
+                uploadImage(createdImage);
             }
+
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
         }
-
-
     }
 
     //Risultato dell'immagine scattata dalla fotocamera
     private void onCaptureImageResult(Intent data) {
 
         Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+        File createdImage = ImageManager.get().writeImage(MainActivity.mCurrentPlanner.email,thumbnail);
 
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
-
-        mImageUri = planner.image + ".jpg";
-
-        File destination = new File(Environment.getExternalStorageDirectory(),
-                mImageUri);
-        FileOutputStream fo;
-        try {
-
-            destination.createNewFile();
-            fo = new FileOutputStream(destination);
-            fo.write(bytes.toByteArray());
-            fo.close();
-            MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
-                    destination.getAbsolutePath(), destination.getName(), destination.getName());
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(createdImage != null){
+            imgProfile.setImageBitmap(thumbnail);
+            uploadImage(createdImage);
         }
-
-        imgProfile.setImageBitmap(thumbnail);
-        uploadImage(destination);
     }
 
     private void uploadImage(File toUploadFile) {
@@ -416,27 +359,38 @@ public class ProfileFragment extends Fragment {
         MultipartRequest mMultipartRequest = new MultipartRequest(url, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Snackbar.make(getView(), "Errore nel caricamento dell'immagine", Snackbar.LENGTH_SHORT)
+                Snackbar.make(imgProfile, "Errore nel caricamento dell'immagine", Snackbar.LENGTH_SHORT)
                         .show();
                 loading.dismiss();
             }
         }, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Snackbar.make(getView(), "Immagine caricata!", Snackbar.LENGTH_SHORT)
+                Snackbar.make(imgProfile, "Immagine caricata!", Snackbar.LENGTH_SHORT)
                         .show();
-                mImageUri = response;
-                planner.updateImage(mImageUri);
                 loading.dismiss();
-
-                //refresh immagine
-
-
             }
         },toUploadFile,"filename");
 
         VolleyRequest.get(getContext()).add(mMultipartRequest);
 
+    }
+
+    private void getOrFetchImage() {
+
+        Bitmap imageContent = ImageManager.get().readImage(MainActivity.mCurrentPlanner.email);
+
+        if(imageContent != null) {
+
+            imgProfile.setImageBitmap(imageContent);
+
+        } else {
+
+            String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                    .appendPath("img").appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+
+            Picasso.with(getActivity()).load(url).into(imgProfile);
+        }
     }
 
 }

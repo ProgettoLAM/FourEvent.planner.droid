@@ -21,6 +21,7 @@ import lam.project.foureventplannerdroid.fragment.ProfileFragment;
 import lam.project.foureventplannerdroid.fragment.WalletFragment;
 import lam.project.foureventplannerdroid.model.Planner;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
+import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 
 import static lam.project.foureventplannerdroid.EventDetailActivity.OPEN_FRAGMENT_WALLET;
 
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         if (StepManager.get(this).getStep() == StepManager.COMPLETE) {
 
             setContentView(R.layout.activity_main);
+
+            HandlerManager.getInstance(this);
 
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setTitle(R.string.app_name);
