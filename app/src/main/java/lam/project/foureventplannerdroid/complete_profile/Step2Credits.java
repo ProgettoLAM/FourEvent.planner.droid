@@ -2,6 +2,7 @@ package lam.project.foureventplannerdroid.complete_profile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import lam.project.foureventplannerdroid.model.Planner;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
+import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 /**
@@ -28,7 +30,7 @@ import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 public class Step2Credits extends AbstractStep {
 
-    Planner createdPlanner;
+    Planner mCreatedPlanner;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,38 +47,38 @@ public class Step2Credits extends AbstractStep {
     @Override
     public void onNext() {
 
-        createdPlanner = getStepDataFor(1).getParcelable(Planner.Keys.USER);
+        mCreatedPlanner = getStepDataFor(1).getParcelable(Planner.Keys.USER);
 
         String uri = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
-                .appendEncodedPath(createdPlanner.email)
+                .appendEncodedPath(mCreatedPlanner.email)
                 .getUri();
 
-        if(createdPlanner != null) {
+        if(mCreatedPlanner != null) {
 
             try {
 
-                CustomRequest request = new CustomRequest(Request.Method.POST,
-                        uri,
-                    createdPlanner.toJson(),
+                CustomRequest request = new CustomRequest(Request.Method.POST,uri, mCreatedPlanner.toJson(),
 
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
 
-                            StepManager.get(getContext()).setStep(StepManager.COMPLETE);
-                            PlannerManager.get().save(createdPlanner);
+                                StepManager.get(getContext()).setStep(StepManager.COMPLETE);
+                                PlannerManager.get().save(mCreatedPlanner);
 
-                            Intent intent = new Intent(getContext(), MainActivity.class);
-                            startActivity(intent);
+                                Intent intent = new Intent(getContext(), MainActivity.class);
+                                getActivity().finish();
+                                startActivity(intent);
 
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                                Log.d("STEP2",HandlerManager.handleError(error));
+                            }
                         }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                            System.out.println(error.toString());
-                        }
-                    }
                 );
 
                 VolleyRequest.get(getContext()).add(request);
@@ -91,22 +93,5 @@ public class Step2Credits extends AbstractStep {
     @Override
     public void onPrevious() {
         System.out.println("onPrevious");
-    }
-
-    @Override
-    public String optional() {
-        return null;
-    }
-
-    @Override
-    public boolean nextIf() {
-
-       return true;
-    }
-
-    @Override
-    public String error() {
-
-        return "Completa tutti i campi obbligatori";
     }
 }

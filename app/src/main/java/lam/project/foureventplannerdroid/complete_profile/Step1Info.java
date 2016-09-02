@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -324,25 +326,30 @@ public class Step1Info extends AbstractStep{
         String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
                 .appendPath("img").appendEncodedPath(PlannerManager.get(getContext()).getUser().email).getUri();
 
-        final ProgressDialog loading = ProgressDialog.show(getContext(), "Immagine dell'evento", "Caricamento in corso..", false, false);
+        final ProgressDialog loading = ProgressDialog.show(getContext(), "Immagine del profilo", "Caricamento in corso..", false, false);
 
-        MultipartRequest mMultipartRequest = new MultipartRequest(url, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Snackbar.make(getView(), "Errore nel caricamento dell'immagine", Snackbar.LENGTH_SHORT)
-                        .show();
-                loading.dismiss();
-            }
-        }, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Snackbar.make(getView(), "Immagine caricata!", Snackbar.LENGTH_SHORT)
-                        .show();
-                mImageUri = response;
-                loading.dismiss();
+        MultipartRequest mMultipartRequest = new MultipartRequest(url,
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                            Snackbar.make(imgUser, "Errore nel caricamento dell'immagine", Snackbar.LENGTH_SHORT)
+                                    .show();
+                            loading.dismiss();
+                            }
+                },
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
 
-            }
-        },toUploadFile,"filename");
+                        Snackbar successSnackBar = Snackbar.make(imgUser, "Immagine caricata!", Snackbar.LENGTH_SHORT);
+                        successSnackBar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightGreen));
+                        successSnackBar.show();
+
+                        mImageUri = response;
+                        loading.dismiss();
+
+                    }
+                },toUploadFile,"filename");
 
         VolleyRequest.get(getContext()).add(mMultipartRequest);
 
