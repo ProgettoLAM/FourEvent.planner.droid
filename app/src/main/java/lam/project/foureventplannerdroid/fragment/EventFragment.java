@@ -56,7 +56,7 @@ public class EventFragment extends Fragment {
     private EventAdapter mAdapter;
     private static final String NAME = "Eventi";
 
-    public static List<Event> mModel = new ArrayList<>();
+    public List<Event> mModel = new ArrayList<>();
 
     ProgressBar mProgressBar;
     ImageView mSadImageEmoticon;
@@ -109,7 +109,7 @@ public class EventFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
         // Setup ItemTouchHelper
-        ItemTouchHelper.Callback callback = new MovieTouchHelper(mAdapter);
+        ItemTouchHelper.Callback callback = new MovieTouchHelper(mAdapter, getActivity());
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(mRecyclerView);
 
@@ -146,12 +146,12 @@ public class EventFragment extends Fragment {
 
                         mAdapter.notifyDataSetChanged();
 
-                        mRecyclerView.setVisibility(View.VISIBLE);
+                        /*mRecyclerView.setVisibility(View.VISIBLE);
                         mSadImageEmoticon.setVisibility(INVISIBLE);
-                        mEventNotFound.setVisibility(INVISIBLE);
+                        mEventNotFound.setVisibility(INVISIBLE);*/
 
                         if(mSwipeRefreshLayout.isRefreshing()) {
-
+                            //setModel();
                             mSwipeRefreshLayout.setRefreshing(false);
                         }
 
@@ -162,10 +162,12 @@ public class EventFragment extends Fragment {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container)
+                        /*Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container)
                                 , HandlerManager.handleError(error),Snackbar.LENGTH_INDEFINITE);
                         snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
-                        snackbar.show();
+                        snackbar.show();*/
+                        mEventNotFound.setText(HandlerManager.handleError(error));
+                        showAndHideViews();
 
                     }
                 });

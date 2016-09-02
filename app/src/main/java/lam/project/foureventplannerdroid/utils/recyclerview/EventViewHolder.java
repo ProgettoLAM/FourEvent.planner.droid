@@ -16,8 +16,6 @@ import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 
-import static lam.project.foureventplannerdroid.fragment.EventFragment.mModel;
-
 /**
  * Created by Vale on 31/08/2016.
  */
