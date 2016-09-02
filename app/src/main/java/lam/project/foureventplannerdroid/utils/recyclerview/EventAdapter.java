@@ -17,15 +17,32 @@
 package lam.project.foureventplannerdroid.utils.recyclerview;
 
 import android.app.Activity;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.List;
 
+import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
+import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
+import lam.project.foureventplannerdroid.utils.connection.EventListRequest;
+import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
+import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
+import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 
 public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
@@ -33,6 +50,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
 
     private Activity mSenderActivity;
     private View divider;
+    private Snackbar snackbar;
 
 
 
@@ -48,7 +66,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
         final View layout = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.content_events_list,parent,false);
 
-        divider = (View) layout.findViewById(R.id.divider);
+        divider = layout.findViewById(R.id.divider);
 
 
         return new EventViewHolder(mSenderActivity,mModel,layout);
@@ -64,75 +82,68 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
 
     }
 
+    public void remove(final int position) {
+
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT).appendEncodedPath(MainActivity.mCurrentPlanner.email)
+                    .appendPath(mModel.get(position).mId).getUri();
+
+        CustomRequest request = new CustomRequest(Request.Method.DELETE, url, null,
+
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                    mModel.remove(position);
+                    notifyItemRemoved(position);
+
+                    snackbar = Snackbar
+                            .make(mSenderActivity.findViewById(R.id.container),
+                                    "Evento eliminato!", Snackbar.LENGTH_LONG);
+
+                    snackbar.getView().setBackgroundColor(ContextCompat.getColor(mSenderActivity.getApplicationContext(), R.color.lightGreen));
+
+                    snackbar.show();
+
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+
+                try {
+                    String responseBody = new String( error.networkResponse.data, "utf-8" );
+                    JSONObject jsonObject = new JSONObject( responseBody );
+
+                    String errorText = (String) jsonObject.get("message");
+
+                    snackbar = Snackbar
+                            .make(mSenderActivity.findViewById(R.id.container),
+                                    errorText, Snackbar.LENGTH_LONG);
+
+                    snackbar.getView().setBackgroundColor(ContextCompat.getColor(mSenderActivity.getApplicationContext(), R.color.lightRed));
+
+                    snackbar.show();
+
+                } catch (NullPointerException | UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        VolleyRequest.get(mSenderActivity.getApplicationContext()).add(request);
+
+
+    }
+
+    public void swap(int firstPosition, int secondPosition){
+        Collections.swap(mModel, firstPosition, secondPosition);
+        notifyItemMoved(firstPosition, secondPosition);
+    }
+
     @Override
     public int getItemCount() {
         return mModel.size();
     }
 }
-
-    /*@Override
-    public RecyclerView.ViewHolder onCreateSwipeViewHolder(ViewGroup parent, int i) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.content_events_list, parent, true);
-        view =  v.findViewById(R.id.divider);
-
-        return new EventViewHolder(v);
-    }
-
-
-    @Override
-    public void onBindSwipeViewHolder(RecyclerView.ViewHolder swipeViewHolder, int i) {
-        if( i == getItemCount() - 1 ){
-
-            view.setVisibility(INVISIBLE);
-        }
-        ((EventViewHolder) swipeViewHolder).bind(mModel.get(i));
-    }
-
-    @Override
-    public SwipeConfiguration onCreateSwipeConfiguration(Context context, int position) {
-            return new SwipeConfiguration.Builder(context)
-                    .setRightDrawableResource(R.drawable.ic_trash)
-                    .setRightSwipeBehaviour(SwipeConfiguration.SwipeBehaviour.RESTRICTED_SWIPE)
-                    .setLeftSwipeBehaviour(SwipeConfiguration.SwipeBehaviour.NO_SWIPE)
-                    .build();
-
-    }
-
-    @Override
-    public void onSwipe(final int position, int direction) {
-
-       /* if(direction == SWIPE_RIGHT) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-            builder.setMessage("Sei sicuro di voler eliminare l'evento?")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mModel.remove(position);
-                            notifyItemRemoved(position);
-                            Toast toast = Toast.makeText(mContext, "Evento eliminato ", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                    })
-                    .setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            new SwipeConfiguration.Builder(view.getContext())
-                                    .setRightDrawableResource(R.drawable.ic_trash)
-                                    .setRightSwipeBehaviour(SwipeConfiguration.SwipeBehaviour.RESTRICTED_SWIPE)
-                                    .build();
-                        }
-                    });
-            builder.show();
-        }
-
-    }
-
-
-
-    /*@Override
-    public int getItemCount() {
-        return mModel.size();
-    }*/
 

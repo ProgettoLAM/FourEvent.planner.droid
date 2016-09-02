@@ -12,6 +12,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,7 @@ import lam.project.foureventplannerdroid.utils.recyclerview.EventAdapter;
 import lam.project.foureventplannerdroid.utils.connection.EventListRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
+import lam.project.foureventplannerdroid.utils.recyclerview.MovieTouchHelper;
 
 import static android.view.View.INVISIBLE;
 
@@ -105,6 +107,11 @@ public class EventFragment extends Fragment {
         mAdapter = new EventAdapter(getActivity(), mModel);
 
         mRecyclerView.setAdapter(mAdapter);
+
+        // Setup ItemTouchHelper
+        ItemTouchHelper.Callback callback = new MovieTouchHelper(mAdapter);
+        ItemTouchHelper helper = new ItemTouchHelper(callback);
+        helper.attachToRecyclerView(mRecyclerView);
 
         ObjectAnimator animation = ObjectAnimator.ofInt (mProgressBar, "progress", 0, 500);
         animation.setDuration (1000);
