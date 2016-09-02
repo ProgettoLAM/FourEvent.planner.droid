@@ -5,9 +5,7 @@ import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,10 +22,6 @@ import android.widget.TextView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,9 +35,7 @@ import lam.project.foureventplannerdroid.utils.recyclerview.EventAdapter;
 import lam.project.foureventplannerdroid.utils.connection.EventListRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
-import lam.project.foureventplannerdroid.utils.recyclerview.MovieTouchHelper;
-
-import static android.view.View.INVISIBLE;
+import lam.project.foureventplannerdroid.utils.recyclerview.EventTouchHelper;
 
 /**
  * Created by Vale on 21/08/2016.
@@ -109,7 +101,7 @@ public class EventFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
         // Setup ItemTouchHelper
-        ItemTouchHelper.Callback callback = new MovieTouchHelper(mAdapter, getActivity());
+        ItemTouchHelper.Callback callback = new EventTouchHelper(mAdapter, getActivity());
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(mRecyclerView);
 
