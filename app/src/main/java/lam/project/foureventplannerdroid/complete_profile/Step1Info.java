@@ -9,10 +9,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,16 +31,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.github.fcannizzaro.materialstepper.AbstractStep;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Planner;
+import lam.project.foureventplannerdroid.utils.ImageManager;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.Utility;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
@@ -46,13 +46,14 @@ import lam.project.foureventplannerdroid.utils.connection.MultipartRequest;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 /**
- * Created by Vale on 11/08/2016.
+ *
+ *
  */
-
 public class Step1Info extends AbstractStep{
 
-    private int i = 1;
-    public static TextView dateInfo;
+    public static final int REQUEST_CODE = 1;
+
+    private TextView dateInfo;
 
     private CircleImageView imgUser;
     private EditText txtName;
@@ -66,12 +67,12 @@ public class Step1Info extends AbstractStep{
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
     private String userChoosenTask;
 
+    private Fragment thisFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
     }
 
     @Override
@@ -82,9 +83,15 @@ public class Step1Info extends AbstractStep{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        thisFragment = this;
         return initView(inflater.inflate(R.layout.step1_info, container, false));
     }
 
+    /**
+     *
+     * @param rootView
+     * @return
+     */
     private View initView(final View rootView) {
 
         LinearLayout birth_date = (LinearLayout) rootView.findViewById(R.id.birth_date);
@@ -111,6 +118,8 @@ public class Step1Info extends AbstractStep{
             public void onClick(View v) {
 
                 DialogFragment newFragment = new SelectDateFragment();
+
+                newFragment.setTargetFragment(thisFragment,REQUEST_CODE);
                 newFragment.show(getFragmentManager(), "DatePicker");
             }
         });
@@ -122,10 +131,10 @@ public class Step1Info extends AbstractStep{
     public boolean nextIf() {
 
 
-        boolean isNotEmptyName = !txtName.getText().toString().matches("") &&
+        boolean isNotEmptyFields = !txtName.getText().toString().matches("") &&
                 !txtSurname.getText().toString().matches("");
 
-        if(isNotEmptyName){
+        if(isNotEmptyFields){
 
             //setto il nome dell'utente
             mCurrentPlanner.addName(txtName.getText().toString()+ " "
@@ -170,15 +179,55 @@ public class Step1Info extends AbstractStep{
 
         }
 
-        return isNotEmptyName;
+        return isNotEmptyFields;
     }
 
     @Override
     public String error() {
 
-        return "Inserisci nome e cognome";
+        return "Inserisci nome e cognome obbligatori";
     }
 
+    //region Upload image
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (userChoosenTask.equals("Take Photo"))
+                        cameraIntent();
+                    else if (userChoosenTask.equals("Choose from Library"))
+                        galleryIntent();
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK) {
+
+            if (requestCode == SELECT_FILE)
+
+                onSelectFromGalleryResult(data);
+
+            else if (requestCode == REQUEST_CAMERA)
+
+                onCaptureImageResult(data);
+
+        } else if(requestCode == REQUEST_CODE) {
+
+            dateInfo.setText(data.getStringExtra(SelectDateFragment.DATE_RESULT));
+        }
+    }
+
+    /**
+     *
+     *
+     */
     private void selectImage() {
 
         final CharSequence[] items = { "Scatta una foto", "Scegli dalla galleria", "Annulla" };
@@ -208,11 +257,19 @@ public class Step1Info extends AbstractStep{
         builder.show();
     }
 
+    /**
+     *
+     *
+     */
     private void cameraIntent() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_CAMERA);
     }
 
+    /**
+     *
+     *
+     */
     private void galleryIntent() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -220,102 +277,48 @@ public class Step1Info extends AbstractStep{
         startActivityForResult(Intent.createChooser(intent, "Select File"), SELECT_FILE);
     }
 
-    //Permessi per scattare una foto/scegliere un'immagine dalla galleria
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (userChoosenTask.equals("Take Photo"))
-                        cameraIntent();
-                    else if (userChoosenTask.equals("Choose from Library"))
-                        galleryIntent();
-                } else {
-                    //Codice per negare i permessi
-                }
-                break;
-        }
-    }
-
-    /*Risultato della scelta dell'immagine in base al codice che ritorna:
-      - se ritorna "SELECT_FILE" si richiama il metodo per la scelta dalla galleria
-      - se ritorna "REQUEST_CAMERA" si richiama il metodo per la scelta dalla fotocamera
+    /**
+     *
+     *
+     * @param data
      */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == SELECT_FILE)
-                onSelectFromGalleryResult(data);
-            else if (requestCode == REQUEST_CAMERA)
-                onCaptureImageResult(data);
-        }
-    }
-
-    //Risultato dell'immagine scelta dalla galleria
-    @SuppressWarnings("deprecation")
     private void onSelectFromGalleryResult(Intent data) {
-        Bitmap bm;
-        if (data != null) {
-            try {
-                bm = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                bm.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
 
-                mImageUri = mCurrentPlanner.email + ".jpg";
+        try {
+            Bitmap thumbnail = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
+            File createdImage = ImageManager.get().writeImage(mCurrentPlanner.email,thumbnail);
 
-                File destination = new File(Environment.getExternalStorageDirectory(), mImageUri);
-                FileOutputStream fo;
-                destination.createNewFile();
-                fo = new FileOutputStream(destination);
-
-                fo.write(bytes.toByteArray());
-                fo.close();
-                MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
-                        destination.getAbsolutePath(), destination.getName(), null);
-
-                imgUser.setImageBitmap(bm);
-                uploadImage(destination);
-
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(createdImage != null){
+                imgUser.setImageBitmap(thumbnail);
+                uploadImage(createdImage);
             }
+
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
         }
-
-
     }
 
-    //Risultato dell'immagine scattata dalla fotocamera
+    /**
+     *
+     *
+     * @param data
+     */
     private void onCaptureImageResult(Intent data) {
 
         Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+        File createdImage = ImageManager.get().writeImage(mCurrentPlanner.email,thumbnail);
 
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
-
-        mImageUri =  mCurrentPlanner.email + ".jpg";
-
-        File destination = new File(Environment.getExternalStorageDirectory(),
-                mImageUri);
-        FileOutputStream fo;
-        try {
-
-            destination.createNewFile();
-            fo = new FileOutputStream(destination);
-            fo.write(bytes.toByteArray());
-            fo.close();
-            MediaStore.Images.Media.insertImage(getContext().getContentResolver(),
-                    destination.getAbsolutePath(), destination.getName(), null);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(createdImage != null){
+            imgUser.setImageBitmap(thumbnail);
+            uploadImage(createdImage);
         }
-        imgUser.setImageBitmap(thumbnail);
-        uploadImage(destination);
     }
 
+    /**
+     *
+     *
+     * @param toUploadFile
+     */
     private void uploadImage(File toUploadFile) {
 
         String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
@@ -345,9 +348,20 @@ public class Step1Info extends AbstractStep{
 
     }
 
-    //Classe relativa alla visualizzazione del dialog del calendario per la selezione della mData di nascita
+    //endregion
+
+    //region Date
+
+    /**
+     *
+     *
+     */
     public static class SelectDateFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
+        public static String DATE_RESULT = "date";
+        private String mDate;
+
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -369,10 +383,20 @@ public class Step1Info extends AbstractStep{
             populateSetDate(yy, mm+1, dd);
         }
         public void populateSetDate(int year, int month, int day) {
-            dateInfo.setText(month+"/"+day+"/"+year);
+
+            mDate = month+"/"+day+"/"+year;
+            sendResult(REQUEST_CODE);
         }
 
+        private void sendResult(int REQUEST_CODE) {
+
+            Intent intent = new Intent();
+            intent.putExtra(DATE_RESULT,mDate);
+            getTargetFragment().onActivityResult(getTargetRequestCode(), REQUEST_CODE, intent);
+        }
     }
+
+    //endregion
 
 }
 
