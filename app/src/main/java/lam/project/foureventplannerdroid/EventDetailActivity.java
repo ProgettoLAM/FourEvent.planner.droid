@@ -2,10 +2,14 @@ package lam.project.foureventplannerdroid;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -26,6 +31,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,11 +46,15 @@ import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
+import lam.project.foureventplannerdroid.utils.gcm.GCMRegistrationIntentService;
 import lam.project.foureventplannerdroid.utils.qr_code.ScannerActivity;
 
 public class EventDetailActivity extends Activity {
 
     private AlertDialog dialog;
+
+    //Creating a broadcast receiver for gcm registration
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     private Button.OnClickListener listenerButton;
     private TextView detailsParticipation;
@@ -103,6 +114,33 @@ public class EventDetailActivity extends Activity {
         };
 
     }
+
+    //Registering receiver on activity resume
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.w("EventDetailActivity", "onResume");
+
+        if(mRegistrationBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter(GCMRegistrationIntentService.REGISTRATION_SUCCESS));
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter(GCMRegistrationIntentService.REGISTRATION_ERROR));
+        }
+    }
+
+
+    //Unregistering receiver on activity paused
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.w("EventDetailActivity", "onPause");
+
+        if(mRegistrationBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        }
+    }
+
 
     private void addData(float[] yData, String[] xData, PieChart mChart) {
 
@@ -223,7 +261,7 @@ public class EventDetailActivity extends Activity {
 
         if (price <= MainActivity.mCurrentPlanner.balance) {
 
-            message = "Pubblicizzare l'evento ha un costo di " + price + " €." +
+            message = "Pubblicizzare l'evento ha un costo di " + price + "€." +
                     "\n\nHai un totale di " + MainActivity.mCurrentPlanner.balance + " €.\nVuoi pubblicizzarlo?";
 
             title = "Inserisci l'evento tra i popolari";
@@ -250,14 +288,12 @@ public class EventDetailActivity extends Activity {
                                     @Override
                                     public void onResponse(JSONObject response) {
 
-                                        Snackbar snackbarError = Snackbar.make(v, "Evento inserito tra i popolari!",
+                                        Snackbar snackbar = Snackbar.make(v, "Evento inserito tra i popolari!",
                                                 Snackbar.LENGTH_LONG);
 
-                                        View snackbarView = snackbarError.getView();
+                                        snackbar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
+                                        snackbar.show();
 
-                                        snackbarView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
-
-                                        snackbarError.show();
                                     }
                                 }, new Response.ErrorListener() {
 
@@ -324,97 +360,29 @@ public class EventDetailActivity extends Activity {
     public void messageParticipation(final View view) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        DialogInterface.OnClickListener positiveListener;
-        String positiveListenerText;
-        final int price = Integer.parseInt(priceMessage.getText().toString());
 
-        if (price <= MainActivity.mCurrentPlanner.balance) {
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, v, false);
 
-            View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, (ViewGroup) view, false);
+        builder.setView(viewInflated);
 
-            builder.setView(viewInflated);
+        builder.setPositiveButton("Invia", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                handleMessaging();
 
-            positiveListenerText = "Invia";
-            positiveListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(final DialogInterface dialog, int which) {
+            }
+        });
 
-                    String url = FourEventUri.Builder.create(FourEventUri.Keys.RECORD)
-                            .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
-
-                    try {
-
-                        JSONObject record = Record.Builder
-                                .create(-price, Record.Keys.MESSAGE, MainActivity.mCurrentPlanner.email)
-                                .withEvent(mCurrentEvent.mId)
-                                .build().toJson();
-
-                        CustomRequest createRecordRequest = new CustomRequest(Request.Method.PUT,
-                                url, record,
-                                new Response.Listener<JSONObject>() {
-
-                                    @Override
-                                    public void onResponse(JSONObject response) {
-
-                                    }
-                                }, new Response.ErrorListener() {
-
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                                String json;
-
-                                NetworkResponse response = error.networkResponse;
-                                if (response != null && response.data != null) {
-                                    switch (response.statusCode) {
-                                        case 403:
-                                            json = new String(response.data);
-                                            json = trimMessage(json, "message");
-                                            if (json != null) displayMessage(json);
-                                            break;
-
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                        });
-
-                        VolleyRequest.get(view.getContext()).add(createRecordRequest);
-
-                    } catch (JSONException | ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-
-        } else {
-
-            builder.setTitle("Credito insufficiente");
-            builder.setMessage("Non hai abbastanza crediti per inviare un messaggio, ricarica il portafoglio!!");
-
-            positiveListenerText = "Ricarica portafoglio";
-            positiveListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
-                    startActivity(openFragmentBIntent);
-                }
-            };
-        }
-
-        builder.setNegativeButton("Cancella", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
                 dialog.dismiss();
             }
         });
-        builder.setPositiveButton(positiveListenerText, positiveListener);
 
         builder.show();
+
     }
 
     private void buyParticipation(final Float amount, final String numParticipation) throws JSONException {
@@ -547,4 +515,75 @@ public class EventDetailActivity extends Activity {
 
     }
 
+    private void handleMessaging() {
+        //Initializing our broadcast receiver
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+
+            //When the broadcast received
+            //We are sending the broadcast from GCMRegistrationIntentService
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //If the broadcast has received with success
+                //that means device is registered successfully
+                if(intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_SUCCESS)){
+                    //Getting the registration token from the intent
+                    String token = intent.getStringExtra("token");
+                    //Displaying the token as toast
+                    Snackbar.make(v, "Registration token: "+token,
+                            Snackbar.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "Registration token:" + token, Toast.LENGTH_LONG).show();
+
+                    //if the intent is not with success then displaying error messages
+                } else if(intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_ERROR)){
+                    Snackbar snackbarError = Snackbar.make(v, "GCM registration error!",
+                            Snackbar.LENGTH_LONG);
+
+                    snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                    snackbarError.show();
+                } else {
+                    Snackbar snackbarError = Snackbar.make(v, "Error occuped",
+                            Snackbar.LENGTH_LONG);
+
+                    snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                    snackbarError.show();
+                }
+            }
+        };
+
+        //Checking play service is available or not
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+
+        //if play service is not available
+        if(ConnectionResult.SUCCESS != resultCode) {
+            //If play service is supported but not installed
+            if(GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                //Displaying message that play service is not installed
+                Snackbar snackbarError = Snackbar.make(v, "Google Play Service is not install/enabled in this device!",
+                        Snackbar.LENGTH_LONG);
+
+                snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                snackbarError.show();
+
+                GooglePlayServicesUtil.showErrorNotification(resultCode, getApplicationContext());
+
+                //If play service is not supported
+                //Displaying an error message
+            } else {
+                Snackbar snackbarError = Snackbar.make(v, "This device does not support for Google Play Service!",
+                        Snackbar.LENGTH_LONG);
+
+                snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                snackbarError.show();
+            }
+
+            //If play service is available
+        } else {
+            //Starting intent to register device
+            Intent intent = new Intent(this, GCMRegistrationIntentService.class);
+            startService(intent);
+        }
+
+    }
+
 }
+

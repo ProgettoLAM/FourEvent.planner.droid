@@ -148,7 +148,6 @@ public class Record {
         public static final String RECHARGE = "Ricarica conto";
         public static final String BUY_TICKETS = "Aumento biglietti";
         public static final String SPONSOR = "Popolari";
-        public static final String MESSAGE = "Messaggio inviato";
 
     }
 }

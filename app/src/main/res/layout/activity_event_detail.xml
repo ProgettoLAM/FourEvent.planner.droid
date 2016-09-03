@@ -55,10 +55,10 @@
     </RelativeLayout>
 
     <TextView
-        android:id="@+id/label_gender"
+        android:id="@+id/label_age"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sesso"
+        android:text="Età"
         android:layout_marginLeft="80dp"
         android:layout_marginBottom="8dp"
         android:textSize="14sp"
@@ -66,10 +66,10 @@
         android:layout_below="@id/layout_participation"/>
 
     <TextView
-        android:id="@+id/label_age"
+        android:id="@+id/label_gender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Età"
+        android:text="Sesso"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp"
         android:layout_marginRight="85dp"
@@ -187,26 +187,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/violet"
-                    android:text="10"
-                    android:textSize="20sp"
+                    android:text="FREE"
+                    android:textSize="18sp"
                     android:layout_marginTop="16dp"
                     android:layout_centerHorizontal="true"
                     android:layout_below="@id/price_popular"/>
 
-                <ImageView
-                    android:id="@id/symbol_euro"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="20dp"
-                    android:src="@drawable/ic_symbol_euro"
-                    android:tint="@color/violet"
-                    android:layout_toRightOf="@id/price_message"
-                    android:layout_below="@id/divider"/>
 
             </RelativeLayout>
-
 
         </RelativeLayout>
 

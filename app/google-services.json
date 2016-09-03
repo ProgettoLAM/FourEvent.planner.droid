@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "623919646169",
+    "firebase_url": "https://fourevent-project-lam.firebaseio.com",
+    "project_id": "fourevent---project-lam",
+    "storage_bucket": "fourevent---project-lam.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623919646169:android:a1878973bd916d87",
+        "android_client_info": {
+          "package_name": "lam.project.foureventplannerdroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "623919646169-3vqge1ffnv96l4iscct510jesa9vd4bj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lam.project.foureventplannerdroid",
+            "certificate_hash": "BB5AEEF2842FDFA5B9C9C1F8BC7E0AD665BF0304"
+          }
+        },
+        {
+          "client_id": "623919646169-58a7fohskq2j86fhalla9nhfvg530m6t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJ-kG0eGDicxJjxsPS7K3ynIaE_inQ9k0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "623919646169-58a7fohskq2j86fhalla9nhfvg530m6t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
