@@ -413,9 +413,10 @@ public class EventDetailActivity extends Activity {
         builder.show();
     }
 
-    private void buyParticipation(Float amount, final String numParticipation) throws JSONException {
+    private void buyParticipation(final Float amount, final String numParticipation) throws JSONException {
 
         final float balance = MainActivity.mCurrentPlanner.balance;
+        String maxTicket = "newMax";
         dialog.dismiss();
 
         if(amount < balance) {
@@ -428,24 +429,26 @@ public class EventDetailActivity extends Activity {
             progressDialog.setCanceledOnTouchOutside(false);
 
 
-            String url = FourEventUri.Builder.create(FourEventUri.Keys.RECORD)
+            String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER).appendPath("maxticket")
                     .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
 
             try {
 
                 JSONObject record = Record.Builder
-                        .create(-amount, Record.Keys.BUY_TICKETS, MainActivity.mCurrentPlanner.email)
+                        .create(-amount, Record.Keys.BUY_TICKETS+ ": "+mCurrentEvent.mTitle, MainActivity.mCurrentPlanner.email)
                         .withEvent(mCurrentEvent.mId)
                         .build().toJson();
 
-                CustomRequest createRecordRequest = new CustomRequest(Request.Method.PUT,
+                record.put(maxTicket,300);
+
+                CustomRequest createRecordRequest = new CustomRequest(Request.Method.POST,
                         url, record,
                         new Response.Listener<JSONObject>() {
 
                             @Override
                             public void onResponse(JSONObject response) {
 
-                                handleResponse(response, numParticipation);
+                                handleResponse(response, numParticipation, amount);
 
                             }
                         }, new Response.ErrorListener() {
@@ -511,14 +514,13 @@ public class EventDetailActivity extends Activity {
         snackbarError.show();
     }
 
-    private void handleResponse(JSONObject response, String numParticipation) {
+    private void handleResponse(JSONObject response, String numParticipation, final float amount) {
 
         try {
 
             //TODO modificare in questo modo anche wallet per le ricariche
-            Record insertedRecord = Record.fromJson(response.getJSONObject(Record.Keys.RECORD));
-
-            MainActivity.mCurrentPlanner.updateBalance(insertedRecord.mAmount);
+            //Record insertedRecord = Record.fromJson(response.getJSONObject(Record.Keys.RECORD));
+            MainActivity.mCurrentPlanner.updateBalance(amount);
 
             PlannerManager.get().save(MainActivity.mCurrentPlanner);
 
