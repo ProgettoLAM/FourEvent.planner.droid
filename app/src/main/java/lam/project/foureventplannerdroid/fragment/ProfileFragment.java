@@ -8,16 +8,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,13 +30,8 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import lam.project.foureventplannerdroid.MainActivity;
@@ -63,7 +55,6 @@ public class ProfileFragment extends Fragment {
     private static final String NAME = "Profilo";
     private String oldPassword;
     private String newPassword;
-    private Snackbar snackbar;
     private CircleImageView imgProfile;
 
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
@@ -165,14 +156,25 @@ public class ProfileFragment extends Fragment {
                                         @Override
                                         public void onResponse(JSONObject response) {
 
-                                            HandlerManager.getInstance().handleSuccess(response,getView());
+                                            try{
+
+                                                Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container),response.getString("message"), Snackbar.LENGTH_LONG);
+                                                snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightGreen));
+                                                snackbar.show();
+                                            }
+                                            catch (JSONException e) {
+
+                                                e.printStackTrace();
+                                            }
                                         }
                                     },
                                     new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
 
-                                            HandlerManager.getInstance().handleError(error,getView());
+                                            Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container), HandlerManager.getInstance().handleError(error), Snackbar.LENGTH_LONG);
+                                            snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
+                                            snackbar.show();
                                         }
                                     });
 
@@ -233,7 +235,7 @@ public class ProfileFragment extends Fragment {
 
         if(showSnack) {
 
-            snackbar = Snackbar.make(getActivity().findViewById(R.id.container),message, Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container), message, Snackbar.LENGTH_LONG);
             snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
             snackbar.show();
             return false;
