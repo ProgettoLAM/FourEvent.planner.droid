@@ -415,7 +415,14 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)
         );
-        dpd.setMinDate(now);
+        if(!startDate.getText().toString().equals("Data di inizio")) {
+            String[] date = startDate.getText().toString().split("/");
+            now.set(now.get(Calendar.YEAR), Integer.parseInt(date[1])-1, Integer.parseInt(date[0]));
+            dpd.setMinDate(now);
+        }
+        else {
+            dpd.setMinDate(now);
+        }
         dpd.setThemeDark(true);
 
         dpd.show(getFragmentManager(), "Datepickerdialog");

@@ -311,6 +311,7 @@ public class WalletFragment extends Fragment {
                         public void onErrorResponse(VolleyError error) {
 
                             progressDialog.dismiss();
+                            error.printStackTrace();
                         }
                     });
 

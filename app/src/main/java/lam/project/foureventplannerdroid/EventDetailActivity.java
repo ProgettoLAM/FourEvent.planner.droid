@@ -235,7 +235,7 @@ public class EventDetailActivity extends Activity {
                     try {
 
                         JSONObject record = Record.Builder
-                                .create(-price, Record.Keys.SPONSOR, MainActivity.mCurrentPlanner.email)
+                                .create(-price, Record.Keys.SPONSOR +": "+ mCurrentEvent.mTitle, MainActivity.mCurrentPlanner.email)
                                 .withEvent(mCurrentEvent.mId)
                                 .build().toJson();
 
@@ -246,7 +246,14 @@ public class EventDetailActivity extends Activity {
                                     @Override
                                     public void onResponse(JSONObject response) {
 
+                                        Snackbar snackbarError = Snackbar.make(v, "Evento inserito tra i popolari!",
+                                                Snackbar.LENGTH_LONG);
 
+                                        View snackbarView = snackbarError.getView();
+
+                                        snackbarView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
+
+                                        snackbarError.show();
                                     }
                                 }, new Response.ErrorListener() {
 

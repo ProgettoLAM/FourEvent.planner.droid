@@ -146,9 +146,9 @@ public class Record {
         public static String RECORD =  "record";
 
         public static final String RECHARGE = "Ricarica conto";
-        public static final String BUY_TICKETS = "Acquisto numero di biglietti";
-        public static final String SPONSOR = "Inserisci l'evento tra i popolari";
-        public static final String MESSAGE = "Invia un messaggio";
+        public static final String BUY_TICKETS = "Aumento numero max di biglietti";
+        public static final String SPONSOR = "Popolari";
+        public static final String MESSAGE = "Messaggio inviato";
 
     }
 }

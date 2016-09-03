@@ -98,7 +98,7 @@
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:textColor="#000"
-        android:hint="Località"
+        android:hint="Città di residenza"
         android:textColorHint="#999"
         android:layout_marginTop="20dp"
         android:inputType="text"
