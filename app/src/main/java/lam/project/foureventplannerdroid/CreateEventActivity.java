@@ -22,9 +22,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -48,21 +45,23 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import lam.project.foureventplannerdroid.model.Category;
 import lam.project.foureventplannerdroid.model.Event;
+import lam.project.foureventplannerdroid.utils.DateConverter;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.Utility;
@@ -81,15 +80,18 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private String mTag = "MUSICA";
     private String mAddress;
     private String mDescription;
+
+    private Date mStartDateTime;
+    private Date mEndDateTime;
+
     private String mStartDate;
     private String mStartTime;
     private String mEndDate;
     private String mEndTime;
+
     private String mImageUri;
     private int nTicket;
     private String progress;
-
-
 
     private TextView startDate;
     private TextView startTime;
@@ -125,6 +127,52 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     private ViewGroup view;
 
+    //region DateTimeListener
+
+    private static Integer DATE_TIME_SENDER;
+
+    View.OnClickListener dateTimeListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            int id = v.getId();
+
+            switch (id){
+
+                case R.id.event_start_date:
+
+                    DATE_TIME_SENDER = R.id.event_start_date;
+                    startDatePicker();
+                    break;
+
+                case R.id.event_start_time:
+
+                    DATE_TIME_SENDER = R.id.event_start_time;
+                    startTimePicker();
+                    break;
+
+                case R.id.event_end_date:
+
+                    if(mStartDateTime != null) {
+
+                        DATE_TIME_SENDER = R.id.event_end_date;
+                        endDatePicker();
+                    }
+                    break;
+
+                case R.id.event_end_time:
+
+                    if(mStartDateTime != null) {
+
+                        DATE_TIME_SENDER = R.id.event_end_time;
+                        endTimePicker();
+                    }
+                    break;
+            }
+        }
+    };
+
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +192,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         numberPicker.setMinValue(0);
         numberPicker.setMaxValue(30);
         numberPicker.setWrapSelectorWheel(true);
+        numberPicker.setOrientation(NumberPicker.HORIZONTAL);
 
         numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
@@ -190,17 +239,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        startDate.addTextChangedListener(watcher);
-        startTime.addTextChangedListener(watcher);
-        endDate.addTextChangedListener(watcher);
+        startDate.setOnClickListener(dateTimeListener);
+        startTime.setOnClickListener(dateTimeListener);
 
-        startDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                datePicker();
-
-            }
-        });
+        endDate.setOnClickListener(dateTimeListener);
+        endTime.setOnClickListener(dateTimeListener);
 
         tagEvent = (MaterialSpinner) findViewById(R.id.event_tag);
         tagEvent.setItems(Category.Keys.categories);
@@ -208,8 +251,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
                 mTag = item;
             }
-
         });
+
+
+        //region client google api
 
         //Creazione dell'oggetto nel quale si passano le informazioni relative ai servizi da inizializzare
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -266,8 +311,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 })
                 .build();
 
+        //endregion
     }
 
+
+    //region Creazione upload evento
 
     public void createEvent(final View view) {
 
@@ -280,8 +328,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         mEndTime = endTime.getText().toString();
 
 
-        if(mTitle == null || mAddress == null || mDescription == null || mStartDate.equals("Data di inizio")
-                || mStartTime.equals("Ora di inizio") || mImageUri == null) {
+        if(mTitle == null || mAddress == null || mDescription == null || mStartDateTime == null || mImageUri == null) {
 
                     snackbar = Snackbar.make(view, "Compila i dati obbligatori!", Snackbar.LENGTH_LONG);
                     View snackbarView = snackbar.getView();
@@ -299,15 +346,15 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         try {
 
-            String dateTimeStart = mStartDate + " - " + mStartTime;
+            String dateTimeStart = DateConverter.dateToMillis(mStartDateTime);
 
             Event event = Event.Builder.create(mTitle, mDescription, dateTimeStart,
                     mCurrentPlanner.email).withTag(mTag).withAddress(mAddress)
                     .withImage(mImageUri).withPrice(progress).build();
 
             //controllo strano. inutile
-            if(!mEndDate.equals("Data di fine") && !mEndTime.equals("Ora di fine")) {
-                String dateTimeEnd = mEndDate + " - "+mEndTime;
+            if(mEndDateTime != null) {
+                String dateTimeEnd = DateConverter.dateToMillis(mEndDateTime);
                 event.addEndDate(dateTimeEnd);
             }
 
@@ -346,107 +393,146 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         finish();
     }
 
-    private final TextWatcher watcher = new TextWatcher() {
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-        public void afterTextChanged(Editable s) {
-            startTime.setVisibility(View.VISIBLE);
-            startTime.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    timePicker();
-                }
-            });
-            if(!startTime.getText().toString().equals("Ora di inizio")) {
-                endDate.setVisibility(View.VISIBLE);
-                endDate.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        datePicker();
-                    }
-                });
-            }
-            if(!endDate.getText().toString().equals("Data di fine")) {
-                endTime.setVisibility(View.VISIBLE);
-                endTime.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        timePicker();
-                    }
-                });
-            }
-        }
-    };
+    //endregion
 
     @Override
-    public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int second) {
-        String hourString = hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay;
-        String minuteString = minute < 10 ? "0"+minute : ""+minute;
-        String time = hourString+":"+minuteString;
-        if(startTime.getText().toString().equals("Ora di inizio")) {
-            startTime.setText(time);
+    public void onTimeSet(RadialPickerLayout view, int hour, int minute, int second) {
+
+        Calendar dateCalendar = Calendar.getInstance();
+        dateCalendar.set(0,0,0,hour,minute);
+
+        String time = DateConverter.timeFromCalendar(dateCalendar);
+
+        switch (DATE_TIME_SENDER) {
+
+            case R.id.event_start_time:
+
+                mStartTime = time;
+                startTime.setText(mStartTime);
+
+                if(mStartTime != null)
+                    mStartDateTime = DateConverter.dateFromString(mStartDate+" "+mStartTime);
+
+                break;
+
+            case R.id.event_end_time:
+
+                mEndTime = time;
+                endTime.setText(mEndTime);
+
+                if(mEndDate != null)
+                    mEndDateTime = DateConverter.dateFromString(mEndDate+" "+mEndTime);
+
+            default:
+                break;
         }
-        else
-            endTime.setText(time);
     }
 
     @Override
-    public void onDateSet(DatePickerDialog view,  int year, int monthOfYear, int dayOfMonth) {
-        String date = dayOfMonth+"/"+(++monthOfYear);
-        if(startDate.getText().toString().equals("Data di inizio")) {
-            startDate.setText(date);
+    public void onDateSet(DatePickerDialog view, int year, int month, int day) {
+
+        Calendar dateCalendar = Calendar.getInstance();
+        dateCalendar.set(year, month, day, 0, 0);
+
+        String date = DateConverter.dateFromCalendar(dateCalendar);
+
+        switch (DATE_TIME_SENDER) {
+
+            case R.id.event_start_date:
+
+                mStartDate = date;
+                startDate.setText(mStartDate);
+
+                if(mStartTime != null)
+                    mStartDateTime = DateConverter.dateFromString(mStartDate+" "+mStartTime);
+
+                break;
+
+            case R.id.event_end_date:
+
+                mEndDate = date;
+                endDate.setText(mEndDate);
+
+                if(mEndTime != null)
+                    mEndDateTime = DateConverter.dateFromString(mEndDate+" "+mEndTime);
+
+            default:
+                break;
         }
-        else
-            endDate.setText(date);
     }
 
     @Override
     public void onClick(View v) {}
 
-    private void datePicker() {
-        Calendar now = Calendar.getInstance();
-        DatePickerDialog dpd;
+    private void startDatePicker() {
 
-        dpd = DatePickerDialog.newInstance(
-                CreateEventActivity.this,
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH)
-        );
-        if(!startDate.getText().toString().equals("Data di inizio")) {
-            String[] date = startDate.getText().toString().split("/");
-            now.set(now.get(Calendar.YEAR), Integer.parseInt(date[1])-1, Integer.parseInt(date[0]));
-            dpd.setMinDate(now);
-        }
-        else {
-            dpd.setMinDate(now);
-        }
-        dpd.setThemeDark(true);
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog startDateDialog = DatePickerDialog.newInstance(CreateEventActivity.this,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
 
-        dpd.show(getFragmentManager(), "Datepickerdialog");
+        startDateDialog.setMinDate(calendar);
 
+        startDateDialog.setThemeDark(true);
+        startDateDialog.show(getFragmentManager(),"StartDatePickerDialog");
     }
 
-    private void timePicker() {
-        Calendar now = Calendar.getInstance();
-        TimePickerDialog tpd = TimePickerDialog.newInstance(
+    private void endDatePicker() {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(mStartDateTime);
+
+        DatePickerDialog endDateDialog = DatePickerDialog.newInstance(CreateEventActivity.this,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+
+        endDateDialog.setMinDate(calendar);
+
+        endDateDialog.setThemeDark(true);
+        endDateDialog.show(getFragmentManager(),"EndDatePickerDialog");
+    }
+
+    private void endTimePicker() {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(mStartDateTime);
+        TimePickerDialog endTimeDialog = TimePickerDialog.newInstance(
                 CreateEventActivity.this,
-                now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
                 true
         );
 
-        tpd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                Log.d("TimePicker", "Dialog was cancelled");
-            }
-        });
-        tpd.setThemeDark(true);
-        tpd.show(getFragmentManager(), "Timepickerdialog");
+        if(mEndDate != null && mEndDate.equals(mStartDate))
+            endTimeDialog.setMinTime(new Timepoint(calendar.get(Calendar.HOUR_OF_DAY)+1, calendar.get(Calendar.MINUTE)));
+
+        endTimeDialog.setThemeDark(true);
+        endTimeDialog.show(getFragmentManager(),"EndTimePickerDialog");
+
     }
+
+    private void startTimePicker() {
+
+        Calendar calendar = Calendar.getInstance();
+        TimePickerDialog startTimeDialog = TimePickerDialog.newInstance(
+                CreateEventActivity.this,
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                true
+        );
+
+        if(mStartDate != null && mStartDate.equals(DateConverter.dateFromCalendar(calendar)))
+            startTimeDialog.setMinTime(new Timepoint(calendar.get(Calendar.HOUR_OF_DAY)+1, calendar.get(Calendar.MINUTE)));
+
+        startTimeDialog.setThemeDark(true);
+        startTimeDialog.show(getFragmentManager(), "StartTimePickerDialog");
+
+
+    }
+
+    //region Carica immagine
 
     private void selectImage() {
 
@@ -918,4 +1004,5 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         VolleyRequest.get(this).add(mMultipartRequest);
     }
 
+    //endregion
 }

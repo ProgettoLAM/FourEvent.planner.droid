@@ -14,14 +14,26 @@ import java.util.Locale;
 public class DateConverter {
 
     private static final String FORMATTER = "dd/MM - HH:mm";
+
+    private static final String DATE_FORMATTER_V2 = "dd MMM yyyy";
+    private static final String TIME_FORMATTER_V2 = "HH:mm";
+    private static final String DATETIME_FORMATTER_V2 = "dd MMM yyyy HH:mm";
     private static final String DIVIDER = " - ";
 
     public static String fromMillis(long millis) {
 
-
         SimpleDateFormat formatter = new SimpleDateFormat(FORMATTER,Locale.ITALY);
 
         Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTimeInMillis(millis);
+        return formatter.format(calendar.getTime());
+    }
+
+    public static String dateFromMillis(long millis) {
+
+        SimpleDateFormat formatter = new SimpleDateFormat(DATETIME_FORMATTER_V2,Locale.ITALY);
+
+        Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(millis);
         return formatter.format(calendar.getTime());
     }
@@ -31,6 +43,35 @@ public class DateConverter {
         Date parsedDate = new SimpleDateFormat(FORMATTER,Locale.ITALY).parse(date);
 
         return Long.toString(parsedDate.getTime());
+    }
+
+    public static String dateFromCalendar(Calendar calendar) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMATTER_V2,Locale.ITALY);
+        return dateFormat.format(calendar.getTime());
+    }
+
+    public static String timeFromCalendar(Calendar calendar) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_FORMATTER_V2,Locale.ITALY);
+        return dateFormat.format(calendar.getTime());
+    }
+
+    public static Date dateFromString(String date) {
+
+        try {
+            return new SimpleDateFormat(DATETIME_FORMATTER_V2,Locale.ITALY).parse(date);
+
+        } catch (ParseException e) {
+
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String dateToMillis(Date date) {
+
+        return Long.toString(date.getTime());
     }
 
     public static String getTime(String start,String end){

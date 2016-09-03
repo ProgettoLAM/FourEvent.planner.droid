@@ -11,4 +11,10 @@
     <string name="male">M</string>
     <string name="female">F</string>
     <string name="euro">\u20ac</string>
+    <string name="create_title">Titolo</string>
+    <string name="create_tag">Categoria :</string>
+    <string name="create_address_text">Indirizzo</string>
+    <string name="create_description_text">Descrizione</string>
+    <string name="create_start_date_text">Data ora inizio</string>
+    <string name="create_expand">Biglietti e prezzo</string>
 </resources>
