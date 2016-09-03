@@ -87,7 +87,7 @@ public class Category implements Parcelable{
         public static final String VIAGGI = "VIAGGI";
         public static final String VIDEOGIOCHI = "VIDEOGIOCHI";
 
-        public static final String[] categories = {MUSICA, TECNOLOGIA, LETTURA, SPORT, MODA,
+        public static final String[] categories = {/**/MUSICA, TECNOLOGIA, LETTURA, SPORT, MODA,
                 FOTOGRAFIA, MARKETNG, NATURA, ARTE, CIBO, VIAGGI, VIDEOGIOCHI};
 
     }

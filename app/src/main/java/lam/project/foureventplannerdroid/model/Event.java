@@ -153,7 +153,9 @@ public class Event implements Parcelable{
 
         final String title = jsonObject.getString(Keys.TITLE);
         final String description = jsonObject.getString(Keys.DESCRIPTION);
-        final String startDate = DateConverter.fromMillis(jsonObject.getLong(Keys.START_DATE));
+
+        //TODO
+        final String startDate = DateConverter.dateFromMillis(jsonObject.getLong(Keys.START_DATE));
         final String author = jsonObject.getString(Keys.AUTHOR);
 
         final String tag = jsonObject.getString(Keys.TAG);
@@ -172,7 +174,8 @@ public class Event implements Parcelable{
 
         if(jsonObject.has(Keys.END_DATE)) {
 
-            builder.withEndDate(DateConverter.fromMillis(jsonObject.getLong(Keys.END_DATE)));
+            //TODO
+            builder.withEndDate(DateConverter.dateFromMillis(jsonObject.getLong(Keys.END_DATE)));
         }
 
         if(jsonObject.has(Keys.ID)) {
@@ -218,17 +221,10 @@ public class Event implements Parcelable{
         jsonObject.put(Keys.PRICE, mPrice);
         jsonObject.put(Keys.IMAGE, mImage);
 
-        try {
+        jsonObject.put(Keys.START_DATE, mStartDate);
 
-            jsonObject.put(Keys.START_DATE, DateConverter.toMillis(mStartDate));
-
-            if(mEndDate != null) {
-                jsonObject.put(Keys.END_DATE, DateConverter.toMillis(mEndDate));
-            }
-
-        } catch (ParseException e) {
-
-            e.printStackTrace();
+        if(mEndDate != null) {
+            jsonObject.put(Keys.END_DATE, mEndDate);
         }
 
         if(mParticipation != 0) {

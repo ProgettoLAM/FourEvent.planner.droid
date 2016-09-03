@@ -10,339 +10,327 @@
     tools:context="lam.project.foureventplannerdroid.CreateEventActivity"
     tools:showIn="@layout/activity_create_scrolling">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <EditText
+            android:id="@+id/event_title"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingTop="20dp">
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:layout_marginLeft="40dp"
+            android:layout_marginBottom="20dp"
+            android:textColorHint="@color/lightText"
+            android:textColor="@color/lightText"
+            android:textSize="24sp"
+            android:inputType="text"
+            android:hint="@string/create_title" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:id="@+id/create_ic_time"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_time"
+                android:contentDescription="@string/create_start_date_text"/>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/create_start_date_layout"
+                android:layout_marginLeft="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/create_ic_time"
+                android:orientation="horizontal"
+                android:layout_marginTop="7dp"
+                android:weightSum="1">
+
+                <TextView
+                    android:id="@+id/event_start_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:text="Data di inizio"
+                    android:textColor="@color/lightText"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:id="@+id/event_start_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:text="Ora di inizio"
+                    android:textColor="@color/lightText"
+                    android:textSize="16sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_below="@id/create_start_date_layout"
+                android:layout_marginLeft="40dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingLeft="28dp"
-                android:paddingRight="28dp">
+                android:layout_marginTop="20dp">
 
-                <ImageView
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:src="@drawable/ic_asterisk"
-                    android:tint="@color/red" />
-
-                <EditText
-                    android:id="@+id/event_title"
-                    android:layout_width="280dp"
+                <TextView
+                    android:id="@+id/event_end_date"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bottom_border_title"
-                    android:textColorHint="@color/lightText"
-                    android:textColor="@color/darkerText"
-                    android:textSize="20sp"
-                    android:inputType="text"
-                    android:hint="Titolo" />
+                    android:text="Data di fine"
+                    android:textColor="@color/lightText"
+                    android:textSize="16sp"
+                    android:layout_weight=".5"/>
+
+                <TextView
+                    android:id="@+id/event_end_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Ora di fine"
+                    android:textColor="@color/lightText"
+                    android:textSize="16sp"
+                    android:layout_weight=".5"/>
 
             </LinearLayout>
 
-            <LinearLayout
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_label"
+                android:layout_centerVertical="true"/>
+
+            <com.jaredrummler.materialspinner.MaterialSpinner
+                android:id="@+id/event_tag"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                app:ms_arrow_tint="@color/colorAccent"
+                app:ms_text_color="@color/colorPrimary"
+                android:textSize="14sp"
+                android:layout_centerVertical="true"/>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginTop="12dp"
-                    android:paddingLeft="28dp"
-                    android:paddingRight="28dp">
+        </RelativeLayout>
 
-                    <TextView
-                        android:id="@+id/text_tag"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tag"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="8dp"
-                        android:textColor="@color/lightText"
-                        android:textSize="16dp"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
 
-                    <ImageView
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:src="@drawable/ic_asterisk"
-                        android:tint="@color/red"
-                        android:layout_alignParentLeft="true"/>
+            <ImageView
+                android:id="@+id/btn_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_gps"
+                android:onClick="selectAddress"
+                android:contentDescription="@string/create_address_text" />
 
-                    <com.jaredrummler.materialspinner.MaterialSpinner
-                        android:id="@+id/event_tag"
-                        android:layout_width="200dp"
-                        android:layout_height="42dp"
-                        app:ms_arrow_tint="@color/colorAccent"
-                        app:ms_text_color="@color/colorPrimary"
-                        app:ms_dropdown_height="180dp"
-                        android:textSize="14sp"
-                        android:layout_alignBaseline="@id/text_tag"
-                        android:layout_toRightOf="@id/text_tag"
-                        android:layout_toEndOf="@id/text_tag" />
+            <TextView
+                android:id="@+id/result_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Indirizzo"
+                android:textSize="16sp"
+                android:textColor="@color/lightText"
+                android:layout_marginLeft="40dp"
+                android:layout_centerVertical="true"/>
 
-                    <Button
-                        android:id="@+id/btn_address"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:paddingRight="8dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginTop="28dp"
-                        android:background="@drawable/ic_gps"
-                        android:backgroundTint="@color/colorPrimary"
-                        android:textColor="@color/darkerText"
-                        android:onClick="selectAddress"
-                        android:layout_below="@id/text_tag"/>
+        </RelativeLayout>
 
-                    <ImageView
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:src="@drawable/ic_asterisk"
-                        android:tint="@color/red"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginTop="50dp"
-                         />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
 
-                    <TextView
-                        android:id="@+id/result_address"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Indirizzo"
-                        android:textSize="16sp"
-                        android:paddingLeft="8dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="30dp"
-                        android:layout_toRightOf="@id/btn_address"
-                        android:layout_toEndOf="@id/btn_address"
-                        android:textColor="@color/lightText"
-                        android:layout_below="@id/event_tag" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_edit" />
 
-                    <EditText
-                        android:id="@+id/event_description"
-                        android:layout_width="280dp"
-                        android:layout_height="wrap_content"
-                        android:textSize="16dp"
-                        android:layout_marginLeft="10dp"
-                        android:background="@drawable/bottom_border"
-                        android:textColorHint="@color/lightText"
-                        android:textColor="@color/darkerText"
-                        android:hint="Descrizione"
-                        android:inputType="text"
-                        android:layout_below="@id/result_address"/>
+            <EditText
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="40dp"
+                android:layout_marginTop="5dp"
+                android:id="@+id/event_description"
+                android:inputType="textMultiLine"
+                android:lines="8"
+                android:minLines="1"
+                android:textSize="16sp"
+                android:gravity="top|start"
+                android:maxLines="10"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:scrollbars="vertical"
+                android:textColorHint="@color/lightText"
+                android:textColor="@color/darkerText"
+                android:hint="@string/create_description_text"
+                android:background="@android:color/transparent"/>
 
-                    <ImageView
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:src="@drawable/ic_asterisk"
-                        android:tint="@color/red"
-                        android:layout_below="@id/result_address"
-                        android:layout_alignParentLeft="true" />
-
-                </RelativeLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="16dp"
-                    android:paddingLeft="28dp"
-                    android:paddingRight="28dp"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:src="@drawable/ic_asterisk"
-                        android:tint="@color/red" />
-
-                    <ImageView
-                        android:id="@+id/date_icon"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:gravity="center"
-                        android:src="@drawable/ic_calendar" />
-
-                    <TextView
-                        android:id="@+id/event_start_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="24dp"
-                        android:layout_marginRight="16dp"
-                        android:text="Data di inizio"
-                        android:textSize="16dp"
-                        android:textColor="#999"/>
-
-                    <TextView
-                        android:id="@+id/event_start_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ora di inizio"
-                        android:textSize="16dp"
-                        android:textColor="#999"
-                        android:visibility="invisible"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="16dp"
-                    android:paddingLeft="28dp"
-                    android:paddingRight="28dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/event_end_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="53dp"
-                        android:layout_marginRight="15dp"
-                        android:text="Data di fine"
-                        android:textSize="16dp"
-                        android:textColor="#999"
-                        android:visibility="invisible"/>
-
-                    <TextView
-                        android:id="@+id/event_end_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ora di fine"
-                        android:textSize="16dp"
-                        android:textColor="#999"
-                        android:visibility="invisible"/>
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:background="@color/colorPrimary"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp"/>
-
-                <Button
-                    android:id="@+id/btn_expand_price"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/white"
-                    android:paddingLeft="28dp"
-                    android:paddingRight="28dp"
-                    android:drawableRight="@drawable/ic_arrow_right"
-                    android:drawableLeft="@drawable/ic_ticket"
-                    android:onClick="expandablePrice"
-                    android:text="Biglietti e prezzo"
-                    android:textColor="@color/colorPrimary"
-                    style="?android:attr/borderlessButtonStyle"/>
+        </RelativeLayout>
 
 
-                <com.github.aakira.expandablelayout.ExpandableRelativeLayout
-                    android:id="@+id/expandableLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="16dp"
-                    android:paddingLeft="28dp"
-                    android:paddingRight="28dp"
-                    android:layout_marginBottom="20dp"
-                    app:ael_duration="400"
-                    app:ael_expanded="false">
-
-                   <RelativeLayout
-                       android:id="@+id/expandable_ticket"
-                       android:layout_width="match_parent"
-                       android:layout_height="match_parent"
-                       android:paddingLeft="8dp"
-                       android:paddingRight="8dp">
-
-                       <TextView
-                           android:id="@+id/text_ticket"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:text="N° Biglietti"
-                           android:layout_marginTop="37dp"
-                           android:textSize="16sp"
-                           android:paddingRight="16dp"
-                           android:textColor="@color/lightText"/>
-
-                       <NumberPicker
-                           android:id="@+id/np"
-                           android:layout_width="wrap_content"
-                           android:layout_height="100dp"
-                           android:layout_toRightOf="@id/text_ticket"
-                           android:scaleY=".8"
-                           android:scaleX=".8"
-                           />
-
-                       <TextView
-                           android:id="@+id/text_price"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:text="Prezzo"
-                           android:layout_marginTop="60dp"
-                           android:layout_below="@id/text_ticket"
-                           android:textSize="16sp"
-                           android:textColor="@color/lightText"/>
-
-                       <SeekBar
-                           android:id="@+id/seekBar"
-                           android:layout_width="match_parent"
-                           android:layout_height="wrap_content"
-                           android:layout_below="@id/text_price"
-                           android:layout_marginTop="@dimen/activity_vertical_margin"
-                           android:max="50"/>
-
-                       <TextView
-                           android:id="@+id/minPrice"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:layout_below="@+id/seekBar"
-                           android:text="0"
-                           android:layout_marginLeft="12dp"
-                           android:textSize="12dp"/>
-
-                       <TextView
-                           android:id="@+id/price"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:layout_below="@+id/seekBar"
-                           android:layout_centerHorizontal="true"
-                           android:text="0€"
-                           android:textSize="14sp"
-                           android:textColor="@color/darkerText"/>
-
-                       <TextView
-                           android:id="@+id/maxPrice"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:layout_below="@+id/seekBar"
-                           android:layout_alignParentRight="true"
-                           android:text="50"
-                           android:textSize="12dp"/>
-
-                   </RelativeLayout>
-
-                </com.github.aakira.expandablelayout.ExpandableRelativeLayout>
-
-                <Button
-                    android:id="@+id/create_event"
-                    android:layout_gravity="right"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/colorAccent"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:padding="16dp"
-                    android:layout_marginRight="16dp"
-                    android:layout_marginTop="20dp"
-                    android:text="Crea evento"
-                    android:onClick="createEvent"/>
 
 
-            </LinearLayout>
+
+        <!--
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp"
+            android:paddingLeft="28dp"
+            android:paddingRight="28dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/event_end_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="53dp"
+                android:layout_marginRight="15dp"
+                android:text="Data di fine"
+                android:textSize="16dp"
+                android:textColor="#999"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:id="@+id/event_end_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ora di fine"
+                android:textSize="16dp"
+                android:textColor="#999"
+                android:visibility="invisible"/>
 
         </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+        -->
+
+        <Button
+            android:layout_marginTop="20dp"
+            android:id="@+id/btn_expand_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:drawableRight="@drawable/ic_arrow_right"
+            android:drawableLeft="@drawable/ic_ticket"
+            android:onClick="expandablePrice"
+            android:text="@string/create_expand"
+            android:textColor="@color/colorPrimary"
+            style="?android:attr/borderlessButtonStyle"/>
+
+
+        <com.github.aakira.expandablelayout.ExpandableRelativeLayout
+            android:id="@+id/expandableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="20dp"
+            android:layout_marginBottom="20dp"
+            app:ael_duration="400"
+            app:ael_expanded="false">
+
+           <RelativeLayout
+               android:id="@+id/expandable_ticket"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:paddingLeft="8dp"
+               android:paddingRight="8dp">
+
+               <TextView
+                   android:id="@+id/text_ticket"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="N° Biglietti"
+                   android:layout_marginTop="37dp"
+                   android:textSize="16sp"
+                   android:paddingRight="16dp"
+                   android:textColor="@color/lightText"/>
+
+               <NumberPicker
+                   android:id="@+id/np"
+                   android:layout_width="wrap_content"
+                   android:layout_height="100dp"
+                   android:layout_toRightOf="@id/text_ticket"
+                   android:scaleY=".8"
+                   android:scaleX=".8"
+                   android:orientation="horizontal"
+                   />
+
+               <TextView
+                   android:id="@+id/text_price"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="Prezzo"
+                   android:layout_marginTop="60dp"
+                   android:layout_below="@id/text_ticket"
+                   android:textSize="16sp"
+                   android:textColor="@color/lightText"/>
+
+               <SeekBar
+                   android:id="@+id/seekBar"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:layout_below="@id/text_price"
+                   android:layout_marginTop="@dimen/activity_vertical_margin"
+                   android:max="50"/>
+
+               <TextView
+                   android:id="@+id/minPrice"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_below="@+id/seekBar"
+                   android:text="0"
+                   android:layout_marginLeft="12dp"
+                   android:textSize="12dp"/>
+
+               <TextView
+                   android:id="@+id/price"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_below="@+id/seekBar"
+                   android:layout_centerHorizontal="true"
+                   android:text="0€"
+                   android:textSize="14sp"
+                   android:textColor="@color/darkerText"/>
+
+               <TextView
+                   android:id="@+id/maxPrice"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_below="@+id/seekBar"
+                   android:layout_alignParentRight="true"
+                   android:text="50"
+                   android:textSize="12dp"/>
+
+           </RelativeLayout>
+
+        </com.github.aakira.expandablelayout.ExpandableRelativeLayout>
+
+        <Button
+            android:id="@+id/create_event"
+            android:layout_gravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            android:textColor="@color/colorPrimaryDark"
+            android:padding="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="20dp"
+            android:text="Crea evento"
+            android:onClick="createEvent"/>
+
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>
