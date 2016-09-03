@@ -42,27 +42,6 @@ public class HandlerManager {
         return instance;
     }
 
-    public void handleError (VolleyError error, View view) {
-
-        NetworkResponse response = error.networkResponse;
-        if (response != null && response.data != null) {
-
-            String json = new String(response.data);
-
-            try {
-
-                JSONObject obj = new JSONObject(json);
-
-                Snackbar snackbar = Snackbar.make(view, obj.getString(MESSAGE), Snackbar.LENGTH_LONG);
-                snackbar.getView().setBackgroundColor(ContextCompat.getColor(mContext, R.color.lightGreen));
-                snackbar.show();
-
-            } catch (JSONException e) {
-
-                e.printStackTrace();
-            }
-        }
-    }
 
     public String handleError (VolleyError error) {
 
@@ -85,19 +64,5 @@ public class HandlerManager {
         }
 
         return EXCEPTION;
-    }
-
-    public void handleSuccess (JSONObject response, View view) {
-
-        try{
-
-            Snackbar snackbar = Snackbar.make(view,response.getString("message"), Snackbar.LENGTH_LONG);
-            snackbar.getView().setBackgroundColor(ContextCompat.getColor(mContext, R.color.lightGreen));
-            snackbar.show();
-        }
-        catch (JSONException e) {
-
-            e.printStackTrace();
-        }
     }
 }

@@ -2,6 +2,8 @@ package lam.project.foureventplannerdroid.complete_profile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,7 +78,10 @@ public class Step2Credits extends AbstractStep {
                             @Override
                             public void onErrorResponse(VolleyError error) {
 
-                                HandlerManager.getInstance().handleError(error,getView());
+
+                                Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container), HandlerManager.getInstance().handleError(error), Snackbar.LENGTH_LONG);
+                                snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
+                                snackbar.show();
                             }
                         }
                 );
