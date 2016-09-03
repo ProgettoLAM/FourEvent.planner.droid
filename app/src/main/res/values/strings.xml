@@ -17,4 +17,9 @@
     <string name="create_description_text">Descrizione</string>
     <string name="create_start_date_text">Data ora inizio</string>
     <string name="create_expand">Biglietti e prezzo</string>
+
+    <!-- Text step3 -->
+    <string name="first_text">Scegli di quanto vuoi incrementare il numero di BIGLIETTI disponibili sul tuo evento!\n\nVai sulle statistiche e premi il bottone in alto.\nNon hai crediti a sufficienza? Vai sul portafoglio per ricaricarlo!</string>
+    <string name="second_text">Gestire il PORTAFOGLIO è molto intuitivo!\n\nClicca sul bottone in figura e scegli l\'importo da ricaricare.\n\nPuoi visualizzare una lista delle ricariche e pagamenti effettuati per avere tutto sotto controllo!</string>
+
 </resources>

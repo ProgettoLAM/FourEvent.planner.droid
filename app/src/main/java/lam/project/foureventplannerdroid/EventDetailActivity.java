@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +39,7 @@ import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
+import lam.project.foureventplannerdroid.utils.qr_code.ScannerActivity;
 
 public class EventDetailActivity extends Activity {
 
@@ -205,6 +204,11 @@ public class EventDetailActivity extends Activity {
         });
 
         dialog = builder.show();
+    }
+
+    public void qrButton(final View view) {
+        Intent intent = new Intent(this, ScannerActivity.class);
+        startActivity(intent);
     }
 
     public void popularEvent(final View view) {

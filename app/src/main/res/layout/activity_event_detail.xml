@@ -223,55 +223,57 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tickets_premium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Check-in partecipanti"
-            android:textSize="16sp"
-            android:layout_centerVertical="true" />
+            <TextView
+                android:id="@+id/tickets_premium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Check-in partecipanti"
+                android:textSize="16sp"
+                android:layout_centerVertical="true" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/tickets_premium"
-            android:gravity="end">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/tickets_premium"
+                android:gravity="end">
 
-            <View
-                android:id="@id/divider"
-                android:layout_width="1dp"
-                android:layout_height="100dp"
-                android:background="#eee"
-                android:layout_marginRight="16dp"
-                />
+                <View
+                    android:id="@id/divider"
+                    android:layout_width="1dp"
+                    android:layout_height="100dp"
+                    android:background="#eee"
+                    android:layout_marginRight="16dp"
+                    />
 
-            <Button
-                android:id="@+id/button_nfc"
-                android:layout_width="140dp"
-                android:layout_height="40dp"
-                android:background="@color/white"
-                android:textColor="@color/violet"
-                android:text="Sincronizza NFC"
-                android:textSize="14dp"
-                android:layout_toRightOf="@id/divider"
-                style="?android:attr/borderlessButtonStyle"/>
+                <Button
+                    android:id="@+id/button_nfc"
+                    android:layout_width="140dp"
+                    android:layout_height="40dp"
+                    android:background="@color/white"
+                    android:textColor="@color/violet"
+                    android:text="Sincronizza NFC"
+                    android:onClick="nfcButton"
+                    android:textSize="14dp"
+                    android:layout_toRightOf="@id/divider"
+                    style="?android:attr/borderlessButtonStyle"/>
 
-            <Button
-                android:id="@+id/button_qr"
-                android:layout_width="140dp"
-                android:layout_height="40dp"
-                android:background="@color/white"
-                android:textColor="@color/violet"
-                android:text="Scansiona QR"
-                android:textSize="14dp"
-                android:layout_marginTop="16dp"
-                android:layout_below="@id/button_nfc"
-                android:layout_toRightOf="@id/divider"
-                style="?android:attr/borderlessButtonStyle"/>
+                <Button
+                    android:id="@+id/button_qr"
+                    android:layout_width="140dp"
+                    android:layout_height="40dp"
+                    android:background="@color/white"
+                    android:textColor="@color/violet"
+                    android:text="Scansiona QR"
+                    android:onClick="qrButton"
+                    android:textSize="14dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_below="@id/button_nfc"
+                    android:layout_toRightOf="@id/divider"
+                    style="?android:attr/borderlessButtonStyle"/>
+
+            </RelativeLayout>
 
         </RelativeLayout>
-
-    </RelativeLayout>
     </LinearLayout>
 
 </RelativeLayout>

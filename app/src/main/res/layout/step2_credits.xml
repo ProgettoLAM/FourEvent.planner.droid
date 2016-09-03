@@ -1,7 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/colorPrimary">
 
-</LinearLayout>
+    <View
+        android:id="@+id/divider_vertical"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/lightGrey"
+        android:layout_centerHorizontal="true" />
+
+    <View
+        android:id="@+id/divider_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/lightGrey"
+        android:layout_centerVertical="true" />
+
+    <ImageView
+        android:id="@+id/first_image"
+        android:src="@drawable/img_step3_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/divider_vertical"
+        android:layout_above="@id/divider_horizontal"
+        android:scaleType="centerCrop" />
+
+
+    <TextView
+        android:id="@+id/first_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:layout_margin="20dp"
+        android:layout_toRightOf="@id/divider_vertical"
+        android:gravity="right"
+        android:text="@string/first_text"/>
+
+
+    <TextView
+        android:id="@+id/second_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:layout_margin="20dp"
+        android:layout_toLeftOf="@id/divider_vertical"
+        android:layout_below="@id/divider_horizontal"
+        android:text="@string/second_text"/>
+
+    <ImageView
+        android:id="@+id/second_image"
+        android:src="@drawable/img_step3_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:layout_below="@id/divider_horizontal"
+        android:layout_toRightOf="@id/divider_vertical"/>
+
+</RelativeLayout>
