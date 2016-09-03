@@ -223,7 +223,7 @@ public class EventDetailActivity extends Activity {
 
         if (price <= MainActivity.mCurrentPlanner.balance) {
 
-            message = "La sponsorizzazione ha un costo di " + price + " €." +
+            message = "Pubblicizzare l'evento ha un costo di " + price + " €." +
                     "\n\nHai un totale di " + MainActivity.mCurrentPlanner.balance + " €.\nVuoi pubblicizzarlo?";
 
             title = "Inserisci l'evento tra i popolari";
