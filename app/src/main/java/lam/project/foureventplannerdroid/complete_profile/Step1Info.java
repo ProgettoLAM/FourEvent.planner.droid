@@ -40,6 +40,7 @@ import java.util.Calendar;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Planner;
+import lam.project.foureventplannerdroid.utils.DateConverter;
 import lam.project.foureventplannerdroid.utils.ImageManager;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.Utility;
@@ -386,7 +387,10 @@ public class Step1Info extends AbstractStep{
         }
         public void populateSetDate(int year, int month, int day) {
 
-            mDate = month+"/"+day+"/"+year;
+            final Calendar calendar = Calendar.getInstance();
+            calendar.set(year,month,day);
+            mDate = DateConverter.dateFromCalendar(calendar);
+
             sendResult(REQUEST_CODE);
         }
 

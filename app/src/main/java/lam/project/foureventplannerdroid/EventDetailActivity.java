@@ -45,6 +45,7 @@ import lam.project.foureventplannerdroid.model.Record;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
+import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 import lam.project.foureventplannerdroid.utils.gcm.GCMRegistrationIntentService;
 import lam.project.foureventplannerdroid.utils.qr_code.ScannerActivity;
@@ -271,7 +272,8 @@ public class EventDetailActivity extends Activity {
                 @Override
                 public void onClick(final DialogInterface dialog, int which) {
 
-                    String url = FourEventUri.Builder.create(FourEventUri.Keys.RECORD)
+                    String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                            .appendPath("popular")
                             .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
 
                     try {
@@ -281,41 +283,33 @@ public class EventDetailActivity extends Activity {
                                 .withEvent(mCurrentEvent.mId)
                                 .build().toJson();
 
-                        CustomRequest createRecordRequest = new CustomRequest(Request.Method.PUT,
+                        CustomRequest createRecordRequest = new CustomRequest(Request.Method.POST,
                                 url, record,
                                 new Response.Listener<JSONObject>() {
 
                                     @Override
                                     public void onResponse(JSONObject response) {
 
-                                        Snackbar snackbar = Snackbar.make(v, "Evento inserito tra i popolari!",
+                                        Snackbar snackbar = Snackbar.make(detailsParticipation, "Evento inserito tra i popolari!",
                                                 Snackbar.LENGTH_LONG);
 
                                         snackbar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
                                         snackbar.show();
 
                                     }
-                                }, new Response.ErrorListener() {
+                                },
 
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
+                                new Response.ErrorListener() {
 
-                                String json;
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
 
-                                NetworkResponse response = error.networkResponse;
-                                if (response != null && response.data != null) {
-                                    switch (response.statusCode) {
-                                        case 403:
-                                            json = new String(response.data);
-                                            json = trimMessage(json, "message");
-                                            if (json != null) displayMessage(json);
-                                            break;
+                                        Snackbar snackbarError = Snackbar.make(detailsParticipation, HandlerManager.getInstance().handleError(error),
+                                                Snackbar.LENGTH_LONG);
 
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
+                                        snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                                        snackbarError.show();
+                                            }
                         });
 
                         VolleyRequest.get(view.getContext()).add(createRecordRequest);
@@ -428,21 +422,11 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        String json;
+                        Snackbar snackbarError = Snackbar.make(v, HandlerManager.getInstance().handleError(error),
+                                Snackbar.LENGTH_LONG);
 
-                        NetworkResponse response = error.networkResponse;
-                        if (response != null && response.data != null) {
-                            switch (response.statusCode) {
-                                case 403:
-                                    json = new String(response.data);
-                                    json = trimMessage(json, "message");
-                                    if (json != null) displayMessage(json);
-                                    break;
-
-                                default:
-                                    break;
-                            }
-                        }
+                        snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                        snackbarError.show();
                     }
                 });
 
@@ -452,39 +436,10 @@ public class EventDetailActivity extends Activity {
                 e.printStackTrace();
             }
         }
-        else {
-            displayMessage("Credito insufficiente, ricarica il portafoglio!");
-        }
-
     }
 
     //region handle response + error
 
-    private String trimMessage(String json, String key) {
-        String trimmedString;
-
-        try {
-            JSONObject obj = new JSONObject(json);
-            trimmedString = obj.getString(key);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return trimmedString;
-    }
-
-    private void displayMessage(String snackBarString) {
-
-        Snackbar snackbarError = Snackbar.make(v, snackBarString,
-                Snackbar.LENGTH_LONG);
-
-        View snackbarView = snackbarError.getView();
-
-        snackbarView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
-
-        snackbarError.show();
-    }
 
     private void handleResponse(JSONObject response, String numParticipation, final float amount) {
 
