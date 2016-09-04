@@ -3,13 +3,17 @@ package lam.project.foureventplannerdroid;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.IdRes;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
@@ -29,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment selectedFragment;
     public static Planner mCurrentPlanner;
+
+    private static int clicked;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +92,29 @@ public class MainActivity extends AppCompatActivity {
             startActivity(completeProfileIntent);
             finish();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+
+        if(clicked == 0) {
+
+            Toast.makeText(this,"Clicca ancora per chiudere l'app",Toast.LENGTH_LONG).show();
+            clicked ++;
+
+        } else {
+
+            super.onBackPressed();
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+        clicked = 0;
     }
 
     @Override
