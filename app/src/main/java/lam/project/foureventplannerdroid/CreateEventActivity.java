@@ -362,6 +362,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 event.addMaxTicket(nTicket);
             }
 
+            final ProgressDialog progressDialog = ProgressDialog.show(this,null,"Salvataggio in corso, attendere",true,false);
+            progressDialog.show();
+
+
             CustomRequest createEventRequest = new CustomRequest(
                     Request.Method.PUT,
                     url,
@@ -370,17 +374,18 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         @Override
                         public void onResponse(JSONObject response) {
 
-                            Snackbar.make(findViewById(R.id.container), "Evento creato", Snackbar.LENGTH_SHORT)
+                            Snackbar.make(view, "Evento creato", Snackbar.LENGTH_SHORT)
                                     .show();
 
                             finish();
+                            progressDialog.dismiss();
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
 
-                            System.out.println(error.toString());
+                            progressDialog.dismiss();
                         }
                     }
 
