@@ -10,12 +10,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <permission
-        android:name="net.simplifiedcoding.androidgcm.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="net.simplifiedcoding.androidgcm.permission.C2D_MESSAGE" />
-
 
     <!-- Libreria grafica per la visualizzazione delle mappe -->
     <uses-feature
@@ -81,38 +75,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-
-        <!--
-            GCM Receiver
-        -->
-        <receiver
-            android:name="com.google.android.gms.gcm.GcmReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <category android:name="com.gnirt69.gcmexample"/>
-            </intent-filter>
-        </receiver>
-
-        <!--
-            GCM Receiver Service
-        -->
-        <service android:name=".utils.gcm.GCMPushReceiverService" android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-            </intent-filter>
-        </service>
-
-        <!--
-            GCM Registration Intent Service
-        -->
-        <service android:name=".utils.gcm.GCMRegistrationIntentService" android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
-            </intent-filter>
-        </service>
-
 
     </application>
 
