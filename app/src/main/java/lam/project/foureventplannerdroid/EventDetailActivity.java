@@ -1,10 +1,17 @@
 package lam.project.foureventplannerdroid;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.nfc.FormatException;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.NdefFormatable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -15,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -31,6 +39,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
@@ -41,14 +50,17 @@ import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
+import lam.project.foureventplannerdroid.utils.nfc.NdefReaderTask;
 import lam.project.foureventplannerdroid.utils.qr_code.ScannerActivity;
 
 public class EventDetailActivity extends Activity {
 
     private AlertDialog dialog;
 
-    //Creating a broadcast receiver for gcm registration
-    private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private NfcAdapter mNfcAdapter;
+    private Button mButtonNFC;
+    private boolean mIsSearching;
+    private ProgressDialog mProgressDialog;
 
     private Button.OnClickListener listenerButton;
     private TextView detailsParticipation;
@@ -83,6 +95,32 @@ public class EventDetailActivity extends Activity {
         pricePopular = (TextView) findViewById(R.id.price_popular);
         priceMessage = (TextView) findViewById(R.id.price_message);
 
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        mButtonNFC = (Button) findViewById(R.id.button_nfc);
+
+        mButtonNFC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!mNfcAdapter.isEnabled()) {
+
+                    Toast.makeText(v.getContext(),"Perfavore attiva l'NFC e torna indietro per tornare all'applicazione!",Toast.LENGTH_LONG).show();
+
+                    startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+
+                } else if(mNfcAdapter.isEnabled()) {
+
+                    mIsSearching = true;
+                    mProgressDialog = ProgressDialog.show(v.getContext(),"Ricerca braccialetto","Ricerca braccialetto NFC in corso...",true,true);
+                }
+            }
+        });
+
+        if (mNfcAdapter == null) {
+            // Stop here, we definitely need NFC
+            Toast.makeText(this,"NFC non supportato, Utilizzare codice QR",Toast.LENGTH_SHORT).show();
+        }
+
         addData(yDataGender, xDataGender, genderChart);
         addData(yDataAge, xDataAge, ageChart);
 
@@ -108,6 +146,38 @@ public class EventDetailActivity extends Activity {
         };
 
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        super.onNewIntent(intent);
+
+        if(mIsSearching && intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
+
+
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            new NdefReaderTask().execute(tag);
+
+            mProgressDialog.dismiss();
+            mIsSearching = false;
+        }
+    }
+    @Override
+    protected void onResume() {
+
+        //Importante che nel onResume l'Activity sia nel foreground, altrimenti lancia un'eccezione
+        enableForegroundDispatchSystem();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+
+        //Importante che sia prima del onPause, altrimenti lancia un'eccezione
+        disableForegroundDispatchSystem();
+        super.onPause();
+    }
+
 
     private void addData(float[] yData, String[] xData, PieChart mChart) {
 
@@ -433,6 +503,24 @@ public class EventDetailActivity extends Activity {
             dialog.dismiss();
         }
 
+    }
+
+    //endregion
+
+    private void enableForegroundDispatchSystem() {
+
+        Intent intent = new Intent(this, EventDetailActivity.class);
+        intent.setFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,0);
+        IntentFilter[] intentFilters = new IntentFilter[]{};
+
+        mNfcAdapter.enableForegroundDispatch(this,pendingIntent,intentFilters,null);
+    }
+
+    private void disableForegroundDispatchSystem() {
+
+        mNfcAdapter.disableForegroundDispatch(this);
     }
 
 }
