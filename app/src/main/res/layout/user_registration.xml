@@ -12,23 +12,23 @@
         android:orientation="vertical"
         android:gravity="center">
 
-    <ImageView
-        android:id="@+id/logoReg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/ic_launcher"
-        android:layout_centerHorizontal="true" />
+        <ImageView
+            android:id="@+id/logoReg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"
+            android:layout_centerHorizontal="true" />
 
-    <TextView
-        android:id="@+id/title_reg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Registrati"
-        android:textColor="#fff"
-        android:textSize="24sp"
-        android:layout_marginTop="15dp"
-        android:layout_below="@+id/logoReg"
-        android:layout_centerHorizontal="true" />
+        <TextView
+            android:id="@+id/title_reg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Registrati"
+            android:textColor="#fff"
+            android:textSize="24sp"
+            android:layout_marginTop="15dp"
+            android:layout_below="@+id/logoReg"
+            android:layout_centerHorizontal="true" />
 
     </LinearLayout>
 
@@ -74,6 +74,16 @@
         android:layout_marginTop="15dp"
         android:background="@drawable/bottom_border"
         android:drawableLeft="@drawable/ic_password"/>
+
+    <ImageView
+        android:id="@+id/ic_alert_pass"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_warning"
+        android:visibility="invisible"
+        android:layout_below="@+id/ic_alert_email"
+        android:layout_alignLeft="@+id/email_reg"
+        android:layout_alignStart="@+id/email_reg" />
 
     <TextView
         android:id="@+id/min_char_pass"
@@ -139,40 +149,33 @@
         android:textSize="16sp"
         android:layout_centerHorizontal="true"/>
 
-    <TextView
-        android:id="@+id/txt_member"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Già sei un membro?"
+        android:orientation="horizontal"
         android:layout_below="@id/btn_account"
-        android:layout_marginTop="10dp"
-        android:textSize="14sp"
-        android:textColor="#eee"
-        android:layout_marginLeft="90dp"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp">
 
-    <TextView
-        android:id="@+id/txt_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Login"
-        android:onClick="goToLogin"
-        android:textColor="#fff"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_alignBaseline="@id/txt_member"
-        android:layout_toRightOf="@+id/txt_member"
-        android:layout_marginLeft="10dp" />
+        <TextView
+            android:id="@+id/txt_member"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Già sei un membro?"
+            android:textSize="14sp"
+            android:textColor="#eee" />
 
-    <ImageView
-        android:id="@+id/ic_alert_pass"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/ic_warning"
-        android:visibility="invisible"
-        android:layout_below="@+id/ic_alert_email"
-        android:layout_alignLeft="@+id/email_reg"
-        android:layout_alignStart="@+id/email_reg" />
+        <TextView
+            android:id="@+id/txt_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:onClick="goToLogin"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp" />
 
-
+    </LinearLayout>
 
 </RelativeLayout>
