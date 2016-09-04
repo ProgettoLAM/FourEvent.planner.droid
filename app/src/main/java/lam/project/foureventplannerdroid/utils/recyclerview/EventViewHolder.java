@@ -2,6 +2,7 @@ package lam.project.foureventplannerdroid.utils.recyclerview;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,6 +15,7 @@ import java.util.List;
 import lam.project.foureventplannerdroid.EventDetailActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
+import lam.project.foureventplannerdroid.utils.ImageManager;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 
 /**
@@ -61,8 +63,15 @@ final class EventViewHolder extends RecyclerView.ViewHolder {
         String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
                 .appendPath("img").appendPath(event.mId).getUri();
 
-        Picasso.with(itemView.getContext()).load(url).into(mImgEvent);
 
+
+        Bitmap contentImage = ImageManager.get().readImage(event.mImage);
+
+        if(contentImage == null)
+            Picasso.with(itemView.getContext()).load(url).into(mImgEvent);
+
+        else
+            mImgEvent.setImageBitmap(contentImage);
 
     }
 }

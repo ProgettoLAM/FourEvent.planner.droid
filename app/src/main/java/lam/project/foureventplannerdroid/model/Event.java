@@ -43,7 +43,7 @@ public class Event implements Parcelable{
 
     public Double mDistance;
 
-    private final String mImage;
+    public final String mImage;
 
     private final String mAuthor;
 
@@ -176,6 +176,11 @@ public class Event implements Parcelable{
 
             //TODO
             builder.withEndDate(DateConverter.dateFromMillis(jsonObject.getLong(Keys.END_DATE)));
+        }
+
+        if(jsonObject.has(Keys.IMAGE)) {
+
+            builder.withImage(jsonObject.getString(Keys.IMAGE));
         }
 
         if(jsonObject.has(Keys.ID)) {

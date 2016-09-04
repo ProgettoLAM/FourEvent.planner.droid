@@ -12,7 +12,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -50,9 +49,7 @@ import com.wdullaer.materialdatetimepicker.time.Timepoint;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -62,6 +59,7 @@ import java.util.Locale;
 import lam.project.foureventplannerdroid.model.Category;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.DateConverter;
+import lam.project.foureventplannerdroid.utils.ImageManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.Utility;
@@ -88,6 +86,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private String mStartTime;
     private String mEndDate;
     private String mEndTime;
+
+    private String mImageName;
 
     private String mImageUri;
     private int nTicket;
@@ -370,8 +370,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         @Override
                         public void onResponse(JSONObject response) {
 
-                            Snackbar.make(view, "Completato con successo!", Snackbar.LENGTH_SHORT)
+                            Snackbar.make(findViewById(R.id.container), "Evento creato", Snackbar.LENGTH_SHORT)
                                     .show();
+
+                            finish();
                         }
                     },
                     new Response.ErrorListener() {
@@ -389,8 +391,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        finish();
     }
 
     //endregion
@@ -662,58 +662,35 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     //Risultato dell'immagine scelta dalla galleria
     @SuppressWarnings("deprecation")
     private void onSelectFromGalleryResult(Intent data) {
-        Bitmap bm = null;
-        if (data != null) {
-            try {
-                bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
 
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                bm.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+        mImageName = String.valueOf(new Date().getTime());
 
-                mImageUri = System.currentTimeMillis() + ".jpg";
+        try {
+            Bitmap thumbnail = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
+            File createdImage = ImageManager.get().writeImage(mImageName,thumbnail);
 
-                File destination = new File(Environment.getExternalStorageDirectory(),
-                        mImageUri);
-                FileOutputStream fo;
-                destination.createNewFile();
-                fo = new FileOutputStream(destination);
-                fo.write(bytes.toByteArray());
-                fo.close();
-
-                imgEvent.setImageBitmap(bm);
-                uploadImage(destination);
-
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(createdImage != null){
+                imgEvent.setImageBitmap(thumbnail);
+                uploadImage(createdImage);
             }
+
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
         }
-
-
     }
 
     //Risultato dell'immagine scattata dalla fotocamera
     private void onCaptureImageResult(Intent data) {
 
+        mImageName = String.valueOf(new Date().getTime());
+
         Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+        File createdImage = ImageManager.get().writeImage(mImageName,thumbnail);
 
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
-
-        mImageUri = System.currentTimeMillis() + ".jpg";
-
-        File destination = new File(Environment.getExternalStorageDirectory(),
-                mImageUri);
-        FileOutputStream fo;
-        try {
-            destination.createNewFile();
-            fo = new FileOutputStream(destination);
-            fo.write(bytes.toByteArray());
-            fo.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(createdImage != null){
+            imgEvent.setImageBitmap(thumbnail);
+            uploadImage(createdImage);
         }
-        imgEvent.setImageBitmap(thumbnail);
-        uploadImage(destination);
     }
 
     public void selectAddress(final View view) {
@@ -963,7 +940,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private void uploadImage(File toUploadFile) {
 
         String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
-                .appendPath("img").getUri();
+                .appendPath("img").appendPath(mImageName).getUri();
 
         final ProgressDialog loading = ProgressDialog.show(this, "Immagine dell'evento", "Caricamento in corso..", false, false);
 
@@ -971,7 +948,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void onErrorResponse(VolleyError error) {
 
-                Snackbar errorSnackbar = Snackbar.make(startDate,
+                Snackbar errorSnackbar = Snackbar.make(view,
                         "Errore nel caricamento dell'immagine", Snackbar.LENGTH_LONG);
 
                 errorSnackbar.getView().setBackgroundColor(ContextCompat
