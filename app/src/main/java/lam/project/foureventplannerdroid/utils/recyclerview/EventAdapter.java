@@ -17,6 +17,7 @@
 package lam.project.foureventplannerdroid.utils.recyclerview;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -52,8 +53,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
     private View divider;
     private Snackbar snackbar;
 
-
-
     public EventAdapter(final Activity senderActivity, final List<Event> model) {
 
         this.mSenderActivity = senderActivity;
@@ -82,61 +81,51 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
 
     }
 
-    public void remove(final int position) {
+    void remove(final int position) {
 
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT).appendEncodedPath(MainActivity.mCurrentPlanner.email)
-                    .appendPath(mModel.get(position).mId).getUri();
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
+                .appendEncodedPath(MainActivity.mCurrentPlanner.email)
+                .appendPath(mModel.get(position).mId).getUri();
 
         CustomRequest request = new CustomRequest(Request.Method.DELETE, url, null,
 
                 new Response.Listener<JSONObject>() {
+
                     @Override
                     public void onResponse(JSONObject response) {
 
-                    mModel.remove(position);
-                    notifyItemRemoved(position);
+                        mModel.remove(position);
+                        notifyItemRemoved(position);
 
-                    snackbar = Snackbar
-                            .make(mSenderActivity.findViewById(R.id.container),
-                                    "Evento eliminato!", Snackbar.LENGTH_LONG);
+                        snackbar = Snackbar
+                                .make(mSenderActivity.findViewById(R.id.container),
+                                        "Evento eliminato!", Snackbar.LENGTH_LONG);
 
-                    snackbar.getView().setBackgroundColor(ContextCompat.getColor(mSenderActivity.getApplicationContext(), R.color.lightGreen));
-
-                    snackbar.show();
-
-
+                        snackbar.getView().setBackgroundColor(ContextCompat.getColor(mSenderActivity.getApplicationContext(), R.color.lightGreen));
+                        snackbar.show();
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+                },
+
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
 
-                try {
-                    String responseBody = new String( error.networkResponse.data, "utf-8" );
-                    JSONObject jsonObject = new JSONObject( responseBody );
+                        snackbar = Snackbar.make(mSenderActivity.findViewById(R.id.container),
+                                        HandlerManager.getInstance().handleError(error), Snackbar.LENGTH_LONG);
 
-                    String errorText = (String) jsonObject.get("message");
-
-                    snackbar = Snackbar
-                            .make(mSenderActivity.findViewById(R.id.container),
-                                    errorText, Snackbar.LENGTH_LONG);
-
-                    snackbar.getView().setBackgroundColor(ContextCompat.getColor(mSenderActivity.getApplicationContext(), R.color.lightRed));
-
-                    snackbar.show();
-
-                } catch (NullPointerException | UnsupportedEncodingException | JSONException e) {
-                    e.printStackTrace();
+                        snackbar.getView().setBackgroundColor(ContextCompat.getColor(mSenderActivity.getApplicationContext(), R.color.lightRed));
+                        snackbar.show();
+                        }
                 }
-            }
-        });
+        );
 
         VolleyRequest.get(mSenderActivity.getApplicationContext()).add(request);
 
 
     }
 
-    public void swap(int firstPosition, int secondPosition){
+    void swap(int firstPosition, int secondPosition){
         Collections.swap(mModel, firstPosition, secondPosition);
         notifyItemMoved(firstPosition, secondPosition);
     }

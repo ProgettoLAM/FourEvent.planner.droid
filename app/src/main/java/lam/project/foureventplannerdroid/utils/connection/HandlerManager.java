@@ -17,31 +17,18 @@ public class HandlerManager {
 
     private final static String MESSAGE = "message";
     private final static String EXCEPTION = "exception";
-    private Context mContext;
 
     private static HandlerManager instance;
 
-    private HandlerManager(Context context) {
-
-        this.mContext = context;
-    }
-
-    public static HandlerManager getInstance(Context context) {
-
-        if(instance == null)
-            instance = new HandlerManager(context);
-
-        return instance;
-    }
+    private HandlerManager() {    }
 
     public static HandlerManager getInstance() {
 
         if(instance == null)
-            throw new IllegalArgumentException("Errore");
+            instance = new HandlerManager();
 
         return instance;
     }
-
 
     public String handleError (VolleyError error) {
 
