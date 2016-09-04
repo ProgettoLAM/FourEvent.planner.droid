@@ -120,6 +120,8 @@
                 android:layout_marginLeft="40dp"
                 app:ms_arrow_tint="@color/colorAccent"
                 app:ms_text_color="@color/colorPrimary"
+                app:ms_dropdown_height="200dp"
+                app:ms_dropdown_max_height="150dp"
                 android:textSize="14sp"
                 android:layout_centerVertical="true"/>
 

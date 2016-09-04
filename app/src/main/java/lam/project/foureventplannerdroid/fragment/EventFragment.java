@@ -138,10 +138,6 @@ public class EventFragment extends Fragment {
 
                         mAdapter.notifyDataSetChanged();
 
-                        /*mRecyclerView.setVisibility(View.VISIBLE);
-                        mSadImageEmoticon.setVisibility(INVISIBLE);
-                        mEventNotFound.setVisibility(INVISIBLE);*/
-
                         if(mSwipeRefreshLayout.isRefreshing()) {
                             //setModel();
                             mSwipeRefreshLayout.setRefreshing(false);
@@ -154,10 +150,7 @@ public class EventFragment extends Fragment {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        /*Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container)
-                                , HandlerManager.handleError(error),Snackbar.LENGTH_INDEFINITE);
-                        snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
-                        snackbar.show();*/
+
                         mEventNotFound.setText(HandlerManager.getInstance().handleError(error));
                         showAndHideViews();
 
