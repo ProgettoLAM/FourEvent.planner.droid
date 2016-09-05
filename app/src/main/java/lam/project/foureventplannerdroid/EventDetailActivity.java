@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -400,12 +401,16 @@ public class EventDetailActivity extends Activity {
 
         View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, v, false);
 
+        final EditText message = (EditText) viewInflated.findViewById(R.id.message);
         builder.setView(viewInflated);
 
         builder.setPositiveButton("Invia", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
+                String text = message.getText().toString();
+
+                //TODO invio del text al server
             }
         });
 
