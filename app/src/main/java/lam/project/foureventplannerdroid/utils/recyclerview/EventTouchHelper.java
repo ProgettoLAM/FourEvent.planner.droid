@@ -16,9 +16,8 @@ import android.view.View;
 import lam.project.foureventplannerdroid.R;
 
 /**
- * Created by Vale on 02/09/2016.
+ * Classe che estende una callback per catturare il listener di un evento
  */
-
 public class EventTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     private EventAdapter mAdapter;

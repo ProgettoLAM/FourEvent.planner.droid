@@ -8,12 +8,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 
 import lam.project.foureventplannerdroid.utils.DateConverter;
 
 /**
- * Created by spino on 28/07/16.
+ * Classe che rappresenta il modello di un evento, con i relativi campi
  */
 public class Event implements Parcelable{
 
@@ -70,18 +69,6 @@ public class Event implements Parcelable{
 
     }
 
-    public static final Creator<Event> CREATOR = new Creator<Event>() {
-        @Override
-        public Event createFromParcel(Parcel in) {
-            return new Event(in);
-        }
-
-        @Override
-        public Event[] newArray(int size) {
-            return new Event[size];
-        }
-    };
-
     public Event addParticipation(int mParticipation) {
         this.mParticipation = mParticipation;
         return this;
@@ -101,6 +88,20 @@ public class Event implements Parcelable{
 
         return mDistance != null;
     }
+
+    //Region metodi parcelable
+
+    public static final Creator<Event> CREATOR = new Creator<Event>() {
+        @Override
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
 
     private Event(Parcel in) {
 
@@ -149,12 +150,64 @@ public class Event implements Parcelable{
         mAuthor = in.readString();
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+        if(mId != null) {
+            dest.writeByte(Keys.PRESENT);
+            dest.writeString(mId);
+
+        } else {
+            dest.writeByte(Keys.NOT_PRESENT);
+        }
+        dest.writeString(mTitle);
+        dest.writeString(mDescription);
+        dest.writeString(mStartDate);
+        dest.writeString(mTag);
+        dest.writeString(mAddress);
+        dest.writeFloat(mLatitude);
+        dest.writeFloat(mLongitude);
+        dest.writeString(mPrice);
+        dest.writeString(mImage);
+
+        if(mEndDate != null) {
+            dest.writeByte(Keys.PRESENT);
+            dest.writeString(mEndDate);
+        }
+        else
+            dest.writeByte(Keys.NOT_PRESENT);
+
+        if(mParticipation != 0) {
+            dest.writeByte(Keys.PRESENT);
+            dest.writeInt(mParticipation);
+        }
+        else
+            dest.writeByte(Keys.NOT_PRESENT);
+
+        if(mMaxTicket != 0) {
+            dest.writeByte(Keys.PRESENT);
+            dest.writeInt(mMaxTicket);
+        }
+        else
+            dest.writeByte(Keys.NOT_PRESENT);
+
+        dest.writeString(mAuthor);
+    }
+
+    //Endregion
+
+    //Region lettura/scrittura Json
+
     public static Event fromJson(final JSONObject jsonObject) throws JSONException{
 
         final String title = jsonObject.getString(Keys.TITLE);
         final String description = jsonObject.getString(Keys.DESCRIPTION);
 
-        //TODO
         final String startDate = DateConverter.dateFromMillis(jsonObject.getLong(Keys.START_DATE));
         final String author = jsonObject.getString(Keys.AUTHOR);
 
@@ -163,7 +216,7 @@ public class Event implements Parcelable{
         final String price = jsonObject.getString(Keys.PRICE);
         final String image = jsonObject.getString(Keys.IMAGE);
 
-        //prendere latitudine e longitudine
+        //Si prendono la latitudine e longitudine
         JSONArray coordinates = jsonObject.getJSONObject("loc").getJSONArray("coordinates");
 
         final float latitude = BigDecimal.valueOf(coordinates.getDouble(1)).floatValue();
@@ -242,54 +295,9 @@ public class Event implements Parcelable{
         return jsonObject;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+    //Endregion
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-        if(mId != null) {
-            dest.writeByte(Keys.PRESENT);
-            dest.writeString(mId);
-
-        } else {
-            dest.writeByte(Keys.NOT_PRESENT);
-        }
-        dest.writeString(mTitle);
-        dest.writeString(mDescription);
-        dest.writeString(mStartDate);
-        dest.writeString(mTag);
-        dest.writeString(mAddress);
-        dest.writeFloat(mLatitude);
-        dest.writeFloat(mLongitude);
-        dest.writeString(mPrice);
-        dest.writeString(mImage);
-
-        if(mEndDate != null) {
-            dest.writeByte(Keys.PRESENT);
-            dest.writeString(mEndDate);
-        }
-        else
-            dest.writeByte(Keys.NOT_PRESENT);
-
-        if(mParticipation != 0) {
-            dest.writeByte(Keys.PRESENT);
-            dest.writeInt(mParticipation);
-        }
-        else
-            dest.writeByte(Keys.NOT_PRESENT);
-
-        if(mMaxTicket != 0) {
-            dest.writeByte(Keys.PRESENT);
-            dest.writeInt(mMaxTicket);
-        }
-        else
-            dest.writeByte(Keys.NOT_PRESENT);
-
-        dest.writeString(mAuthor);
-    }
+    //Region Keys
 
     public static class Keys{
 
@@ -314,6 +322,10 @@ public class Event implements Parcelable{
         static final Byte PRESENT = 1;
         static final Byte NOT_PRESENT = 0;
     }
+
+    //Endregion
+
+    //Region Builder
 
     public static class Builder{
 
@@ -408,4 +420,6 @@ public class Event implements Parcelable{
                             mLongitude, mPrice, mParticipation, mImage, mMaxTicket,mAuthor, mDistance);
         }
     }
+
+    //Endregion
 }

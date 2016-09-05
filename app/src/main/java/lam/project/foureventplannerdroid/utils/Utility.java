@@ -12,11 +12,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
 /**
- * Created by Vale on 24/08/2016.
+ * Classe per controllare i permessi a runtime su Marshmallow e versioni superiori
  */
-
-//Classe per controllare i permessi a runtime su Marshmallow e versioni superiori
-
 public class Utility {
 
     public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;

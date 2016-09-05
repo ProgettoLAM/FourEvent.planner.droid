@@ -1,4 +1,4 @@
-package lam.project.foureventplannerdroid.utils;
+package lam.project.foureventplannerdroid.utils.shared_preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,9 +10,8 @@ import org.json.JSONObject;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Planner;
 
-
 /**
- * Created by spino on 30/07/16.
+ * Manager del planner
  */
 public final class PlannerManager {
 
@@ -49,36 +48,38 @@ public final class PlannerManager {
         return sInstance;
     }
 
-    public @NonNull
-    Planner getUser(){
+    /**
+     *
+     * @return il planner salvato, se presente nella cache
+     */
+    public Planner getUser(){
 
-        if(mChacedPlanner != null){
-
-            return mChacedPlanner;
-        }
+        if(mChacedPlanner != null){ return mChacedPlanner;}
 
         final String userAsString = mSharedPreferences.getString(Planner.Keys.USER,null);
 
         if (userAsString != null){
 
-            try{
+            try {
 
                 mChacedPlanner = Planner.fromJson(new JSONObject(userAsString));
             }
-            catch (JSONException je){
-
-                je.printStackTrace();
-            }
+            catch (JSONException je){ je.printStackTrace();}
         }
 
         return mChacedPlanner;
     }
 
+    /**
+     * Salvataggio del planner tra le shared preferences
+     * @param planner planner passato
+     * @return un booleano, se il planner è stato salvato o no
+     */
     public boolean save(@NonNull final Planner planner){
 
         mChacedPlanner = planner;
 
-        try{
+        try {
 
             JSONObject item = planner.toJson();
             return mSharedPreferences.edit().putString(Planner.Keys.USER,item.toString()).commit();
@@ -91,6 +92,10 @@ public final class PlannerManager {
 
     }
 
+    /**
+     * Rimozione del planner, dopo il logout
+     * @return un booleano, se il planner è stato rimosso o no
+     */
     public boolean remove() {
 
         mChacedPlanner = null;

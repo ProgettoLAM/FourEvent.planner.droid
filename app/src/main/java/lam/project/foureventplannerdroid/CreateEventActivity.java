@@ -59,7 +59,7 @@ import java.util.Locale;
 import lam.project.foureventplannerdroid.model.Category;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.DateConverter;
-import lam.project.foureventplannerdroid.utils.ImageManager;
+import lam.project.foureventplannerdroid.utils.shared_preferences.ImageManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.Utility;

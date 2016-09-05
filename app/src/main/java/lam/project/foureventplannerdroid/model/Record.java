@@ -8,11 +8,9 @@ import java.text.ParseException;
 
 import lam.project.foureventplannerdroid.utils.DateConverter;
 
-
 /**
- * Created by spino on 22/08/16.
+ * Classe che rappresenta il modello di un record, con i relativi campi
  */
-
 public class Record {
 
     public final String mId;
@@ -37,6 +35,8 @@ public class Record {
         this.mUser = user;
         this.mEvent = event;
     }
+
+    //Region lettura/scrittura Json
 
     public static Record fromJson(JSONObject jsonObject) throws JSONException {
 
@@ -90,6 +90,10 @@ public class Record {
         return jsonObject;
     }
 
+    //Endregion
+
+    //Region Builder
+
     public static class Builder {
 
         private String id;
@@ -135,6 +139,10 @@ public class Record {
         }
     }
 
+    //Endregion
+
+    //Region Keys
+
     public static class Keys {
 
         public static String ID = "_id";
@@ -150,4 +158,6 @@ public class Record {
         public static final String SPONSOR = "Popolari";
 
     }
+
+    //Endregion
 }

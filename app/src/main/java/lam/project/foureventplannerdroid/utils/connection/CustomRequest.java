@@ -12,16 +12,15 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 
 /**
- * Created by Vale on 01/08/2016.
+ * Richiesta Volley personalizzata
  */
-
 public class CustomRequest extends JsonObjectRequest {
 
 
     public CustomRequest(int method, String url, JSONObject jsonRequest,
                          Response.Listener<JSONObject> listener,
                          Response.ErrorListener errorListener) {
-        super(method, url, jsonRequest, listener, errorListener);
+            super(method, url, jsonRequest, listener, errorListener);
     }
 
     @Override

@@ -3,13 +3,11 @@ package lam.project.foureventplannerdroid.utils.connection;
 import android.net.Uri;
 
 /**
- * Created by spino on 23/08/16.
+ * Classe per la definizione degli Uri passati nelle richieste al server
  */
-
 public class FourEventUri {
 
-
-    private String[] paths;
+    //Region Builder
 
     public static class Builder {
 
@@ -33,6 +31,7 @@ public class FourEventUri {
             return this;
         }
 
+        //Percorso con simboli come la @
         public Builder appendEncodedPath(String newSegment) {
 
             mRequestedUriBuilder.appendEncodedPath(newSegment);
@@ -46,6 +45,10 @@ public class FourEventUri {
         }
     }
 
+    //Endregion
+
+    //Region Keys
+
     public static class Keys {
 
         private static final String BASE = "http://annina.cs.unibo.it:8080/api/";
@@ -55,4 +58,6 @@ public class FourEventUri {
         public static final String TICKET = "ticket";
 
     }
+
+    //Endregion
 }

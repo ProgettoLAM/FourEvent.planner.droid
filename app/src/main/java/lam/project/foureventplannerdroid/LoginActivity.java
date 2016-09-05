@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 import lam.project.foureventplannerdroid.complete_profile.StepManager;
 import lam.project.foureventplannerdroid.model.Planner;
-import lam.project.foureventplannerdroid.utils.PlannerManager;
+import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;

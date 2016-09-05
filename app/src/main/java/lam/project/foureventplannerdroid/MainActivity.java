@@ -3,10 +3,7 @@ package lam.project.foureventplannerdroid;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.IdRes;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,8 +21,7 @@ import lam.project.foureventplannerdroid.fragment.EventFragment;
 import lam.project.foureventplannerdroid.fragment.ProfileFragment;
 import lam.project.foureventplannerdroid.fragment.WalletFragment;
 import lam.project.foureventplannerdroid.model.Planner;
-import lam.project.foureventplannerdroid.utils.PlannerManager;
-import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
+import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
 
 import static lam.project.foureventplannerdroid.EventDetailActivity.OPEN_FRAGMENT_WALLET;
 

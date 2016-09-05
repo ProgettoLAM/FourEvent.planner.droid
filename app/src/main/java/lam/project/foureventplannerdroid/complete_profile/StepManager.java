@@ -6,9 +6,6 @@ import android.content.SharedPreferences;
 import lam.project.foureventplannerdroid.R;
 
 
-/**
- * Created by spino on 12/08/16.
- */
 public class StepManager {
 
     private static StepManager sInstance;
@@ -20,7 +17,6 @@ public class StepManager {
     public final static int INCOMPLETE = 0;
 
     public final static int COMPLETE = 1;
-
 
     private StepManager(final Context context){
 
@@ -49,11 +45,20 @@ public class StepManager {
         return sInstance;
     }
 
+    /**
+     *
+     * @return il numero dello step
+     */
     public int getStep(){
 
         return mSharedPreferences.getInt(STEP, INCOMPLETE);
     }
 
+    /**
+     *
+     * @param step il numero dello step
+     * @return lo step settato con un numero
+     */
     public boolean setStep(int step){
 
         return mSharedPreferences.edit().putInt(STEP,step).commit();

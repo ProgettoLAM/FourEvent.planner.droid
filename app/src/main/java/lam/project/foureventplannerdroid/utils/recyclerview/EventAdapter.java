@@ -1,23 +1,6 @@
-/*
- * Copyright (C) 2015 Thomas Robert Altstidl
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package lam.project.foureventplannerdroid.utils.recyclerview;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -29,10 +12,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,13 +21,11 @@ import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
-import lam.project.foureventplannerdroid.utils.connection.EventListRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
-import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
-
 public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
+
     private final List<Event> mModel;
 
     private Activity mSenderActivity;
@@ -56,23 +35,24 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
     public EventAdapter(final Activity senderActivity, final List<Event> model) {
 
         this.mSenderActivity = senderActivity;
-
         this.mModel = model;
     }
 
     @Override
     public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         final View layout = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.content_events_list,parent,false);
 
         divider = layout.findViewById(R.id.divider);
-
 
         return new EventViewHolder(mSenderActivity,mModel,layout);
     }
 
     @Override
     public void onBindViewHolder(EventViewHolder holder, int position) {
+
+        //Se l'elemento selezionato è l'ultimo della lista, non compare il divider al di sotto
         if( position == getItemCount() - 1 ){
 
             divider.setVisibility(View.INVISIBLE);
@@ -81,19 +61,24 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
 
     }
 
+    /**
+     * Metodo di rimozione di un evento
+     * @param position posizione dell'elemento
+     */
     void remove(final int position) {
 
+        //Creo l'url della richiesta
         String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
                 .appendEncodedPath(MainActivity.mCurrentPlanner.email)
                 .appendPath(mModel.get(position).mId).getUri();
 
         CustomRequest request = new CustomRequest(Request.Method.DELETE, url, null,
-
                 new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
 
+                        //Si elimina l'evento dalla lista
                         mModel.remove(position);
                         notifyItemRemoved(position);
 
@@ -101,20 +86,20 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
                                 .make(mSenderActivity.findViewById(R.id.container),
                                         "Evento eliminato!", Snackbar.LENGTH_LONG);
 
-                        snackbar.getView().setBackgroundColor(ContextCompat.getColor(mSenderActivity.getApplicationContext(), R.color.lightGreen));
+                        snackbar.getView().setBackgroundColor(ContextCompat
+                                .getColor(mSenderActivity.getApplicationContext(), R.color.lightGreen));
                         snackbar.show();
                     }
                 },
-
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-
                         snackbar = Snackbar.make(mSenderActivity.findViewById(R.id.container),
-                                        HandlerManager.getInstance().handleError(error), Snackbar.LENGTH_LONG);
+                                        "Non è possibile eliminare l'evento", Snackbar.LENGTH_LONG);
 
-                        snackbar.getView().setBackgroundColor(ContextCompat.getColor(mSenderActivity.getApplicationContext(), R.color.lightRed));
+                        snackbar.getView().setBackgroundColor(ContextCompat
+                                .getColor(mSenderActivity.getApplicationContext(), R.color.lightRed));
                         snackbar.show();
                         }
                 }
@@ -125,6 +110,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventViewHolder> {
 
     }
 
+    /**
+     * Metodo di swap del modello
+     * @param firstPosition dalla prima posizione
+     * @param secondPosition alla seconda posizione
+     */
     void swap(int firstPosition, int secondPosition){
         Collections.swap(mModel, firstPosition, secondPosition);
         notifyItemMoved(firstPosition, secondPosition);

@@ -1,7 +1,5 @@
 package lam.project.foureventplannerdroid.fragment;
 
-
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -25,7 +23,6 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,8 +34,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Planner;
-import lam.project.foureventplannerdroid.utils.ImageManager;
-import lam.project.foureventplannerdroid.utils.PlannerManager;
+import lam.project.foureventplannerdroid.utils.shared_preferences.ImageManager;
+import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
 import lam.project.foureventplannerdroid.utils.Utility;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
@@ -47,9 +44,6 @@ import lam.project.foureventplannerdroid.utils.connection.MultipartRequest;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ProfileFragment extends Fragment {
 
     private static final String NAME = "Profilo";
@@ -65,15 +59,23 @@ public class ProfileFragment extends Fragment {
     public ProfileFragment() {}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Profilo");
+        return initView(inflater.inflate(R.layout.fragment_profile, container, false));
 
-        final View view = inflater.inflate(R.layout.fragment_profile, container, false);
+    }
+
+    /**
+     * Metodo per inizializzare gli elementi della view
+     *
+     * @param view del profilo
+     * @return la view con tutti i campi del profilo
+     */
+    private View initView(View view) {
 
         setTitle();
 
+        //Si prende il planner corrente
         planner = PlannerManager.get().getUser();
 
         ImageView editPass = (ImageView) view.findViewById(R.id.change_pass);
@@ -87,6 +89,7 @@ public class ProfileFragment extends Fragment {
 
         getOrFetchImage();
 
+        //Al click dell'immagine del profilo si può scegliere quale caricare
         imgProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,138 +97,165 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        //Ad ogni campo del profilo si assegnano i dati dell'utente (se presenti)
         emailProfile.setText(planner.email);
         nameProfile.setText(planner.name);
 
         //Se la data di nascita non è definita
-        if(planner.birthDate == null) {
+        if (planner.birthDate == null) {
 
             birthDateProfile.setText(" -- / -- / --");
-        }
-        else {
+        } else {
             birthDateProfile.setText(planner.birthDate);
         }
 
         //Se la città non è definita
-        if(planner.location == null) {
+        if (planner.location == null) {
 
             locationProfile.setText(R.string.city);
-        }
-        else {
+        } else {
             locationProfile.setText(planner.location);
         }
 
-        if(planner.gender != null) {
+        //Se il sesso è definito, in base al genere si setta il testo
+        if (planner.gender != null) {
 
-            if(planner.gender.equals("F")) {
+            if (planner.gender.equals("F")) {
 
                 genderProfile.setText(R.string.female_complete);
 
-            } else if(planner.gender.equals("M")) {
+            } else if (planner.gender.equals("M")) {
 
                 genderProfile.setText(R.string.male_complete);
             }
         }
 
-        editPass.setOnClickListener(changePasswordListener);
+        //Al click dell'icona del cambio della password si apre un dialog
+        editPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updatePassword();
+            }
+        });
 
         return view;
-
     }
 
-    View.OnClickListener changePasswordListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
+    /**
+     * Si setta il titolo del profilo
+     */
+    private void setTitle () {
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(NAME);
+    }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-            builder.setTitle("Cambia la password");
+    //Region cambio della password
 
-            View viewInflated = LayoutInflater.from(getContext())
-                    .inflate(R.layout.dialog_change_password, (ViewGroup) getView(), false);
+    /**
+     * Update della password, al click dell'icona corrispondente
+     */
+    private void updatePassword() {
 
-            final EditText oldPasswordField = (EditText) viewInflated.findViewById(R.id.old_password);
-            final EditText newPasswordField = (EditText) viewInflated.findViewById(R.id.new_password);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Cambia la password");
 
-            builder.setView(viewInflated);
+        //Creazione di un layout per l'inserimento della password attuale e quella nuova
+        View viewInflated = LayoutInflater.from(getContext())
+                .inflate(R.layout.dialog_change_password, (ViewGroup) getView(), false);
 
-            //region positiveListener
+        final EditText oldPasswordField = (EditText) viewInflated.findViewById(R.id.old_password);
+        final EditText newPasswordField = (EditText) viewInflated.findViewById(R.id.new_password);
 
-            DialogInterface.OnClickListener positiveListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+        builder.setView(viewInflated);
 
-                    oldPassword = oldPasswordField.getText().toString();
-                    newPassword = newPasswordField.getText().toString();
+        //Region positiveListener
 
-                    if(canExecute(oldPassword,newPassword)) {
+        DialogInterface.OnClickListener positiveListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-                        try{
+                oldPassword = oldPasswordField.getText().toString();
+                newPassword = newPasswordField.getText().toString();
 
-                            String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
-                                    .appendPath("changepassword").appendEncodedPath(planner.email)
-                                    .getUri();
+                //Al click del bottone positivo si controlla sul server se è possibile modificare la password
+                if (canExecute(oldPassword, newPassword)) {
 
-                            JSONObject obj = new JSONObject("{'oldPassword':'"+oldPassword+"', 'newPassword':'"+newPassword+"'}");
+                    try {
 
-                            CustomRequest changePasswordRequest = new CustomRequest(Request.Method.POST, url, obj,
-                                    new Response.Listener<JSONObject>() {
-                                        @Override
-                                        public void onResponse(JSONObject response) {
+                        String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                                .appendPath("changepassword").appendEncodedPath(planner.email)
+                                .getUri();
 
-                                            try{
+                        JSONObject obj = new JSONObject("{'oldPassword':'" + oldPassword + "'," +
+                                " 'newPassword':'" + newPassword + "'}");
 
-                                                Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container),response.getString("message"), Snackbar.LENGTH_LONG);
-                                                snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightGreen));
-                                                snackbar.show();
-                                            }
-                                            catch (JSONException e) {
+                        CustomRequest changePasswordRequest = new CustomRequest(Request.Method.POST,
+                                url, obj, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
 
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    },
-                                    new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
+                                try {
 
-                                            Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container), HandlerManager.getInstance().handleError(error), Snackbar.LENGTH_LONG);
-                                            snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
-                                            snackbar.show();
-                                        }
-                                    });
+                                    Snackbar snackbar = Snackbar.make(getActivity()
+                                            .findViewById(R.id.container), response
+                                            .getString("message"), Snackbar.LENGTH_LONG);
 
-                            VolleyRequest.get(getContext()).add(changePasswordRequest);
-                            dialog.dismiss();
+                                    snackbar.getView().setBackgroundColor(ContextCompat
+                                            .getColor(getContext(), R.color.lightGreen));
+                                    snackbar.show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
 
-                        } catch (JSONException e) {
+                                Snackbar snackbar = Snackbar.make(getActivity()
+                                        .findViewById(R.id.container), HandlerManager
+                                        .getInstance().handleError(error), Snackbar.LENGTH_LONG);
 
-                            e.printStackTrace();
-                        }
+                                snackbar.getView().setBackgroundColor(ContextCompat
+                                        .getColor(getContext(), R.color.lightRed));
+                                snackbar.show();
+                            }
+                        });
+
+                        VolleyRequest.get(getContext()).add(changePasswordRequest);
+                        dialog.dismiss();
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
-            };
+            }
+        };
 
-            //endregion
+        //Endregion
 
-            //region negativeListener
+        //Region negativeListener
 
-            DialogInterface.OnClickListener negativeListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+        DialogInterface.OnClickListener negativeListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-                    dialog.cancel();
-                }
-            };
+                dialog.cancel();
+            }
+        };
 
-            //endregion
+        //Endregion
 
-            builder.setPositiveButton("OK",positiveListener);
-            builder.setNegativeButton("CANCELLA",negativeListener);
+        builder.setPositiveButton("Ok", positiveListener);
+        builder.setNegativeButton("Cancella", negativeListener);
 
-            builder.show();
-        }
-    };
+        builder.show();
+    }
 
+    /**
+     * Controllo delle due password
+     * @param oldPassword password attuale
+     * @param newPassword password nuova
+     * @return un booleano, se la richiesta può essere eseguita o no
+     */
     private boolean canExecute(String oldPassword, String newPassword) {
 
         boolean showSnack = false;
@@ -251,7 +281,9 @@ public class ProfileFragment extends Fragment {
 
         if(showSnack) {
 
-            Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container), message, Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container),
+                    message, Snackbar.LENGTH_LONG);
+
             snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
             snackbar.show();
             return false;
@@ -260,9 +292,9 @@ public class ProfileFragment extends Fragment {
             return true;
     }
 
-    private void setTitle () {
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(NAME);
-    }
+    //Endregion
+
+    //Region intent salvataggio dell'immagine
 
     private void selectImage() {
 
@@ -276,12 +308,16 @@ public class ProfileFragment extends Fragment {
             public void onClick(DialogInterface dialog, int item) {
                 boolean result = Utility.checkPermission(getContext());
                 if (items[item].equals("Scatta una foto")) {
+
                     userChoosenTask = "Scatta una foto";
+
                     if(result)
                         cameraIntent();
 
                 } else if (items[item].equals("Scegli dalla galleria")) {
+
                     userChoosenTask = "Scegli dalla galleria";
+
                     if(result)
                         galleryIntent();
 
@@ -305,40 +341,41 @@ public class ProfileFragment extends Fragment {
         startActivityForResult(Intent.createChooser(intent, "Select File"), SELECT_FILE);
     }
 
-    //Permessi per scattare una foto/scegliere un'immagine dalla galleria
+    //Endregion
+
+    //Region fetch/scatta immagine + upload del server
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (userChoosenTask.equals("Take Photo"))
-                        cameraIntent();
-                    else if (userChoosenTask.equals("Choose from Library"))
-                        galleryIntent();
-                } else {
-                    //Codice per negare i permessi
+
+                    if (userChoosenTask.equals("Take Photo")) cameraIntent();
+
+                    else if (userChoosenTask.equals("Choose from Library")) galleryIntent();
                 }
                 break;
         }
     }
 
-    /*Risultato della scelta dell'immagine in base al codice che ritorna:
-      - se ritorna "SELECT_FILE" si richiama il metodo per la scelta dalla galleria
-      - se ritorna "REQUEST_CAMERA" si richiama il metodo per la scelta dalla fotocamera
-     */
+    //Risultato della scelta dell'immagine in base al codice che ritorna:
+    //se ritorna "SELECT_FILE" si richiama il metodo per la scelta dalla galleria
+    //se ritorna "REQUEST_CAMERA" si richiama il metodo per la scelta dalla fotocamera
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == SELECT_FILE)
-                onSelectFromGalleryResult(data);
-            else if (requestCode == REQUEST_CAMERA)
-                onCaptureImageResult(data);
+            if (requestCode == SELECT_FILE) onSelectFromGalleryResult(data);
+
+            else if (requestCode == REQUEST_CAMERA) onCaptureImageResult(data);
         }
     }
 
-    //Risultato dell'immagine scelta dalla galleria
-    @SuppressWarnings("deprecation")
+    /**
+     * Risultato dell'immagine scelta dalla galleria
+     * @param data intent che deriva dal risultato della Activity
+     */
     private void onSelectFromGalleryResult(Intent data) {
 
         try {
@@ -355,7 +392,10 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    //Risultato dell'immagine scattata dalla fotocamera
+    /**
+     * Risultato dell'immagine scattata dalla fotocamera
+     * @param data intent che deriva dal risultato della Activity
+     */
     private void onCaptureImageResult(Intent data) {
 
         Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
@@ -367,26 +407,35 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Caricamento dell'immagine sul server
+     * @param toUploadFile File preso dalla galleria del dispositivo o scattato dalla fotocamera
+     */
     private void uploadImage(File toUploadFile) {
 
         String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
                 .appendPath("img").appendEncodedPath(planner.email).getUri();
 
-        final ProgressDialog loading = ProgressDialog.show(getContext(), "Immagine dell'evento", "Caricamento in corso..", false, false);
+        final ProgressDialog loading = ProgressDialog.show(getContext(),
+                "Immagine dell'evento", "Caricamento in corso..", false, false);
 
         MultipartRequest mMultipartRequest = new MultipartRequest(url, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+
                 Snackbar.make(imgProfile, "Errore nel caricamento dell'immagine", Snackbar.LENGTH_SHORT)
                         .show();
                 loading.dismiss();
+
             }
         }, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Snackbar.make(imgProfile, "Immagine caricata!", Snackbar.LENGTH_SHORT)
-                        .show();
+
+                Snackbar.make(imgProfile, "Immagine caricata!", Snackbar.LENGTH_SHORT).show();
+
                 loading.dismiss();
+
             }
         },toUploadFile,"filename");
 
@@ -394,6 +443,9 @@ public class ProfileFragment extends Fragment {
 
     }
 
+    /**
+     * L'immagine viene settata nell'item corrispondente
+     */
     private void getOrFetchImage() {
 
         Bitmap contentImage = ImageManager.get().readImage(MainActivity.mCurrentPlanner.email);
@@ -415,5 +467,6 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    //Endregion
 }
 
