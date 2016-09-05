@@ -96,18 +96,34 @@ public class ProfileFragment extends Fragment {
 
         emailProfile.setText(planner.email);
         nameProfile.setText(planner.name);
-        birthDateProfile.setText(planner.birthDate);
-        locationProfile.setText(planner.location);
+
+        //Se la data di nascita non è definita
+        if(planner.birthDate == null) {
+
+            birthDateProfile.setText(" -- / -- / --");
+        }
+        else {
+            birthDateProfile.setText(planner.birthDate);
+        }
+
+        //Se la città non è definita
+        if(planner.location == null) {
+
+            locationProfile.setText(R.string.city);
+        }
+        else {
+            locationProfile.setText(planner.location);
+        }
 
         if(planner.gender != null) {
 
             if(planner.gender.equals("F")) {
 
-                genderProfile.setText("Femmina");
+                genderProfile.setText(R.string.female_complete);
 
             } else if(planner.gender.equals("M")) {
 
-                genderProfile.setText("Maschio");
+                genderProfile.setText(R.string.male_complete);
             }
         }
 
@@ -380,18 +396,22 @@ public class ProfileFragment extends Fragment {
 
     private void getOrFetchImage() {
 
-        Bitmap imageContent = ImageManager.get().readImage(MainActivity.mCurrentPlanner.email);
+        Bitmap contentImage = ImageManager.get().readImage(MainActivity.mCurrentPlanner.email);
 
-        if(imageContent != null) {
+        //Se l'utente non ha settato l'immagine, viene inserita una di default
+        if(contentImage == null) {
 
-            imgProfile.setImageBitmap(imageContent);
+            if(planner.gender != null) {
 
-        } else {
+                if(planner.gender.equals("F")) {
 
-            String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
-                    .appendPath("img").appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+                    imgProfile.setImageResource(R.drawable.img_female);
+                }
+            }
+        }
+        else {
 
-            Picasso.with(getActivity()).load(url).into(imgProfile);
+            imgProfile.setImageBitmap(contentImage);
         }
     }
 
