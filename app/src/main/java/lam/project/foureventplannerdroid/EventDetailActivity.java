@@ -50,7 +50,6 @@ import lam.project.foureventplannerdroid.model.Record;
 import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
-import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 import lam.project.foureventplannerdroid.utils.qr_code.ScannerActivity;
 
@@ -68,7 +67,6 @@ public class EventDetailActivity extends Activity {
     private Button.OnClickListener listenerButton;
     private TextView detailsParticipation;
     private TextView pricePopular;
-    private TextView priceMessage;
 
     private Event mCurrentEvent;
 
@@ -83,12 +81,20 @@ public class EventDetailActivity extends Activity {
 
     private ViewGroup v;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
+
+        initView();
+    }
+
+    /**
+     * Metodo per inizializzare gli elementi della view
+     */
+    private void initView() {
+
         v = (ViewGroup) getWindow().getDecorView();
 
         ageChart = (PieChart) findViewById(R.id.age_chart);
@@ -96,39 +102,31 @@ public class EventDetailActivity extends Activity {
 
         detailsParticipation = (TextView) findViewById(R.id.details_ticket);
         pricePopular = (TextView) findViewById(R.id.price_popular);
-        priceMessage = (TextView) findViewById(R.id.price_message);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         mButtonNFC = (Button) findViewById(R.id.button_nfc);
 
+        //Al click del bottone per la sincronizzazione del NFC
         mButtonNFC.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if(!mNfcAdapter.isEnabled()) {
-
-                    Toast.makeText(v.getContext(),"Perfavore attiva l'NFC e torna indietro per tornare all'applicazione!",Toast.LENGTH_LONG).show();
-
-                    startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
-
-                } else if(mNfcAdapter.isEnabled()) {
-
-                    mIsSearching = true;
-                    mProgressDialog = ProgressDialog.show(v.getContext(),"Ricerca braccialetto","Ricerca braccialetto NFC in corso...",true,true);
-                }
+            public void onClick(View v) {nfcButton();
             }
         });
 
+        //Se l'Nfc non è supportato, si deve utilizzare il codice QR
         if (mNfcAdapter == null) {
-            // Stop here, we definitely need NFC
-            Toast.makeText(this,"NFC non supportato, Utilizzare codice QR",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"NFC non supportato, utilizzare codice QR",Toast.LENGTH_SHORT).show();
         }
 
+        //Si aggiungono i dati dei due pieChart
         addData(yDataGender, xDataGender, genderChart);
         addData(yDataAge, xDataAge, ageChart);
 
+        //Si salva in una variabile l'evento corrente cliccato dalla recycler view
         mCurrentEvent = getIntent().getParcelableExtra(Event.Keys.EVENT);
 
+        //Listener del numero di biglietti di cui si vuole incrementare
         listenerButton = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,13 +148,33 @@ public class EventDetailActivity extends Activity {
 
     }
 
+    //Region nfc
+
+    private void nfcButton() {
+
+        //Se l'Nfc non è attivo, si reindirizza l'utente alle impostazioni del dispositivo per attivarlo
+        if(!mNfcAdapter.isEnabled()) {
+
+            Toast.makeText(v.getContext(),"Perfavore attiva l'NFC e torna indietro per tornare all'applicazione!",
+                    Toast.LENGTH_LONG).show();
+
+            startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+
+        //Altrimenti si inizia la sincronizzazione del tag Nfc
+        } else if(mNfcAdapter.isEnabled()) {
+
+            mIsSearching = true;
+            mProgressDialog = ProgressDialog.show(v.getContext(),"Ricerca braccialetto","Ricerca braccialetto NFC in corso...",true,true);
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
 
         super.onNewIntent(intent);
 
+        //Se si sta sincronizzando il tag, si prende e si invia nella lettura Ndef
         if(mIsSearching && intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
-
 
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             new NdefReaderTask().execute(tag);
@@ -165,354 +183,6 @@ public class EventDetailActivity extends Activity {
             mIsSearching = false;
         }
     }
-    @Override
-    protected void onResume() {
-
-        //Importante che nel onResume l'Activity sia nel foreground, altrimenti lancia un'eccezione
-        enableForegroundDispatchSystem();
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-
-        //Importante che sia prima del onPause, altrimenti lancia un'eccezione
-        disableForegroundDispatchSystem();
-        super.onPause();
-    }
-
-
-    private void addData(float[] yData, String[] xData, PieChart mChart) {
-
-        //Disattivare la rotazione al touch
-        mChart.setRotationAngle(0);
-        mChart.setRotationEnabled(false);
-
-        //Configurazione pieChart per il gender
-        mChart.setUsePercentValues(true);
-        mChart.setDescription(null);
-
-        //Attivare l'hole e configurarlo
-        mChart.setDrawHoleEnabled(true);
-        mChart.setHoleColor(R.color.white);
-        mChart.setHoleRadius(7);
-        mChart.setTransparentCircleRadius(10);
-        mChart.setDrawSliceText(false);
-
-        //Personalizzazione della legenda
-        Legend l = genderChart.getLegend();
-        l.setPosition(Legend.LegendPosition.BELOW_CHART_CENTER);
-        l.setXEntrySpace(10);
-        l.setYEntrySpace(2);
-
-        ArrayList<Entry> yVals = new ArrayList<>();
-        ArrayList<String> xVals = new ArrayList<>();
-
-        for(int i = 0; i < yData.length; i++)
-            yVals.add(new Entry(yData[i], i));
-
-        for(int i = 0; i < xData.length; i++)
-            xVals.add(xData[i]);
-
-        //Creazione del pie dataset
-        PieDataSet dataSet = new PieDataSet(yVals, null);
-        dataSet.setSliceSpace(0);
-        dataSet.setSelectionShift(5);
-
-        //Aggiungere i colori al chart
-
-        ArrayList<Integer> colors = new ArrayList<Integer>();
-
-       /* for (int c : ColorTemplate.VORDIPLOM_COLORS)
-            colors.add(c);*/
-
-        for (int c : ColorTemplate.JOYFUL_COLORS)
-            colors.add(c);
-
-       /* for (int c : ColorTemplate.COLORFUL_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.LIBERTY_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.PASTEL_COLORS)
-            colors.add(c);*/
-
-        colors.add(ColorTemplate.getHoloBlue());
-
-        dataSet.setColors(colors);
-
-        //Instanziare l'oggetto PieData
-        PieData data = new PieData(xVals, dataSet);
-        data.setValueFormatter(new PercentFormatter());
-        data.setValueTextSize(12f);
-        data.setValueTextColor(R.color.white);
-
-        //Si aggiunge l'oggetto data al chart
-        mChart.setData(data);
-
-        //Undo tutti gli highlights
-        mChart.highlightValues(null);
-
-        //Update piechart
-        mChart.invalidate();
-
-
-    }
-
-    public void moreTickets(final View view) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-        builder.setTitle("Aumenta il numero dei biglietti");
-
-        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, v, false);
-
-        viewInflated.findViewById(R.id.btn_1_ticket).setOnClickListener(listenerButton);
-        viewInflated.findViewById(R.id.btn_2_ticket).setOnClickListener(listenerButton);
-        viewInflated.findViewById(R.id.btn_3_ticket).setOnClickListener(listenerButton);
-        viewInflated.findViewById(R.id.btn_4_ticket).setOnClickListener(listenerButton);
-
-        builder.setView(viewInflated);
-
-        builder.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        dialog = builder.show();
-    }
-
-    public void qrButton(final View view) {
-        Intent intent = new Intent(this, ScannerActivity.class);
-        startActivity(intent);
-    }
-
-    public void popularEvent(final View view) {
-
-        String message;
-        String title;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        DialogInterface.OnClickListener positiveListener;
-        String positiveListenerText;
-        final int price = Integer.parseInt(pricePopular.getText().toString());
-
-        if (price <= MainActivity.mCurrentPlanner.balance) {
-
-            message = "Pubblicizzare l'evento ha un costo di " + price + "€." +
-                    "\n\nHai un totale di " + MainActivity.mCurrentPlanner.balance + " €.\nVuoi pubblicizzarlo?";
-
-            title = "Inserisci l'evento tra i popolari";
-
-            positiveListenerText = "Acquista";
-            positiveListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(final DialogInterface dialog, int which) {
-
-                    String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
-                            .appendPath("popular")
-                            .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
-
-                    try {
-
-                        JSONObject record = Record.Builder
-                                .create(-price, Record.Keys.SPONSOR +": "+ mCurrentEvent.mTitle, MainActivity.mCurrentPlanner.email)
-                                .withEvent(mCurrentEvent.mId)
-                                .build().toJson();
-
-                        CustomRequest createRecordRequest = new CustomRequest(Request.Method.POST,
-                                url, record,
-                                new Response.Listener<JSONObject>() {
-
-                                    @Override
-                                    public void onResponse(JSONObject response) {
-
-                                        Snackbar snackbar = Snackbar.make(detailsParticipation, "Evento inserito tra i popolari!",
-                                                Snackbar.LENGTH_LONG);
-
-                                        snackbar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
-                                        snackbar.show();
-
-                                    }
-                                },
-
-                                new Response.ErrorListener() {
-
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-
-                                        Snackbar snackbarError = Snackbar.make(detailsParticipation, HandlerManager.getInstance().handleError(error),
-                                                Snackbar.LENGTH_LONG);
-
-                                        snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
-                                        snackbarError.show();
-                                            }
-                        });
-
-                        VolleyRequest.get(view.getContext()).add(createRecordRequest);
-
-                    } catch (JSONException | ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-
-        } else {
-
-            title = "Credito insufficiente";
-            message = "Non hai abbastanza crediti per pubblicizzare l'evento, ricarica il portafoglio!!";
-
-            positiveListenerText = "Ricarica portafoglio";
-            positiveListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
-                    startActivity(openFragmentBIntent);
-                }
-            };
-        }
-
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setNegativeButton("Cancella", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                dialog.dismiss();
-            }
-        });
-        builder.setPositiveButton(positiveListenerText, positiveListener);
-
-        builder.show();
-    }
-
-    public void messageParticipation(final View view) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, v, false);
-
-        final EditText message = (EditText) viewInflated.findViewById(R.id.message);
-        builder.setView(viewInflated);
-
-        builder.setPositiveButton("Invia", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                String text = message.getText().toString();
-
-                //TODO invio del text al server
-            }
-        });
-
-        builder.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                dialog.dismiss();
-            }
-        });
-
-        builder.show();
-
-    }
-
-    private void buyParticipation(final Float amount, final String numParticipation) throws JSONException {
-
-        final float balance = MainActivity.mCurrentPlanner.balance;
-        String maxTicket = "newMax";
-        dialog.dismiss();
-
-        if(amount < balance) {
-
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-
-            progressDialog.setMessage("Aumento dei biglietti in corso...");
-            progressDialog.setIndeterminate(true);
-            progressDialog.setCancelable(false);
-            progressDialog.setCanceledOnTouchOutside(false);
-
-
-            String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER).appendPath("maxticket")
-                    .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
-
-            try {
-
-                JSONObject record = Record.Builder
-                        .create(-amount, Record.Keys.BUY_TICKETS+ ": "+mCurrentEvent.mTitle, MainActivity.mCurrentPlanner.email)
-                        .withEvent(mCurrentEvent.mId)
-                        .build().toJson();
-
-                record.put(maxTicket,300);
-
-                CustomRequest createRecordRequest = new CustomRequest(Request.Method.POST,
-                        url, record,
-                        new Response.Listener<JSONObject>() {
-
-                            @Override
-                            public void onResponse(JSONObject response) {
-
-                                handleResponse(response, numParticipation, amount);
-
-                            }
-                        }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                        Snackbar snackbarError = Snackbar.make(v, HandlerManager.getInstance().handleError(error),
-                                Snackbar.LENGTH_LONG);
-
-                        snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
-                        snackbarError.show();
-                    }
-                });
-
-                VolleyRequest.get().add(createRecordRequest);
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    //region handle response + error
-
-
-    private void handleResponse(JSONObject response, String numParticipation, final float amount) {
-
-        try {
-
-            //TODO modificare in questo modo anche wallet per le ricariche
-            //Record insertedRecord = Record.fromJson(response.getJSONObject(Record.Keys.RECORD));
-            MainActivity.mCurrentPlanner.updateBalance(amount);
-
-            PlannerManager.get().save(MainActivity.mCurrentPlanner);
-
-            dialog.dismiss();
-
-            detailsParticipation.setText("10 /" + numParticipation);
-
-            Snackbar responseSnackBar = Snackbar.make(v,
-                    response.getString("message"), Snackbar.LENGTH_LONG);
-
-            responseSnackBar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
-
-            responseSnackBar.show();
-
-        } catch (JSONException e) {
-
-            e.printStackTrace();
-            dialog.dismiss();
-        }
-
-    }
-
-    //endregion
 
     private void enableForegroundDispatchSystem() {
 
@@ -530,8 +200,29 @@ public class EventDetailActivity extends Activity {
         mNfcAdapter.disableForegroundDispatch(this);
     }
 
-    //region NdefReaderTask + gestione risultato
+    @Override
+    protected void onResume() {
 
+        //Importante che nel onResume l'Activity sia nel foreground, altrimenti lancia un'eccezione
+        enableForegroundDispatchSystem();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+
+        //Importante che sia prima del onPause, altrimenti lancia un'eccezione
+        disableForegroundDispatchSystem();
+        super.onPause();
+    }
+
+    //Endregion
+
+    //Region NdefReaderTask + gestione risultato
+
+    /**
+     * Classe per la lettura Ndef del tag Nfc
+     */
     public class NdefReaderTask extends AsyncTask<Tag, Void, String> {
 
         @Override
@@ -540,7 +231,7 @@ public class EventDetailActivity extends Activity {
 
             Ndef ndef = Ndef.get(tag);
             if (ndef == null) {
-                // NDEF is not supported by this Tag.
+                // NDEF non è supportato da questo tag
                 return null;
             }
 
@@ -595,8 +286,13 @@ public class EventDetailActivity extends Activity {
         }
     }
 
+    /**
+     * Risultato della lettura del tag NFC
+     * @param text testo letto
+     */
     public void showResult(String text) {
 
+        //Creo l'url per la richiesta
         String url = FourEventUri.Builder.create(FourEventUri.Keys.TICKET)
                 .appendPath("tag")
                 .appendEncodedPath(text)
@@ -609,23 +305,21 @@ public class EventDetailActivity extends Activity {
 
                         try {
 
+                            //Si inserisce in un array la risposta
                             JSONArray array = response.getJSONArray("user_checked");
 
-                            //Toast.makeText(this,array.length(),Toast.LENGTH_LONG).show();
-                            Snackbar successSnackbar = Snackbar.make(mButtonNFC,""+array.length(),Snackbar.LENGTH_LONG);
+                            Snackbar successSnackbar = Snackbar.make(mButtonNFC,"" + array.length(),
+                                    Snackbar.LENGTH_LONG);
                             successSnackbar.show();
 
-                        } catch (JSONException e) {
-
-                            e.printStackTrace();
-                        }
+                        } catch (JSONException e) { e.printStackTrace();}
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar successSnackbar = Snackbar.make(v,HandlerManager.getInstance().handleError(error),Snackbar.LENGTH_LONG);
+                        Snackbar successSnackbar = Snackbar.make(v,"Errore",Snackbar.LENGTH_LONG);
                         successSnackbar.show();
                     }
                 });
@@ -633,6 +327,375 @@ public class EventDetailActivity extends Activity {
         VolleyRequest.get(this).add(getTicketDetailRequest);
 
     }
-    //endregion
+
+    //Endregion
+
+    /**
+     * Click del bottone del QR per avviare la fotocamera e scannerizzare il codice dell'user
+     * @param view dell'Activity
+     */
+    public void qrButton(final View view) {
+
+        Intent intent = new Intent(this, ScannerActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Metodo per aggiungere i dati ai due pieChart
+     * @param yData dati dei vari componenti
+     * @param xData label dei componenti
+     * @param mChart nome del chart
+     */
+    private void addData(float[] yData, String[] xData, PieChart mChart) {
+
+        //Disattivare la rotazione al touch
+        mChart.setRotationAngle(0);
+        mChart.setRotationEnabled(false);
+
+        //Configurazione pieChart per il gender
+        mChart.setUsePercentValues(true);
+        mChart.setDescription(null);
+
+        //Attivare l'hole e configurarlo
+        mChart.setDrawHoleEnabled(true);
+        mChart.setHoleColor(R.color.white);
+        mChart.setHoleRadius(7);
+        mChart.setTransparentCircleRadius(10);
+        mChart.setDrawSliceText(false);
+
+        //Personalizzazione della legenda
+        Legend l = genderChart.getLegend();
+        l.setPosition(Legend.LegendPosition.BELOW_CHART_CENTER);
+        l.setXEntrySpace(10);
+        l.setYEntrySpace(2);
+
+        ArrayList<Entry> yVals = new ArrayList<>();
+        ArrayList<String> xVals = new ArrayList<>();
+
+        for(int i = 0; i < yData.length; i++)
+            yVals.add(new Entry(yData[i], i));
+
+        for(int i = 0; i < xData.length; i++)
+            xVals.add(xData[i]);
+
+        //Creazione del pie dataset
+        PieDataSet dataSet = new PieDataSet(yVals, null);
+        dataSet.setSliceSpace(0);
+        dataSet.setSelectionShift(5);
+
+        //Aggiungere i colori al chart
+
+        ArrayList<Integer> colors = new ArrayList<Integer>();
+
+        for (int c : ColorTemplate.JOYFUL_COLORS)
+            colors.add(c);
+
+        colors.add(ColorTemplate.getHoloBlue());
+
+        dataSet.setColors(colors);
+
+        //Istanziare l'oggetto PieData
+        PieData data = new PieData(xVals, dataSet);
+        data.setValueFormatter(new PercentFormatter());
+        data.setValueTextSize(12f);
+        data.setValueTextColor(R.color.white);
+
+        //Si aggiunge l'oggetto data al chart
+        mChart.setData(data);
+
+        //Undo tutti gli highlights
+        mChart.highlightValues(null);
+
+        //Update piechart
+        mChart.invalidate();
+
+    }
+
+    //Region opzioni premium
+
+    /**
+     * Metodo per incrementare il numero di biglietti massimi
+     * @param view view dell'Activity
+     */
+    public void moreTickets(final View view) {
+
+        //Si crea un dialog tramite il Builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+        builder.setTitle("Aumenta il numero dei biglietti");
+
+        //Si crea un layout e si aggiunge ad ogni bottone il listener per catturare il numero
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, v, false);
+
+        viewInflated.findViewById(R.id.btn_1_ticket).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.btn_2_ticket).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.btn_3_ticket).setOnClickListener(listenerButton);
+        viewInflated.findViewById(R.id.btn_4_ticket).setOnClickListener(listenerButton);
+
+        builder.setView(viewInflated);
+
+        builder.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog = builder.show();
+    }
+
+    /**
+     * Metodo per l'acquisto di un numero maggiore di biglietti dell'evento
+     * @param amount importo da pagare
+     * @param numParticipation numero dei partecipanti
+     * @throws JSONException
+     */
+    private void buyParticipation(final Float amount, final String numParticipation) throws JSONException {
+
+        //Si salva la somma posseduta dal planner
+        final float balance = MainActivity.mCurrentPlanner.balance;
+        String maxTicket = "newMax";
+        dialog.dismiss();
+
+        //Se il prezzo del numero di biglietti è minore della somma del planner
+        if(amount < balance) {
+
+            //Creo un progress dialog nell'attesa
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+
+            progressDialog.setMessage("Aumento dei biglietti in corso...");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+
+            //Creo l'url per la richiesta
+            String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER).appendPath("maxticket")
+                    .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+
+            try {
+                //Creo il record scrivendo il prezzo, il titolo, l'email del planner e id dell'evento
+                JSONObject record = Record.Builder
+                        .create(-amount, Record.Keys.BUY_TICKETS+ ": "+mCurrentEvent.mTitle,
+                                MainActivity.mCurrentPlanner.email)
+                        .withEvent(mCurrentEvent.mId)
+                        .build().toJson();
+
+                //Inserisco il numero massimo di biglietti nel record
+                record.put(maxTicket, numParticipation);
+
+                CustomRequest createRecordRequest = new CustomRequest(Request.Method.POST,
+                        url, record,
+                        new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                                handleResponse(response, numParticipation, amount);
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        Snackbar snackbarError = Snackbar.make(v, "Errore nell'acquisto dei biglietti",
+                                Snackbar.LENGTH_LONG);
+
+                        snackbarError.getView().setBackgroundColor(ContextCompat
+                                .getColor(getApplicationContext(), R.color.lightRed));
+                        snackbarError.show();
+                    }
+                });
+
+                VolleyRequest.get().add(createRecordRequest);
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Gestione della risposta dell'acquisto dei biglietti
+     * @param response risposta dal server
+     * @param numParticipation numero di biglietti scelti
+     * @param amount somma del portafoglio del planner
+     */
+    private void handleResponse(JSONObject response, String numParticipation, final float amount) {
+
+        try {
+            //Update dell'importo del portafoglio del planner
+            MainActivity.mCurrentPlanner.updateBalance(amount);
+
+            //Si salva il planner con la somma aggiornata
+            PlannerManager.get().save(MainActivity.mCurrentPlanner);
+
+            dialog.dismiss();
+
+            //Si setta il nuovo numero massimo di partecipanti
+            detailsParticipation.setText(" /" + numParticipation);
+
+            Snackbar responseSnackBar = Snackbar.make(v,
+                    response.getString("message"), Snackbar.LENGTH_LONG);
+
+            responseSnackBar.getView().setBackgroundColor(ContextCompat
+                    .getColor(getApplicationContext(), R.color.lightGreen));
+
+            responseSnackBar.show();
+
+        } catch (JSONException e) {
+
+            e.printStackTrace();
+            dialog.dismiss();
+        }
+
+    }
+
+    /**
+     * Metodo per inserire l'evento tra i popolari
+     * @param view view della Activity
+     */
+    public void popularEvent(final View view) {
+
+        String message;
+        String title;
+        //Si crea un dialog tramite il builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        DialogInterface.OnClickListener positiveListener;
+        String positiveListenerText;
+
+        final int price = Integer.parseInt(pricePopular.getText().toString());
+
+        //Si controlla che il prezzo sia minore della somma del portafoglio del planner
+        if (price <= MainActivity.mCurrentPlanner.balance) {
+
+            message = "Pubblicizzare l'evento ha un costo di " + price + "€." +
+                    "\n\nHai un totale di " + MainActivity.mCurrentPlanner.balance + " €.\nVuoi pubblicizzarlo?";
+
+            title = "Inserisci l'evento tra i popolari";
+            positiveListenerText = "Acquista";
+
+            positiveListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialog, int which) {
+
+                    //Creo l'url della richiesta
+                    String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                            .appendPath("popular")
+                            .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
+
+                    try {
+
+                        //Creo il record inserendo il prezzo, il titolo,l'email del planner e id dell'evento
+                        JSONObject record = Record.Builder
+                                .create(-price, Record.Keys.SPONSOR +": "+ mCurrentEvent.mTitle,
+                                        MainActivity.mCurrentPlanner.email)
+                                .withEvent(mCurrentEvent.mId)
+                                .build().toJson();
+
+                        CustomRequest createRecordRequest = new CustomRequest(Request.Method.POST,
+                                url, record,
+                                new Response.Listener<JSONObject>() {
+
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+
+                                        Snackbar snackbar = Snackbar.make(detailsParticipation,
+                                                "Evento inserito tra i popolari!", Snackbar.LENGTH_LONG);
+
+                                        snackbar.getView().setBackgroundColor(ContextCompat
+                                                .getColor(getApplicationContext(), R.color.lightGreen));
+                                        snackbar.show();
+                                    }
+                                },
+
+                                new Response.ErrorListener() {
+
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+
+                                        Snackbar snackbarError = Snackbar.make(detailsParticipation,
+                                                "Evento già presente nei popolari!",
+                                                Snackbar.LENGTH_LONG);
+
+                                        snackbarError.getView().setBackgroundColor(ContextCompat
+                                                .getColor(getApplicationContext(), R.color.lightRed));
+                                        snackbarError.show();
+                                    }
+                                });
+
+                        VolleyRequest.get(view.getContext()).add(createRecordRequest);
+
+                    } catch (JSONException | ParseException e) { e.printStackTrace();}
+                }
+            };
+
+        } else {
+
+            title = "Credito insufficiente";
+            message = "Non hai abbastanza crediti per pubblicizzare l'evento, ricarica il portafoglio!!";
+
+            positiveListenerText = "Ricarica portafoglio";
+            positiveListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
+                    startActivity(openFragmentBIntent);
+                }
+            };
+        }
+
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setNegativeButton("Cancella", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton(positiveListenerText, positiveListener);
+
+        builder.show();
+    }
+
+    //Endregion
+
+    /**
+     * Metodo per l'invio di un messaggio ai partecipanti
+     * @param view della Activity
+     */
+    public void messageParticipation(final View view) {
+
+        //Si crea il dialog tramite il Builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, v, false);
+
+        final EditText message = (EditText) viewInflated.findViewById(R.id.message);
+        builder.setView(viewInflated);
+
+        builder.setPositiveButton("Invia", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                //Si ricava il testo del messaggio
+                String text = message.getText().toString();
+
+                //TODO invio del text al server
+            }
+        });
+
+        builder.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {dialog.dismiss();
+            }
+        });
+
+        builder.show();
+
+    }
 }
 

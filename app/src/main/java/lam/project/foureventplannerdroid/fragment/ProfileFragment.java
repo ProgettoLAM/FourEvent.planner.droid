@@ -211,8 +211,8 @@ public class ProfileFragment extends Fragment {
                             public void onErrorResponse(VolleyError error) {
 
                                 Snackbar snackbar = Snackbar.make(getActivity()
-                                        .findViewById(R.id.container), HandlerManager
-                                        .getInstance().handleError(error), Snackbar.LENGTH_LONG);
+                                        .findViewById(R.id.container), HandlerManager.handleError(error),
+                                        Snackbar.LENGTH_LONG);
 
                                 snackbar.getView().setBackgroundColor(ContextCompat
                                         .getColor(getContext(), R.color.lightRed));
