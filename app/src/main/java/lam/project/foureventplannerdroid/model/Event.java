@@ -37,9 +37,9 @@ public class Event implements Parcelable{
 
     private final String mPrice;
 
-    private int mParticipation;
+    public int mParticipation;
 
-    private int mMaxTicket;
+    public int mMaxTicket;
 
     public Double mDistance;
 
@@ -68,6 +68,10 @@ public class Event implements Parcelable{
         this.mAuthor = author;
         this.mDistance = distance;
 
+    }
+
+    public boolean isFree() {
+        return mPrice.equals("FREE");
     }
 
     public static final Creator<Event> CREATOR = new Creator<Event>() {
@@ -188,11 +192,6 @@ public class Event implements Parcelable{
             builder.withId(jsonObject.getString(Keys.ID));
         }
 
-
-        if(jsonObject.has(Keys.PARTICIPATION)) {
-            builder.withParticipation(jsonObject.getInt(Keys.PARTICIPATION));
-        }
-
         if(jsonObject.has(Keys.MAX_TICKETS)) {
             builder.withMaxTic(jsonObject.getInt(Keys.MAX_TICKETS));
         }
@@ -303,11 +302,12 @@ public class Event implements Parcelable{
         static final String LATITUDE = "latitude";
         static final String LONGITUDE = "longitude";
         static final String PRICE = "price";
-        static final String PARTICIPATION = "participations";
         static final String MAX_TICKETS = "tickets";
         static final String IMAGE = "image";
         static final String AUTHOR = "author";
         static final String DISTANCE = "distance";
+
+        public static final String PARTICIPATION = "user_participations";
         public static final String EVENT = "event";
 
 

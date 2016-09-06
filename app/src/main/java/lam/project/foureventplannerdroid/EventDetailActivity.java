@@ -3,17 +3,14 @@ package lam.project.foureventplannerdroid;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
-import android.nfc.tech.NdefFormatable;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -27,7 +24,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -43,13 +39,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import lam.project.foureventplannerdroid.model.Event;
+import lam.project.foureventplannerdroid.model.Planner;
 import lam.project.foureventplannerdroid.model.Record;
 import lam.project.foureventplannerdroid.utils.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
@@ -78,14 +74,17 @@ public class EventDetailActivity extends Activity {
 
     private PieChart ageChart;
     private PieChart genderChart;
-    private float[] yDataGender = {30,70};
+    private float[] yDataGender = new float[2];
     private String[] xDataGender = {"Maschi", "Femmine"};
-    private float[] yDataAge = {50, 20, 30};
+    private float[] yDataAge = new float[3];
     private String[] xDataAge = {"16-24", "25-35", ">35"};
 
     public static String OPEN_FRAGMENT_WALLET = "Portafoglio";
 
-    private ViewGroup v;
+    private ViewGroup mViewGruoup;
+
+    public static final String AGES = "ages";
+    public static final String GENDER_STATS = "gender_stats";
 
 
 
@@ -93,7 +92,8 @@ public class EventDetailActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
-        v = (ViewGroup) getWindow().getDecorView();
+
+        mViewGruoup = (ViewGroup) findViewById(R.id.event_detail_container);
 
         ageChart = (PieChart) findViewById(R.id.age_chart);
         genderChart = (PieChart) findViewById(R.id.gender_chart);
@@ -128,8 +128,8 @@ public class EventDetailActivity extends Activity {
             Toast.makeText(this,"NFC non supportato, Utilizzare codice QR",Toast.LENGTH_SHORT).show();
         }
 
-        addData(yDataGender, xDataGender, genderChart);
-        addData(yDataAge, xDataAge, ageChart);
+        //addData(yDataGender, xDataGender, genderChart);
+        //addData(yDataAge, xDataAge, ageChart);
 
         mCurrentEvent = getIntent().getParcelableExtra(Event.Keys.EVENT);
 
@@ -152,6 +152,8 @@ public class EventDetailActivity extends Activity {
             }
         };
 
+        getMoreDetails();
+
     }
 
     @Override
@@ -169,22 +171,6 @@ public class EventDetailActivity extends Activity {
             mIsSearching = false;
         }
     }
-    @Override
-    protected void onResume() {
-
-        //Importante che nel onResume l'Activity sia nel foreground, altrimenti lancia un'eccezione
-        enableForegroundDispatchSystem();
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-
-        //Importante che sia prima del onPause, altrimenti lancia un'eccezione
-        disableForegroundDispatchSystem();
-        super.onPause();
-    }
-
 
     private void addData(float[] yData, String[] xData, PieChart mChart) {
 
@@ -264,12 +250,107 @@ public class EventDetailActivity extends Activity {
 
     }
 
+    private void getMoreDetails() {
+
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                .appendPath("detail")
+                .appendEncodedPath(mCurrentEvent.mId)
+                .getUri();
+
+        CustomRequest getEventDetails = new CustomRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        refreshView(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        Snackbar.make(mViewGruoup,error.toString(),Snackbar.LENGTH_LONG).show();
+                    }
+                });
+
+        VolleyRequest.get(this).add(getEventDetails);
+    }
+
+    private void refreshView(JSONObject response) {
+
+        try{
+
+            Event event = Event.fromJson(response);
+            event.mParticipation = response.getJSONArray(Event.Keys.PARTICIPATION).length();
+
+            String participation = event.isFree() ? String.valueOf(event.mParticipation) :
+                    event.mParticipation + " / " + event.mMaxTicket;
+
+            detailsParticipation.setText(participation);
+
+            if(!event.isFree())
+                findViewById(R.id.btn_more_ticket).setVisibility(View.VISIBLE);
+
+            JSONArray jsonGenders = response.getJSONArray(GENDER_STATS);
+
+            for(int i=0; i<jsonGenders.length(); i++) {
+
+                JSONObject gender = jsonGenders.getJSONObject(i);
+
+                String id = gender.getString("_id");
+
+                float count = gender.getInt("count");
+                if(id.equals("M"))
+                    yDataGender[0] = count*10;
+
+                else
+                    yDataGender[1] = count*10;
+            }
+            addData(yDataGender, xDataGender, genderChart);
+
+            JSONArray jsonAges = response.getJSONArray(AGES);
+
+            //{"16-24", "25-35", ">35"}
+            int age;
+            for(int i=0; i<jsonAges.length(); i++){
+
+                age = jsonAges.getInt(i);
+
+                if(16<=age && age<=24)
+                    yDataAge[0] ++;
+
+                else if(25<=age && age<=35)
+                    yDataAge[1] ++;
+
+                else if(age > 35)
+                    yDataAge[2] ++;
+            }
+
+            yDataAge[0] = yDataAge[0]*10;
+            yDataAge[1] = yDataAge[1]*10;
+            yDataAge[2] = yDataAge[2]*10;
+
+            addData(yDataAge,xDataAge,ageChart);
+
+        } catch (JSONException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    public void qrButton(final View view) {
+        Intent intent = new Intent(this, ScannerActivity.class);
+        startActivity(intent);
+    }
+
+    //region premium task
+
     public void moreTickets(final View view) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
         builder.setTitle("Aumenta il numero dei biglietti");
 
-        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, v, false);
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, mViewGruoup, false);
 
         viewInflated.findViewById(R.id.btn_1_ticket).setOnClickListener(listenerButton);
         viewInflated.findViewById(R.id.btn_2_ticket).setOnClickListener(listenerButton);
@@ -286,11 +367,6 @@ public class EventDetailActivity extends Activity {
         });
 
         dialog = builder.show();
-    }
-
-    public void qrButton(final View view) {
-        Intent intent = new Intent(this, ScannerActivity.class);
-        startActivity(intent);
     }
 
     public void popularEvent(final View view) {
@@ -398,7 +474,7 @@ public class EventDetailActivity extends Activity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, v, false);
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, mViewGruoup, false);
 
         builder.setView(viewInflated);
 
@@ -464,7 +540,7 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar snackbarError = Snackbar.make(v, HandlerManager.getInstance().handleError(error),
+                        Snackbar snackbarError = Snackbar.make(mViewGruoup, HandlerManager.getInstance().handleError(error),
                                 Snackbar.LENGTH_LONG);
 
                         snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
@@ -479,6 +555,8 @@ public class EventDetailActivity extends Activity {
             }
         }
     }
+
+    //endregion
 
     //region handle response + error
 
@@ -495,9 +573,9 @@ public class EventDetailActivity extends Activity {
 
             dialog.dismiss();
 
-            detailsParticipation.setText("10 /" + numParticipation);
+            detailsParticipation.setText("10 / " + numParticipation);
 
-            Snackbar responseSnackBar = Snackbar.make(v,
+            Snackbar responseSnackBar = Snackbar.make(mViewGruoup,
                     response.getString("message"), Snackbar.LENGTH_LONG);
 
             responseSnackBar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
@@ -514,6 +592,24 @@ public class EventDetailActivity extends Activity {
 
     //endregion
 
+    //region NdefReaderTask + gestione risultato
+
+    @Override
+    protected void onResume() {
+
+        //Importante che nel onResume l'Activity sia nel foreground, altrimenti lancia un'eccezione
+        enableForegroundDispatchSystem();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+
+        //Importante che sia prima del onPause, altrimenti lancia un'eccezione
+        disableForegroundDispatchSystem();
+        super.onPause();
+    }
+
     private void enableForegroundDispatchSystem() {
 
         Intent intent = new Intent(this, EventDetailActivity.class);
@@ -529,8 +625,6 @@ public class EventDetailActivity extends Activity {
 
         mNfcAdapter.disableForegroundDispatch(this);
     }
-
-    //region NdefReaderTask + gestione risultato
 
     public class NdefReaderTask extends AsyncTask<Tag, Void, String> {
 
@@ -625,7 +719,7 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar successSnackbar = Snackbar.make(v,HandlerManager.getInstance().handleError(error),Snackbar.LENGTH_LONG);
+                        Snackbar successSnackbar = Snackbar.make(mViewGruoup,HandlerManager.getInstance().handleError(error),Snackbar.LENGTH_LONG);
                         successSnackbar.show();
                     }
                 });

@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:paddingTop="20dp"
     android:background="@color/white"
-    tools:context="lam.project.foureventplannerdroid.EventDetailActivity">
+    tools:context="lam.project.foureventplannerdroid.EventDetailActivity"
+    android:id="@+id/event_detail_container">
 
     <RelativeLayout
         android:id="@+id/layout_participation"
@@ -48,7 +49,8 @@
             android:tint="@color/white"
             android:onClick="moreTickets"
             app:fabSize="mini"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:visibility="invisible"/>
 
 
     </RelativeLayout>
