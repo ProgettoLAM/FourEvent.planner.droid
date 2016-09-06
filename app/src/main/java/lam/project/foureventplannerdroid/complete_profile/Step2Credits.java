@@ -78,7 +78,7 @@ public class Step2Credits extends AbstractStep {
 
                                 Snackbar snackbar = Snackbar.make(getActivity()
                                         .findViewById(R.id.container), HandlerManager
-                                        .getInstance().handleError(error), Snackbar.LENGTH_LONG);
+                                        .handleError(error), Snackbar.LENGTH_LONG);
 
                                 snackbar.getView().setBackgroundColor(ContextCompat
                                         .getColor(getContext(), R.color.lightRed));

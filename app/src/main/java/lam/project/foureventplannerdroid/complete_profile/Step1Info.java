@@ -1,5 +1,6 @@
 package lam.project.foureventplannerdroid.complete_profile;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -35,6 +37,7 @@ import java.io.IOException;
 import java.util.Calendar;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import lam.project.foureventplannerdroid.CreateEventActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Planner;
 import lam.project.foureventplannerdroid.utils.DateConverter;
@@ -223,6 +226,9 @@ public class Step1Info extends AbstractStep{
     }
 
     private void cameraIntent() {
+
+        checkCameraPermission();
+
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_CAMERA);
     }
@@ -235,6 +241,46 @@ public class Step1Info extends AbstractStep{
         startActivityForResult(Intent.createChooser(intent, "Select File"), SELECT_FILE);
     }
 
+    private void checkCameraPermission() {
+
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.CAMERA)) {
+
+                new AlertDialog.Builder(getContext())
+                        .setTitle("title")
+                        .setMessage("message")
+                        .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                ActivityCompat.requestPermissions(getActivity(),
+                                        new String[]{Manifest.permission.CAMERA},
+                                        Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.CAMERA},
+                        Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+    }
+
     //Endregion
 
     //Region fetch/scatta immagine + upload del server
@@ -243,8 +289,11 @@ public class Step1Info extends AbstractStep{
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
         switch (requestCode) {
+
             case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
                     if (userChoosenTask.equals("Take Photo")) cameraIntent();
 
                     else if (userChoosenTask.equals("Choose from Library")) galleryIntent();

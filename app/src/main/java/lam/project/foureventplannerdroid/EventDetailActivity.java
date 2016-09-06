@@ -723,7 +723,7 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar snackbarError = Snackbar.make(mViewGroup, HandlerManager.getInstance().handleError(error),
+                        Snackbar snackbarError = Snackbar.make(mViewGroup, HandlerManager.handleError(error),
                                 Snackbar.LENGTH_LONG);
 
                         snackbarError.getView().setBackgroundColor(ContextCompat
