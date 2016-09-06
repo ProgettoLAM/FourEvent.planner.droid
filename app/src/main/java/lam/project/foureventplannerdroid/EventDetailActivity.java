@@ -75,22 +75,21 @@ public class EventDetailActivity extends Activity {
 
     private Event mCurrentEvent;
     private int maxTickets;
-
-
-    private PieChart ageChart;
-    private PieChart genderChart;
-    private float[] yDataGender = new float[2];
-    private String[] xDataGender = {"Maschi", "Femmine"};
-    private float[] yDataAge = new float[3];
-    private String[] xDataAge = {"16-24", "25-35", ">35"};
-
-    public static String OPEN_FRAGMENT_WALLET = "Portafoglio";
-    public static final String SEPARATOR = " / ";
+    private boolean mNfcGO;
 
     private ViewGroup mViewGroup;
 
     public static final String AGES = "ages";
     public static final String GENDER_STATS = "gender_stats";
+    public static final String OPEN_FRAGMENT_WALLET = "Portafoglio";
+    public static final String SEPARATOR = " / ";
+
+    private PieChart ageChart;
+    private PieChart genderChart;
+    private float[] yDataGender = new float[2];
+    private float[] yDataAge = new float[3];
+    private String[] xDataAge = {"16-24", "25-35", ">35"};
+    private String[] xDataGender = {"Maschi", "Femmine"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +130,11 @@ public class EventDetailActivity extends Activity {
         if (mNfcAdapter == null) {
 
             Toast.makeText(this,"NFC non supportato, utilizzare codice QR",Toast.LENGTH_SHORT).show();
+
+        } else {
+
+            mNfcGO = true;
+            enableForegroundDispatchSystem();
         }
 
         //Si salva in una variabile l'evento corrente cliccato dalla recycler view
@@ -208,18 +212,24 @@ public class EventDetailActivity extends Activity {
 
     private void disableForegroundDispatchSystem() {
 
-        mNfcAdapter.disableForegroundDispatch(this);
+        if(mNfcGO) {
+
+            mNfcAdapter.disableForegroundDispatch(this);
+        }
     }
 
     private void enableForegroundDispatchSystem() {
 
-        Intent intent = new Intent(this, EventDetailActivity.class);
-        intent.setFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+        if(mNfcGO) {
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,0);
-        IntentFilter[] intentFilters = new IntentFilter[]{};
+            Intent intent = new Intent(this, EventDetailActivity.class);
+            intent.setFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
 
-        mNfcAdapter.enableForegroundDispatch(this,pendingIntent,intentFilters,null);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,0);
+            IntentFilter[] intentFilters = new IntentFilter[]{};
+
+            mNfcAdapter.enableForegroundDispatch(this,pendingIntent,intentFilters,null);
+        }
     }
 
     @Override
