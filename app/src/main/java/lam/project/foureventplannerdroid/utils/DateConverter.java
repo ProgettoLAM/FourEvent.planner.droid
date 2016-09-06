@@ -60,6 +60,13 @@ public class DateConverter {
         return Long.toString(parsedDate.getTime());
     }
 
+    public static String dateToMillis(String date) throws ParseException{
+
+        Date parsedDate = new SimpleDateFormat(DATE_FORMATTER_V2,Locale.ITALY).parse(date);
+
+        return Long.toString(parsedDate.getTime());
+    }
+
     /**
      * Si prende la data dal calendario e si formatta nella versione 2
      * @param calendar data
@@ -70,6 +77,8 @@ public class DateConverter {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMATTER_V2,Locale.ITALY);
         return dateFormat.format(calendar.getTime());
     }
+
+
 
     /**
      * Si prende l'orario dal calendario e si formatta nella versione 2

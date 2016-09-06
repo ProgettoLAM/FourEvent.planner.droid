@@ -431,6 +431,7 @@ public class Step1Info extends AbstractStep{
             return pickerDialog;
         }
 
+        @Override
         public void onDateSet(DatePicker view, int yy, int mm, int dd) {
             populateSetDate(yy, mm+1, dd);
         }

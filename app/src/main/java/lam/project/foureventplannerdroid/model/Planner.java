@@ -258,7 +258,7 @@ public class Planner implements Parcelable{
 
             try{
 
-                jsonObject.put(Keys.BIRTH_DATE, DateConverter.toMillis(birthDate));
+                jsonObject.put(Keys.BIRTH_DATE, DateConverter.dateToMillis(birthDate));
 
             } catch (ParseException e) {
 
