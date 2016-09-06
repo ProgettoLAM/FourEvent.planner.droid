@@ -7,6 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+
+import lam.project.foureventplannerdroid.utils.DateConverter;
 
 /**
  * Classe che rappresenta il modello del planner, con i relativi campi
@@ -21,7 +24,7 @@ public class Planner implements Parcelable{
 
     public String location;
 
-    private String role;
+    public String role;
 
     public String gender;
 
@@ -78,7 +81,7 @@ public class Planner implements Parcelable{
         return this;
     }
 
-    //Region metodi parcelable
+    //region metodi parcelable
 
     public static final Creator<Planner> CREATOR = new Creator<Planner>() {
         @Override
@@ -188,9 +191,9 @@ public class Planner implements Parcelable{
             dest.writeByte(Keys.NOT_PRESENT);
     }
 
-    //Endregion
+    //endregion
 
-    //Region lettura/scrittura Json
+    //region lettura/scrittura Json
 
     public static Planner fromJson(final JSONObject jsonObject) throws JSONException{
 
@@ -204,7 +207,7 @@ public class Planner implements Parcelable{
 
         if(jsonObject.has(Keys.BIRTH_DATE)){
 
-            builder.withBirthDate(jsonObject.getString(Keys.BIRTH_DATE));
+            builder.withBirthDate(DateConverter.dateFromMillis(jsonObject.getLong(Keys.BIRTH_DATE)));
         }
 
         if(jsonObject.has(Keys.LOCATION)){
@@ -253,7 +256,14 @@ public class Planner implements Parcelable{
 
         if (birthDate != null) {
 
-            jsonObject.put(Keys.BIRTH_DATE, birthDate);
+            try{
+
+                jsonObject.put(Keys.BIRTH_DATE, DateConverter.toMillis(birthDate));
+
+            } catch (ParseException e) {
+
+                e.printStackTrace();
+            }
         }
 
         if (location != null) {
@@ -279,9 +289,9 @@ public class Planner implements Parcelable{
         return jsonObject;
     }
 
-    //Endregion
+    //endregion
 
-    //Region Keys
+    //region Keys
 
     public static class Keys{
 
@@ -308,9 +318,9 @@ public class Planner implements Parcelable{
         public static final Byte NOT_PRESENT = 0;
     }
 
-    //Endregion
+    //endregion
 
-    //Region Builder
+    //region Builder
 
     public static class Builder{
 
@@ -387,5 +397,5 @@ public class Planner implements Parcelable{
         }
     }
 
-    //Endregion
+    //endregion
 }

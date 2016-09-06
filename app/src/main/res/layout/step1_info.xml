@@ -3,182 +3,175 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff"
     android:paddingTop="50dp">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profile_image"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
-        android:src="@drawable/img_male"
-        app:border_color="#FF000000"
-        android:layout_centerHorizontal="true" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:src="@drawable/img_male"
+            app:border_color="#FF000000"
+            android:layout_centerHorizontal="true" />
 
-    <EditText
-        android:id="@+id/name_info"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:hint="Nome"
-        android:textColorHint="#999"
-        android:inputType="text"
-        android:textSize="16sp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:layout_below="@id/profile_image"
-        android:background="@drawable/bottom_border"/>
+        <EditText
+            android:id="@+id/name_info"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:hint="Nome"
+            android:textColorHint="#999"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_below="@id/profile_image"
+            android:background="@drawable/bottom_border"/>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_profile_info"
-        android:layout_toStartOf="@id/name_info"
-        android:layout_toLeftOf="@id/name_info"
-        android:layout_below="@id/profile_image"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="5dp"/>
-
-    <EditText
-        android:id="@+id/surname_info"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:hint="Cognome"
-        android:layout_marginTop="20dp"
-        android:textColorHint="#999"
-        android:inputType="text"
-        android:textSize="16sp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/name_info"
-        android:background="@drawable/bottom_border" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_profile_info"
-        android:layout_toStartOf="@id/surname_info"
-        android:layout_toLeftOf="@id/surname_info"
-        android:layout_below="@id/name_info"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="5dp"/>
-
-    <EditText
-        android:id="@+id/role_info"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:hint="Ruolo (es: organizzatore di sagre)"
-        android:layout_marginTop="20dp"
-        android:textColorHint="#999"
-        android:inputType="text"
-        android:textSize="16sp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/surname_info"
-        android:background="@drawable/bottom_border" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_role"
-        android:layout_toStartOf="@id/role_info"
-        android:layout_toLeftOf="@id/role_info"
-        android:layout_below="@id/surname_info"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginLeft="8dp"/>
-
-
-    <EditText
-        android:id="@+id/location_info"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:hint="Città di residenza"
-        android:textColorHint="#999"
-        android:layout_marginTop="20dp"
-        android:inputType="text"
-        android:textSize="16sp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/role_info"
-        android:background="@drawable/bottom_border" />
-
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_location_info"
-        android:layout_toLeftOf="@id/location_info"
-        android:layout_below="@id/role_info"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="15dp"/>
-
-    <TextView
-        android:id="@+id/date_info"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="Data di nascita"
-        android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/location_info"
-        android:textColor="#999"/>
-
-    <ImageView
-        android:id="@+id/date_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_calendar"
-        android:layout_toLeftOf="@id/date_info"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="15dp"
-        android:layout_below="@id/location_info"/>
-
-    <RadioGroup
-        android:id="@+id/radio_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="20dp"
-        android:layout_below="@id/date_info">
-
-        <RadioButton
-            android:id="@+id/radio_male"
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/male"
-            android:textColor="#999"
-            android:textSize="16dp"
-            android:paddingRight="15sp"
-            android:layout_marginLeft="19dp"
-            android:layout_marginTop="20dp"
-            android:buttonTint="@color/colorAccent"/>
+            android:src="@drawable/ic_profile_info"
+            android:layout_toStartOf="@id/name_info"
+            android:layout_toLeftOf="@id/name_info"
+            android:layout_below="@id/profile_image"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="5dp"/>
 
-        <RadioButton
-            android:id="@+id/radio_female"
+        <EditText
+            android:id="@+id/surname_info"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:hint="Cognome"
+            android:layout_marginTop="20dp"
+            android:textColorHint="#999"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/name_info"
+            android:background="@drawable/bottom_border" />
+
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/female"
-            android:textColor="#999"
-            android:textSize="15sp"
+            android:src="@drawable/ic_profile_info"
+            android:layout_toStartOf="@id/surname_info"
+            android:layout_toLeftOf="@id/surname_info"
+            android:layout_below="@id/name_info"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="5dp"/>
+
+        <EditText
+            android:id="@+id/role_info"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:hint="Ruolo (es: organizzatore di sagre)"
             android:layout_marginTop="20dp"
-            android:buttonTint="@color/colorAccent"/>
+            android:textColorHint="#999"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/surname_info"
+            android:background="@drawable/bottom_border" />
 
-    </RadioGroup>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_role"
+            android:layout_toStartOf="@id/role_info"
+            android:layout_toLeftOf="@id/role_info"
+            android:layout_below="@id/surname_info"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="8dp"/>
 
-    <!--<View
-        android:layout_below="@id/radio_info"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="100dp"
-        android:background="#eee" />-->
 
-</RelativeLayout>
+        <EditText
+            android:id="@+id/location_info"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:hint="Città di residenza"
+            android:textColorHint="#999"
+            android:layout_marginTop="20dp"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/role_info"
+            android:background="@drawable/bottom_border" />
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_location_info"
+            android:layout_toLeftOf="@id/location_info"
+            android:layout_below="@id/role_info"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="15dp"/>
+
+        <TextView
+            android:id="@+id/date_info"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Data di nascita"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/location_info"
+            android:textColor="#999"/>
+
+        <ImageView
+            android:id="@+id/date_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_calendar"
+            android:layout_toLeftOf="@id/date_info"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="15dp"
+            android:layout_below="@id/location_info"/>
+
+        <RadioGroup
+            android:id="@+id/radio_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/date_info">
+
+            <RadioButton
+                android:id="@+id/radio_male"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/male"
+                android:textColor="#999"
+                android:textSize="16dp"
+                android:paddingRight="15sp"
+                android:layout_marginTop="20dp"
+                android:buttonTint="@color/colorAccent"/>
+
+            <RadioButton
+                android:id="@+id/radio_female"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/female"
+                android:textColor="#999"
+                android:textSize="15sp"
+                android:layout_marginTop="20dp"
+                android:buttonTint="@color/colorAccent"/>
+
+        </RadioGroup>
+
+
+    </RelativeLayout>
 
 </ScrollView>

@@ -12,6 +12,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -73,6 +74,8 @@ public class EventDetailActivity extends Activity {
     private TextView detailCheckIn;
 
     private Event mCurrentEvent;
+    private int maxTickets;
+
 
     private PieChart ageChart;
     private PieChart genderChart;
@@ -126,6 +129,7 @@ public class EventDetailActivity extends Activity {
 
         //Se l'Nfc non è supportato, si deve utilizzare il codice QR
         if (mNfcAdapter == null) {
+
             Toast.makeText(this,"NFC non supportato, utilizzare codice QR",Toast.LENGTH_SHORT).show();
         }
 
@@ -143,8 +147,16 @@ public class EventDetailActivity extends Activity {
                     String value = ((Button) v).getText().toString().split(" ")[0];
                     Float amount = Float.parseFloat(value);
                     String numParticipation = (String) v.getTag();
+                    String splitTickets = numParticipation.split(" ")[0];
 
-                    buyParticipation(amount, numParticipation);
+                    if(Integer.parseInt(splitTickets) <= maxTickets) {
+
+                        enableDisableMaxTicketButton(v);
+                    }
+                    else {
+
+                        buyParticipation(amount, numParticipation);
+                    }
 
                 }
                 catch (JSONException ex) {
@@ -427,6 +439,9 @@ public class EventDetailActivity extends Activity {
 
     }
 
+    /**
+     * Metodo che si collega al server per prendere i dettagli dei partecipanti all'evento
+     */
     private void getMoreDetails() {
 
         String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
@@ -453,23 +468,33 @@ public class EventDetailActivity extends Activity {
         VolleyRequest.get(this).add(getEventDetails);
     }
 
+    /**
+     * Gestione della risposta alla chiamata al server per ricevere i dettagli degli utenti
+     * @param response risposta del server
+     */
     private void refreshView(JSONObject response) {
 
-        try{
+        try {
 
+            //Si prelevano tutti i partecipanti all'evento
             Event event = Event.fromJson(response);
             event.mParticipation = response.getJSONArray(Event.Keys.PARTICIPATION).length();
 
             int checkedUsers = 0;
+
+            //Se l'evento ha utenti che già hanno fatto il check-in, si salva il loro numero
             if(response.has(Event.Keys.CHECKED))
                 checkedUsers = response.getJSONArray(Event.Keys.CHECKED).length();
 
             String checked = String.valueOf(checkedUsers);
             String participation = String.valueOf(event.mParticipation);
 
+            //Se l'evento è a pagamento si inserisce il numero dei biglietti massimi
             if(!event.isFree()) {
 
                 final String separator = " / ";
+
+                maxTickets = event.mMaxTicket;
 
                 checked += separator + event.mMaxTicket;
                 participation += separator + event.mMaxTicket;
@@ -483,6 +508,7 @@ public class EventDetailActivity extends Activity {
             detailsParticipation.setText(participation);
             detailCheckIn.setText(checked);
 
+
             setChartsByResponse(response);
 
         } catch (JSONException e) {
@@ -491,6 +517,9 @@ public class EventDetailActivity extends Activity {
         }
     }
 
+    /**
+     * Metodo per disabilitare il bottone se l'evento è già stato inserito tra i popolari
+     */
     private void enableDisablePopularButton() {
 
         if(mCurrentEvent.isPopular()) {
@@ -505,29 +534,51 @@ public class EventDetailActivity extends Activity {
         }
     }
 
+    /**
+     * Metodo per disabilitare il bottone dei tickets minori del numero massimo dell'evento
+     */
+    private void enableDisableMaxTicketButton(View v) {
+
+            v.setEnabled(false);
+            v.setAlpha(.5f);
+
+    }
+
+    /**
+     * Metodo per settare i dati relativi al sesso e all'età dei partecipanti
+     * @param response risposta dal server
+     * @throws JSONException
+     */
     private void setChartsByResponse(JSONObject response) throws JSONException {
 
+        //Sesso dei partecipanti
         JSONArray jsonGenders = response.getJSONArray(GENDER_STATS);
 
         for(int i=0; i<jsonGenders.length(); i++) {
 
+            //Si prende l'id (M o F) ed il numero di ognuno
             JSONObject gender = jsonGenders.getJSONObject(i);
 
             String id = gender.getString("_id");
 
             float count = gender.getInt("count");
+
             if(id.equals("M"))
                 yDataGender[0] = count*10;
 
             else
                 yDataGender[1] = count*10;
         }
+
+        //Si richiama il metodo per la creazione del chart
         addData(yDataGender, xDataGender, genderChart);
 
+        //Età dei partecipanti
         JSONArray jsonAges = response.getJSONArray(AGES);
 
         //{"16-24", "25-35", ">35"}
         int age;
+
         for(int i=0; i<jsonAges.length(); i++){
 
             age = jsonAges.getInt(i);
@@ -546,6 +597,7 @@ public class EventDetailActivity extends Activity {
         yDataAge[1] = yDataAge[1]*10;
         yDataAge[2] = yDataAge[2]*10;
 
+        //Si richiama il metodo per la creazione del chart
         addData(yDataAge,xDataAge,ageChart);
     }
 
@@ -783,8 +835,8 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar snackbarError = Snackbar.make(mViewGroup, HandlerManager.handleError(error),
-                                Snackbar.LENGTH_LONG);
+                        Snackbar snackbarError = Snackbar.make(mViewGroup,
+                                "Errore nell'acquisto del numero di biglietti", Snackbar.LENGTH_LONG);
 
                         snackbarError.getView().setBackgroundColor(ContextCompat
                                 .getColor(getApplicationContext(), R.color.lightRed));
@@ -797,6 +849,33 @@ public class EventDetailActivity extends Activity {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+        }
+
+        //Altrimenti se il credito non è sufficiente, si viene reindirizzati al portafoglio
+        else {
+
+            Snackbar snackbarError = Snackbar.make(mViewGroup,
+                    "Credito insufficiente, ricarica il portafoglio!", Snackbar.LENGTH_LONG);
+
+            snackbarError.getView().setBackgroundColor(ContextCompat
+                    .getColor(getApplicationContext(), R.color.lightRed));
+            snackbarError.show();
+
+            //Timer dopo il quale il planner è reindirizzato al portafoglio
+            final int interval = 1000;
+            Handler handler = new Handler();
+            Runnable runnable = new Runnable(){
+                public void run() {
+
+                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
+                    startActivity(openFragmentBIntent);
+
+                }
+            };
+            handler.postAtTime(runnable, System.currentTimeMillis()+interval);
+            handler.postDelayed(runnable, interval);
+
         }
     }
 
@@ -812,7 +891,6 @@ public class EventDetailActivity extends Activity {
      */
     private void handleResponse(JSONObject response, String numParticipation, final float amount) {
 
-        try {
             //Update dell'importo del portafoglio del planner
             MainActivity.mCurrentPlanner.updateBalance(amount);
 
@@ -820,22 +898,15 @@ public class EventDetailActivity extends Activity {
             PlannerManager.get().save(MainActivity.mCurrentPlanner);
 
             dialog.dismiss();
-            //Si setta il nuovo numero massimo di partecipanti
-            detailsParticipation.setText(" / " + numParticipation);
+
 
             Snackbar responseSnackBar = Snackbar.make(mViewGroup,
-                    response.getString("message"), Snackbar.LENGTH_LONG);
+                    "Numero massimo di biglietti incrementato!", Snackbar.LENGTH_LONG);
 
             responseSnackBar.getView().setBackgroundColor(ContextCompat
                     .getColor(getApplicationContext(), R.color.lightGreen));
 
             responseSnackBar.show();
-
-        } catch (JSONException e) {
-
-            e.printStackTrace();
-            dialog.dismiss();
-        }
 
     }
 

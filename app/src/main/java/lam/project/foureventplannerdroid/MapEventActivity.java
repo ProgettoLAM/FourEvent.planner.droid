@@ -137,6 +137,7 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
         mMap.clear();
+
         //Si aggiunge alla mappa un marker
         mMap.addMarker(new MarkerOptions().position(position));
 
@@ -281,11 +282,7 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
                 }
 
                 @Override
-                public boolean onQueryTextChange(String newText) {
-                    Log.d("MapEvent", "Query text changed!" + newText);
-
-                    return false;
-                }
+                public boolean onQueryTextChange(String newText) { return false;}
             });
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override

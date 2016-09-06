@@ -45,7 +45,7 @@
                 android:fontFamily="sans-serif"/>
 
             <TextView
-                android:id="@+id/name_planner"
+                android:id="@+id/role_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Organizzatore"
