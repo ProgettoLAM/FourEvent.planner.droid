@@ -89,32 +89,5 @@
             style="@style/Widget.AppCompat.Button.Borderless"/>
 
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Illimitato"
-            android:layout_weight="1"
-            android:textColor="@color/darkerText"
-            android:textSize="18sp" />
-
-        <Button
-            android:id="@+id/btn_4_ticket"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:gravity="right"
-            android:textColor="@color/colorPrimary"
-            android:theme="@style/MyButton"
-            android:text="50 €"
-            android:tag="unlimited"
-            android:onClick="onRecharge"
-            style="@style/Widget.AppCompat.Button.Borderless"/>
-
-    </LinearLayout>
 
 </LinearLayout>
