@@ -497,6 +497,11 @@ public class EventDetailActivity extends Activity {
 
             mBtnPopular.setEnabled(false);
             mBtnPopular.setAlpha(.5f);
+
+        } else {
+
+            mBtnPopular.setEnabled(true);
+            mBtnPopular.setAlpha(1);
         }
     }
 
