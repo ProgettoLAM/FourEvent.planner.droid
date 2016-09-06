@@ -332,6 +332,7 @@ public class Event implements Parcelable{
         static final String DISTANCE = "distance";
 
         public static final String PARTICIPATION = "user_participations";
+        public static final String CHECKED = "user_checked";
         public static final String EVENT = "event";
 
 

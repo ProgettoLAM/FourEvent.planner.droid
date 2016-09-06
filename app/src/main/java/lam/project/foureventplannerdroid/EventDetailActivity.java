@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
@@ -60,14 +61,16 @@ public class EventDetailActivity extends Activity {
 
     private AlertDialog dialog;
 
+    private Button mBtnPopular;
+
     private NfcAdapter mNfcAdapter;
-    private Button mButtonNFC;
     private boolean mIsSearching;
     private ProgressDialog mProgressDialog;
 
     private Button.OnClickListener listenerButton;
     private TextView detailsParticipation;
     private TextView pricePopular;
+    private TextView detailCheckIn;
 
     private Event mCurrentEvent;
 
@@ -79,6 +82,7 @@ public class EventDetailActivity extends Activity {
     private String[] xDataAge = {"16-24", "25-35", ">35"};
 
     public static String OPEN_FRAGMENT_WALLET = "Portafoglio";
+    public static final String SEPARATOR = " / ";
 
     private ViewGroup mViewGroup;
 
@@ -106,10 +110,12 @@ public class EventDetailActivity extends Activity {
 
         detailsParticipation = (TextView) findViewById(R.id.details_ticket);
         pricePopular = (TextView) findViewById(R.id.price_popular);
+        detailCheckIn = (TextView) findViewById(R.id.details_checkin);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-        mButtonNFC = (Button) findViewById(R.id.button_nfc);
+        mBtnPopular = (Button) findViewById(R.id.btn_popular);
+        Button mButtonNFC = (Button) findViewById(R.id.button_nfc);
 
         //Al click del bottone per la sincronizzazione del NFC
         mButtonNFC.setOnClickListener(new View.OnClickListener() {
@@ -125,6 +131,7 @@ public class EventDetailActivity extends Activity {
 
         //Si salva in una variabile l'evento corrente cliccato dalla recycler view
         mCurrentEvent = getIntent().getParcelableExtra(Event.Keys.EVENT);
+        enableDisablePopularButton();
 
         //Listener del numero di biglietti di cui si vuole incrementare
         listenerButton = new View.OnClickListener() {
@@ -311,9 +318,15 @@ public class EventDetailActivity extends Activity {
                             //Si inserisce in un array la risposta
                             JSONArray array = response.getJSONArray("user_checked");
 
-                            Snackbar successSnackbar = Snackbar.make(mButtonNFC,"" + array.length(),
-                                    Snackbar.LENGTH_LONG);
-                            successSnackbar.show();
+
+                            String checked = String.valueOf(array.length());
+                            if(!mCurrentEvent.isFree()) {
+
+                                checked += SEPARATOR + mCurrentEvent.mMaxTicket;
+                            }
+                            detailCheckIn.setText(checked);
+
+                            Snackbar.make(mViewGroup,"Cliente abilitato all'entrata",Snackbar.LENGTH_LONG).show();
 
                         } catch (JSONException e) { e.printStackTrace();}
                     }
@@ -322,8 +335,8 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar successSnackbar = Snackbar.make(mViewGroup,"Errore",Snackbar.LENGTH_LONG);
-                        successSnackbar.show();
+                        Snackbar errorSnackbar = Snackbar.make(mViewGroup,"Errore",Snackbar.LENGTH_LONG);
+                        errorSnackbar.show();
                     }
                 });
 
@@ -447,59 +460,88 @@ public class EventDetailActivity extends Activity {
             Event event = Event.fromJson(response);
             event.mParticipation = response.getJSONArray(Event.Keys.PARTICIPATION).length();
 
-            String participation = event.isFree() ? String.valueOf(event.mParticipation) :
-                    event.mParticipation + " / " + event.mMaxTicket;
+            int checkedUsers = 0;
+            if(response.has(Event.Keys.CHECKED))
+                checkedUsers = response.getJSONArray(Event.Keys.CHECKED).length();
 
-            detailsParticipation.setText(participation);
+            String checked = String.valueOf(checkedUsers);
+            String participation = String.valueOf(event.mParticipation);
 
-            if(!event.isFree())
+            if(!event.isFree()) {
+
+                final String separator = " / ";
+
+                checked += separator + event.mMaxTicket;
+                participation += separator + event.mMaxTicket;
+
                 findViewById(R.id.btn_more_ticket).setVisibility(View.VISIBLE);
 
-            JSONArray jsonGenders = response.getJSONArray(GENDER_STATS);
-
-            for(int i=0; i<jsonGenders.length(); i++) {
-
-                JSONObject gender = jsonGenders.getJSONObject(i);
-
-                String id = gender.getString("_id");
-
-                float count = gender.getInt("count");
-                if(id.equals("M"))
-                    yDataGender[0] = count*10;
-
-                else
-                    yDataGender[1] = count*10;
-            }
-            addData(yDataGender, xDataGender, genderChart);
-
-            JSONArray jsonAges = response.getJSONArray(AGES);
-
-            //{"16-24", "25-35", ">35"}
-            int age;
-            for(int i=0; i<jsonAges.length(); i++){
-
-                age = jsonAges.getInt(i);
-
-                if(16<=age && age<=24)
-                    yDataAge[0] ++;
-
-                else if(25<=age && age<=35)
-                    yDataAge[1] ++;
-
-                else if(age > 35)
-                    yDataAge[2] ++;
             }
 
-            yDataAge[0] = yDataAge[0]*10;
-            yDataAge[1] = yDataAge[1]*10;
-            yDataAge[2] = yDataAge[2]*10;
+            enableDisablePopularButton();
 
-            addData(yDataAge,xDataAge,ageChart);
+            detailsParticipation.setText(participation);
+            detailCheckIn.setText(checked);
+
+            setChartsByResponse(response);
 
         } catch (JSONException e) {
 
             e.printStackTrace();
         }
+    }
+
+    private void enableDisablePopularButton() {
+
+        if(mCurrentEvent.isPopular()) {
+
+            mBtnPopular.setEnabled(false);
+            mBtnPopular.setAlpha(.5f);
+        }
+    }
+
+    private void setChartsByResponse(JSONObject response) throws JSONException {
+
+        JSONArray jsonGenders = response.getJSONArray(GENDER_STATS);
+
+        for(int i=0; i<jsonGenders.length(); i++) {
+
+            JSONObject gender = jsonGenders.getJSONObject(i);
+
+            String id = gender.getString("_id");
+
+            float count = gender.getInt("count");
+            if(id.equals("M"))
+                yDataGender[0] = count*10;
+
+            else
+                yDataGender[1] = count*10;
+        }
+        addData(yDataGender, xDataGender, genderChart);
+
+        JSONArray jsonAges = response.getJSONArray(AGES);
+
+        //{"16-24", "25-35", ">35"}
+        int age;
+        for(int i=0; i<jsonAges.length(); i++){
+
+            age = jsonAges.getInt(i);
+
+            if(16<=age && age<=24)
+                yDataAge[0] ++;
+
+            else if(25<=age && age<=35)
+                yDataAge[1] ++;
+
+            else if(age > 35)
+                yDataAge[2] ++;
+        }
+
+        yDataAge[0] = yDataAge[0]*10;
+        yDataAge[1] = yDataAge[1]*10;
+        yDataAge[2] = yDataAge[2]*10;
+
+        addData(yDataAge,xDataAge,ageChart);
     }
 
     //region premium task
@@ -549,7 +591,7 @@ public class EventDetailActivity extends Activity {
 
         //Si controlla che il prezzo sia minore della somma del portafoglio del planner e che
         //l'evento non sia già tra i popolari
-        if (price <= MainActivity.mCurrentPlanner.balance && !mCurrentEvent.isPopular()) {
+        if (!mCurrentEvent.isPopular() && price <= MainActivity.mCurrentPlanner.balance) {
 
             message = "Pubblicizzare l'evento ha un costo di " + price + "€." +
                     "\n\nHai un totale di " + MainActivity.mCurrentPlanner.balance + " €.\nVuoi pubblicizzarlo?";
