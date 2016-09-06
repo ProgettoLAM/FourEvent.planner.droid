@@ -134,7 +134,6 @@ public class Event implements Parcelable{
         mLongitude = in.readFloat();
         mPrice = in.readString();
         mImage = in.readString();
-        mIsPopular = in.readByte() != 0;
 
         present = in.readByte() == Keys.PRESENT;
         if(present) {
@@ -160,6 +159,7 @@ public class Event implements Parcelable{
             mMaxTicket = 0;
         }
 
+        mIsPopular = in.readByte() != 0;
         mAuthor = in.readString();
     }
 
