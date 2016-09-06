@@ -321,7 +321,6 @@ public class Event implements Parcelable{
         static final String START_DATE = "start_date";
         static final String END_DATE = "end_date";
         static final String TAG = "tag";
-        static final String ADDRESS = "address";
         static final String LATITUDE = "latitude";
         static final String LONGITUDE = "longitude";
         static final String PRICE = "price";
@@ -331,6 +330,7 @@ public class Event implements Parcelable{
         static final String POPULAR = "popular";
         static final String DISTANCE = "distance";
 
+        public static final String ADDRESS = "address";
         public static final String PARTICIPATION = "user_participations";
         public static final String CHECKED = "user_checked";
         public static final String EVENT = "event";

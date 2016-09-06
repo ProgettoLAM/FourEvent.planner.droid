@@ -3,6 +3,7 @@ package lam.project.foureventplannerdroid;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -99,6 +100,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private TextView addressEvent;
     private TextView price;
 
+    private Context mContext;
 
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
     private int REQUEST_ADDRESS = 3;
@@ -119,7 +121,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     private ViewGroup view;
 
-    //Region DateTimeListener
+    //region DateTimeListener
 
     private static Integer DATE_TIME_SENDER;
 
@@ -165,13 +167,15 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     };
 
-    //Endregion
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_scrolling);
+
+        mContext = this;
 
         if(savedInstanceState != null) {
             mResolvingError = savedInstanceState.getBoolean(RESOLVING_ERROR_STATE_KEY, false);
@@ -376,7 +380,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     //Endregion
 
-    //Region picker date e time
+    //region picker date e time
     @Override
     public void onTimeSet(RadialPickerLayout view, int hour, int minute, int second) {
 
@@ -392,6 +396,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 mStartTime = time;
                 startTime.setText(mStartTime);
+                startTime.setTextColor(ContextCompat.getColor(mContext,R.color.darkerText));
 
                 if(mStartTime != null)
                     mStartDateTime = DateConverter.dateFromString(mStartDate+" "+mStartTime);
@@ -402,6 +407,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 mEndTime = time;
                 endTime.setText(mEndTime);
+                endTime.setTextColor(ContextCompat.getColor(mContext,R.color.darkerText));
 
                 if(mEndDate != null)
                     mEndDateTime = DateConverter.dateFromString(mEndDate+" "+mEndTime);
@@ -426,6 +432,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 mStartDate = date;
                 startDate.setText(mStartDate);
+                startDate.setTextColor(ContextCompat.getColor(mContext,R.color.darkerText));
 
                 if(mStartTime != null)
                     mStartDateTime = DateConverter.dateFromString(mStartDate+" "+mStartTime);
@@ -436,6 +443,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 mEndDate = date;
                 endDate.setText(mEndDate);
+                endDate.setTextColor(ContextCompat.getColor(mContext,R.color.darkerText));
 
                 if(mEndTime != null)
                     mEndDateTime = DateConverter.dateFromString(mEndDate+" "+mEndTime);
@@ -528,7 +536,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View v) {}
 
-    //Endregion
+    //endregion
 
     //Region selezione dell'immagine
 
@@ -651,7 +659,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             if(resultCode == RESULT_OK) {
 
                 String address = data.getStringExtra("Address");
+                mAddress = address;
                 addressEvent.setText(address);
+                addressEvent.setTextColor(ContextCompat.getColor(this, R.color.darkerText));
             }
         }
     }
@@ -745,7 +755,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     //Endregion
 
-    //Region Google Maps API
+    //region Google Maps API
 
     /**
      * Creazione dell'oggetto nel quale si passano le informazioni relative ai servizi da inizializzare
@@ -1057,8 +1067,12 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
      */
     public void selectAddress(final View view) {
         Intent intent = new Intent(this, MapEventActivity.class);
+
+        if(mAddress != null)
+            intent.putExtra(Event.Keys.ADDRESS,mAddress);
+
         startActivityForResult(intent, REQUEST_ADDRESS);
     }
 
-    //Endregion
+    //endregion
 }

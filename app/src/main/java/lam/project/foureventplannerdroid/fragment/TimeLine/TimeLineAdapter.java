@@ -37,8 +37,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineViewHolder> {
     public void onBindViewHolder(TimeLineViewHolder holder, int position) {
 
         Record record = mFeedList.get(position);
-
-        String title = record.mEvent == null ? record.mType : record.mType+" : "+record.mEvent;
+        String title = record.mType;
 
         //Si setta il titolo e la data del record
         holder.mType.setText(title);

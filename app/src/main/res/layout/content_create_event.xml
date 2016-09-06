@@ -130,14 +130,14 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="20dp"
+            android:onClick="selectAddress">
 
             <ImageView
                 android:id="@+id/btn_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/ic_gps"
-                android:onClick="selectAddress"
                 android:contentDescription="@string/create_address_text" />
 
             <TextView
@@ -146,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:text="Indirizzo"
                 android:textSize="16sp"
-                android:textColor="@color/darkerText"
+                android:textColor="@color/lightText"
                 android:layout_marginLeft="40dp"
                 android:layout_centerVertical="true"/>
 

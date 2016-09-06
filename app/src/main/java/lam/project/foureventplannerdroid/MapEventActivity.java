@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -29,6 +30,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import lam.project.foureventplannerdroid.model.Event;
 
 import static lam.project.foureventplannerdroid.CreateEventActivity.mCurrentLocation;
 
@@ -71,8 +74,13 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
 
         mapFab = (FloatingActionButton) findViewById(R.id.map_fab);
 
+        final Intent srcIntent = getIntent();
+
+        if(srcIntent.hasExtra(Event.Keys.ADDRESS))
+            currentLatLng = getLocationFromAddress(this,srcIntent.getStringExtra(Event.Keys.ADDRESS));
+
         //Se si è a conoscenza della location corrente del planner
-        if(mCurrentLocation != null) {
+        if(mCurrentLocation != null && currentLatLng == null) {
 
             //Si salvano le coordinate e in una lista si salvano le informazioni
             currentLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
@@ -128,6 +136,7 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
             return;
         }
 
+        mMap.clear();
         //Si aggiunge alla mappa un marker
         mMap.addMarker(new MarkerOptions().position(position));
 
