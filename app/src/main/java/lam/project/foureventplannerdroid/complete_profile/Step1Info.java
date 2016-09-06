@@ -144,6 +144,7 @@ public class Step1Info extends AbstractStep{
             //Controllo che esista il ruolo
             String role = txtRole.getText().toString();
 
+
             //Controllo che esista l'immagine del profilo
             if(mImageUri != null) {
 

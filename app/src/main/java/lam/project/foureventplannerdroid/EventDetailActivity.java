@@ -73,6 +73,7 @@ public class EventDetailActivity extends Activity {
     private TextView detailCheckIn;
 
     private Event mCurrentEvent;
+    private int maxTickets;
 
     private PieChart ageChart;
     private PieChart genderChart;
@@ -126,6 +127,7 @@ public class EventDetailActivity extends Activity {
 
         //Se l'Nfc non è supportato, si deve utilizzare il codice QR
         if (mNfcAdapter == null) {
+
             Toast.makeText(this,"NFC non supportato, utilizzare codice QR",Toast.LENGTH_SHORT).show();
         }
 
@@ -143,8 +145,16 @@ public class EventDetailActivity extends Activity {
                     String value = ((Button) v).getText().toString().split(" ")[0];
                     Float amount = Float.parseFloat(value);
                     String numParticipation = (String) v.getTag();
+                    String splitTickets = numParticipation.split(" ")[0];
 
-                    buyParticipation(amount, numParticipation);
+                    if(Integer.parseInt(splitTickets) <= maxTickets) {
+
+                        enableDisableMaxTicketButton(v);
+                    }
+                    else {
+
+                        buyParticipation(amount, numParticipation);
+                    }
 
                 }
                 catch (JSONException ex) {
@@ -482,6 +492,8 @@ public class EventDetailActivity extends Activity {
 
                 final String separator = " / ";
 
+                maxTickets = event.mMaxTicket;
+
                 checked += separator + event.mMaxTicket;
                 participation += separator + event.mMaxTicket;
 
@@ -513,6 +525,16 @@ public class EventDetailActivity extends Activity {
             mBtnPopular.setEnabled(false);
             mBtnPopular.setAlpha(.5f);
         }
+    }
+
+    /**
+     * Metodo per disabilitare il bottone dei tickets minori del numero massimo dell'evento
+     */
+    private void enableDisableMaxTicketButton(View v) {
+
+            v.setEnabled(false);
+            v.setAlpha(.5f);
+
     }
 
     /**

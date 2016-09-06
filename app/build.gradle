@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -38,8 +39,9 @@ dependencies {
     compile 'com.github.aakira:expandable-layout:1.5.1@aar'
     compile 'com.github.fcannizzaro:material-stepper:1.2.2'
     compile 'com.github.TR4Android:Swipeable-RecyclerView:0.2.0'
-    compile 'com.google.android.gms:play-services:9.4.0'
+    compile 'com.google.android.gms:play-services:7.+'
     compile 'me.neavo:volley:2014.12.09'
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.github.vipulasri:timelineview:1.0.3'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.6'
     compile "org.apache.httpcomponents:httpcore:4.2.4"
