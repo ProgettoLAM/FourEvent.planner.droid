@@ -83,6 +83,7 @@ public class ProfileFragment extends Fragment {
         TextView emailProfile = (TextView) view.findViewById(R.id.email_profile);
         TextView nameProfile = (TextView) view.findViewById(R.id.name_profile);
         TextView birthDateProfile = (TextView) view.findViewById(R.id.birth_date_profile);
+        TextView roleProfile = (TextView) view.findViewById(R.id.role_profile);
         TextView locationProfile = (TextView) view.findViewById(R.id.location_profile);
         TextView genderProfile = (TextView) view.findViewById(R.id.gender_profile);
         imgProfile = (CircleImageView) view.findViewById(R.id.profile_image);
@@ -101,12 +102,19 @@ public class ProfileFragment extends Fragment {
         emailProfile.setText(planner.email);
         nameProfile.setText(planner.name);
 
-        //Se la data di nascita non è definita
-        if (planner.birthDate == null) {
+        //Se il ruolo è definito
+        if(planner.role != null) {
+            roleProfile.setText(planner.role);
+        }
 
-            birthDateProfile.setText(" -- / -- / --");
-        } else {
-            birthDateProfile.setText(planner.birthDate);
+        //Se la data di nascita non è definita
+        if(planner.birthDate == null || planner.birthDate.equals("Data di nascita")) {
+
+            birthDateProfile.setText("--/--/--");
+        }
+        else {
+
+            birthDateProfile.setText(planner.birthDate.split(" - ")[0]);
         }
 
         //Se la città non è definita

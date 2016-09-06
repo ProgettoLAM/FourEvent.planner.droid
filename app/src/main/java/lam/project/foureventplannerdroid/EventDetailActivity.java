@@ -12,6 +12,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -74,6 +75,7 @@ public class EventDetailActivity extends Activity {
 
     private Event mCurrentEvent;
     private int maxTickets;
+
 
     private PieChart ageChart;
     private PieChart genderChart;
@@ -828,8 +830,8 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar snackbarError = Snackbar.make(mViewGroup, HandlerManager.handleError(error),
-                                Snackbar.LENGTH_LONG);
+                        Snackbar snackbarError = Snackbar.make(mViewGroup,
+                                "Errore nell'acquisto del numero di biglietti", Snackbar.LENGTH_LONG);
 
                         snackbarError.getView().setBackgroundColor(ContextCompat
                                 .getColor(getApplicationContext(), R.color.lightRed));
@@ -842,6 +844,33 @@ public class EventDetailActivity extends Activity {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+        }
+
+        //Altrimenti se il credito non è sufficiente, si viene reindirizzati al portafoglio
+        else {
+
+            Snackbar snackbarError = Snackbar.make(mViewGroup,
+                    "Credito insufficiente, ricarica il portafoglio!", Snackbar.LENGTH_LONG);
+
+            snackbarError.getView().setBackgroundColor(ContextCompat
+                    .getColor(getApplicationContext(), R.color.lightRed));
+            snackbarError.show();
+
+            //Timer dopo il quale il planner è reindirizzato al portafoglio
+            final int interval = 1000;
+            Handler handler = new Handler();
+            Runnable runnable = new Runnable(){
+                public void run() {
+
+                    Intent openFragmentBIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    openFragmentBIntent.putExtra(OPEN_FRAGMENT_WALLET, "Portafoglio");
+                    startActivity(openFragmentBIntent);
+
+                }
+            };
+            handler.postAtTime(runnable, System.currentTimeMillis()+interval);
+            handler.postDelayed(runnable, interval);
+
         }
     }
 
@@ -857,7 +886,6 @@ public class EventDetailActivity extends Activity {
      */
     private void handleResponse(JSONObject response, String numParticipation, final float amount) {
 
-        try {
             //Update dell'importo del portafoglio del planner
             MainActivity.mCurrentPlanner.updateBalance(amount);
 
@@ -865,22 +893,15 @@ public class EventDetailActivity extends Activity {
             PlannerManager.get().save(MainActivity.mCurrentPlanner);
 
             dialog.dismiss();
-            //Si setta il nuovo numero massimo di partecipanti
-            detailsParticipation.setText(" / " + numParticipation);
+
 
             Snackbar responseSnackBar = Snackbar.make(mViewGroup,
-                    response.getString("message"), Snackbar.LENGTH_LONG);
+                    "Numero massimo di biglietti incrementato!", Snackbar.LENGTH_LONG);
 
             responseSnackBar.getView().setBackgroundColor(ContextCompat
                     .getColor(getApplicationContext(), R.color.lightGreen));
 
             responseSnackBar.show();
-
-        } catch (JSONException e) {
-
-            e.printStackTrace();
-            dialog.dismiss();
-        }
 
     }
 

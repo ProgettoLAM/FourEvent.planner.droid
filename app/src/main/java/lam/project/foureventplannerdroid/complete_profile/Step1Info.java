@@ -54,6 +54,8 @@ public class Step1Info extends AbstractStep{
 
     private TextView dateInfo;
 
+    private String mDate;
+
     private CircleImageView imgUser;
     private EditText txtName;
     private EditText txtSurname;
@@ -165,9 +167,9 @@ public class Step1Info extends AbstractStep{
             }
 
             //Controllo che esista la data di nascita
-            String birthDate = dateInfo.getText().toString();
+            String birthDate = mDate;
 
-            if(!birthDate.matches("")) {
+            if(birthDate != null && !birthDate.matches("")) {
 
                 mCurrentPlanner.addBirthDate(birthDate);
             }
@@ -191,7 +193,7 @@ public class Step1Info extends AbstractStep{
     @Override
     public String error() { return "Inserisci nome e cognome obbligatori";}
 
-    //Region intent salvataggio dell'immagine
+    //region intent salvataggio dell'immagine
 
     private void selectImage() {
 
@@ -282,9 +284,9 @@ public class Step1Info extends AbstractStep{
         }
     }
 
-    //Endregion
+    //endregion
 
-    //Region fetch/scatta immagine + upload del server
+    //region fetch/scatta immagine + upload del server
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -320,10 +322,13 @@ public class Step1Info extends AbstractStep{
 
                 onCaptureImageResult(data);
 
-        } else if(requestCode == REQUEST_CODE) {
+            //Se ritorna un altro codice, si prende il risultato del datePicker e si setta la data
+        } else if(requestCode == REQUEST_CODE){
 
-            dateInfo.setText(data.getStringExtra(SelectDateFragment.DATE_RESULT));
+            mDate = data.getStringExtra(SelectDateFragment.DATE_RESULT);
+            dateInfo.setText(mDate);
         }
+
     }
 
     /**
@@ -399,7 +404,7 @@ public class Step1Info extends AbstractStep{
 
     }
 
-    //Endregion
+    //endregion
 
     //Classe relativa alla visualizzazione del calendario per la selezione della data di nascita
     public static class SelectDateFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {

@@ -36,7 +36,7 @@ public class Record {
         this.mEvent = event;
     }
 
-    //Region lettura/scrittura Json
+    //region lettura/scrittura Json
 
     public static Record fromJson(JSONObject jsonObject) throws JSONException {
 
@@ -90,9 +90,9 @@ public class Record {
         return jsonObject;
     }
 
-    //Endregion
+    //endregion
 
-    //Region Builder
+    //region Builder
 
     public static class Builder {
 
@@ -139,9 +139,9 @@ public class Record {
         }
     }
 
-    //Endregion
+    //endregion
 
-    //Region Keys
+    //region Keys
 
     public static class Keys {
 
@@ -159,5 +159,5 @@ public class Record {
 
     }
 
-    //Endregion
+    //endregion
 }

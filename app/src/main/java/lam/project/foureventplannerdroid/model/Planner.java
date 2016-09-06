@@ -24,7 +24,7 @@ public class Planner implements Parcelable{
 
     public String location;
 
-    private String role;
+    public String role;
 
     public String gender;
 
@@ -81,7 +81,7 @@ public class Planner implements Parcelable{
         return this;
     }
 
-    //Region metodi parcelable
+    //region metodi parcelable
 
     public static final Creator<Planner> CREATOR = new Creator<Planner>() {
         @Override
@@ -191,9 +191,9 @@ public class Planner implements Parcelable{
             dest.writeByte(Keys.NOT_PRESENT);
     }
 
-    //Endregion
+    //endregion
 
-    //Region lettura/scrittura Json
+    //region lettura/scrittura Json
 
     public static Planner fromJson(final JSONObject jsonObject) throws JSONException{
 
@@ -289,9 +289,9 @@ public class Planner implements Parcelable{
         return jsonObject;
     }
 
-    //Endregion
+    //endregion
 
-    //Region Keys
+    //region Keys
 
     public static class Keys{
 
@@ -318,9 +318,9 @@ public class Planner implements Parcelable{
         public static final Byte NOT_PRESENT = 0;
     }
 
-    //Endregion
+    //endregion
 
-    //Region Builder
+    //region Builder
 
     public static class Builder{
 
@@ -397,5 +397,5 @@ public class Planner implements Parcelable{
         }
     }
 
-    //Endregion
+    //endregion
 }

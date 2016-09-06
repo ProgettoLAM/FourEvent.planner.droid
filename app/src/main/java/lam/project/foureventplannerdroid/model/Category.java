@@ -26,7 +26,8 @@ public class Category implements Parcelable{
         name = in.readString();
     }
 
-    //Region metodi parcelable
+    //region metodi parcelable
+
     public static final Creator<Category> CREATOR = new Creator<Category>() {
         @Override
         public Category createFromParcel(Parcel in) {
@@ -50,9 +51,9 @@ public class Category implements Parcelable{
         dest.writeString(name);
     }
 
-    //Endregion
+    //endregion
 
-    //Region lettura/scrittura Json
+    //region lettura/scrittura Json
 
     public static Category fromJson(final JSONObject jsonObject) throws JSONException {
 
@@ -72,9 +73,9 @@ public class Category implements Parcelable{
         return jsonObject;
     }
 
-    //Endregion
+    //endregion
 
-    //Region Keys
+    //region Keys
 
     public static class Keys{
 
@@ -98,9 +99,9 @@ public class Category implements Parcelable{
 
     }
 
-    //Endregion
+    //endregion
 
-    //Region Builder
+    //region Builder
 
     public static class Builder{
 
@@ -124,5 +125,5 @@ public class Category implements Parcelable{
         }
     }
 
-    //Endregion
+    //endregion
 }
