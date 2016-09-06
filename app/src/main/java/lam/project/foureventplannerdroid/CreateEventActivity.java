@@ -59,7 +59,7 @@ import java.util.Locale;
 import lam.project.foureventplannerdroid.model.Category;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.utils.DateConverter;
-import lam.project.foureventplannerdroid.utils.ImageManager;
+import lam.project.foureventplannerdroid.utils.shared_preferences.ImageManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.Utility;
@@ -71,8 +71,6 @@ import static lam.project.foureventplannerdroid.MainActivity.mCurrentPlanner;
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener,
         TimePickerDialog.OnTimeSetListener,
         DatePickerDialog.OnDateSetListener {
-
-    private String mEmail;
 
     private String mTitle;
     private String mTag = "MUSICA";
@@ -98,14 +96,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     private TextView endDate;
     private TextView endTime;
     private ImageView imgEvent;
-    private MaterialSpinner tagEvent;
     private TextView addressEvent;
-    private ExpandableRelativeLayout expandableLayout;
-    private NumberPicker numberPicker;
-    private SeekBar seekbar;
     private TextView price;
-
-    private Snackbar snackbar;
 
 
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
@@ -127,10 +119,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     private ViewGroup view;
 
-    //region DateTimeListener
+    //Region DateTimeListener
 
     private static Integer DATE_TIME_SENDER;
 
+    //Listener della data e ora di inizio e di fine
     View.OnClickListener dateTimeListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -172,28 +165,39 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     };
 
-    //endregion
+    //Endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_scrolling);
-
-        //Per disabilitare autofocus all'apertura della Activity
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
-        view = (ViewGroup) getWindow().getDecorView();
 
         if(savedInstanceState != null) {
             mResolvingError = savedInstanceState.getBoolean(RESOLVING_ERROR_STATE_KEY, false);
         }
+        initView();
 
-        numberPicker = (NumberPicker) findViewById(R.id.np);
+    }
+
+    /**
+     * Metodo per inizializzare gli elementi della creazione dell'evento
+     */
+    private void initView() {
+
+        //Per disabilitare l'autofocus all'apertura della Activity
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        view = (ViewGroup) getWindow().getDecorView();
+
+        //Creazione del number picker per prendere il numero massimo di biglietti
+        NumberPicker numberPicker = (NumberPicker) findViewById(R.id.np);
         numberPicker.setMinValue(0);
         numberPicker.setMaxValue(30);
         numberPicker.setWrapSelectorWheel(true);
         numberPicker.setOrientation(NumberPicker.HORIZONTAL);
 
+        //Listener del number picker, nel quale si salva il valore in una variabile
         numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal){
@@ -201,14 +205,18 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        seekbar = (SeekBar) findViewById(R.id.seekBar);
+        //Barra per scegliere il prezzo dell'evento
+        SeekBar seekbar = (SeekBar) findViewById(R.id.seekBar);
         price = (TextView) findViewById(R.id.price);
+
+        //Listener del cambiamento della seekbar
         seekbar.setOnSeekBarChangeListener(
                 new SeekBar.OnSeekBarChangeListener() {
 
                     @Override
                     public void onProgressChanged(SeekBar seekBar,
                                                   int progressValue, boolean fromUser) {
+                        //Salvataggio in una variabile del valore scelto
                         progress = String.valueOf(progressValue);
                         price.setText(progress + " €");
                     }
@@ -218,7 +226,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar) {
-                        // Display the value in textview
+                        //Visualizzazione del numero su cui il planner si è fermato
                         price.setText(progress + " €");
                     }
                 });
@@ -232,6 +240,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         addressEvent = (TextView) findViewById(R.id.result_address);
 
         imgEvent = (ImageView) findViewById(R.id.event_image);
+
+        //Al click dell'immagine si sceglie una da caricare
         imgEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -245,7 +255,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         endDate.setOnClickListener(dateTimeListener);
         endTime.setOnClickListener(dateTimeListener);
 
-        tagEvent = (MaterialSpinner) findViewById(R.id.event_tag);
+        //Spinner per scegliere la categoria e salvataggio in una variabile dell'item selezionato
+        MaterialSpinner tagEvent = (MaterialSpinner) findViewById(R.id.event_tag);
         tagEvent.setItems(Category.Keys.categories);
         tagEvent.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
             @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
@@ -253,70 +264,33 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-
-        //region client google api
-
-        //Creazione dell'oggetto nel quale si passano le informazioni relative ai servizi da inizializzare
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                //Interfaccia per ricevere notifiche sulla connessione ai Google Play Services
-                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-
-                    int CAUSE_SERVICE_DISCONNECTED = 1;
-                    int CAUSE_NETWORK_LOST = 2;
-
-                    @Override
-                    public void onConnected(Bundle bundle) {
-
-                        manageLocationPermission();
-                    }
-
-                    @Override
-                    public void onConnectionSuspended(int i) {}
-                })
-
-                //Interfaccia per gestire eventuali errori legati al ciclo di vita del GoogleApiClient
-                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-
-                    //ConnectionResult: oggetto per accedere a strumenti per la risoluzione dei problemi
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                        //Se è in corso una risoluzione dei problemi, si esce subito
-                        if (mResolvingError) {
-
-                            return;
-
-                            //Se la connessione non è andata a buon fine, si controlla se ha una risoluzione
-                        } else if (connectionResult.hasResolution()) {
-
-                            try {
-
-                                mResolvingError = true;
-
-                                /*Si richiama un metodo nel quale è presente un Intent e si passa
-                                  un requestCode per riconoscere la risposta che ritorna
-                                 */
-                                connectionResult.startResolutionForResult(CreateEventActivity.this,
-                                        REQUEST_RESOLVE_ERROR);
-
-                            } catch (IntentSender.SendIntentException e) {
-
-                                mGoogleApiClient.connect();
-                            }
-                        } else {
-
-                            mResolvingError = true;
-                        }
-                    }
-                })
-                .build();
-
-        //endregion
+        setGoogleServices();
     }
 
+    /**
+     * Espansione del layout che racchiude il numero di biglietti ed il prezzo
+     * @param view view della Activity
+     */
+    public void expandablePrice(View view) {
 
-    //region Creazione upload evento
+        ExpandableRelativeLayout expandableLayout = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
+        expandableLayout.toggle();
+        if(expandableLayout.isExpanded()) {
+            ((Button) view).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ticket, 0,
+                    R.drawable.ic_arrow_right, 0);
+        }
+        else {
+            ((Button) view).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ticket, 0,
+                    R.drawable.ic_arrow_down, 0);
+        }
+    }
 
+    //Region creazione + upload dell'evento
+
+    /**
+     * Creazione dell'evento, prendendo i valori dei campi compilati
+     * @param view della Activity
+     */
     public void createEvent(final View view) {
 
         mTitle = ((TextView)(findViewById(R.id.event_title))).getText().toString();
@@ -327,57 +301,61 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         mEndDate = endDate.getText().toString();
         mEndTime = endTime.getText().toString();
 
-
+        //Si controlla se non siano stati compilati i campi obbligatori
         if(mTitle == null || mAddress == null || mDescription == null || mStartDateTime == null || mImageUri == null) {
 
-                    snackbar = Snackbar.make(view, "Compila i dati obbligatori!", Snackbar.LENGTH_LONG);
-                    View snackbarView = snackbar.getView();
-                    snackbarView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                    Snackbar snackbar = Snackbar.make(view, "Compila i dati obbligatori!", Snackbar.LENGTH_LONG);
+                    snackbar.getView().setBackgroundColor(ContextCompat
+                            .getColor(getApplicationContext(), R.color.lightRed));
                     snackbar.show();
         }
+        //Altrimenti si salva l'evento
         else {
             saveEvent();
         }
     }
 
+    /**
+     * Salvataggio dell'evento
+     */
     private void saveEvent() {
 
+        //Creo l'url per la richiesta
         String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT).getUri();
 
         try {
 
+            //Converto in millisecondi, sottoforma di stringa, la data iniziale
             String dateTimeStart = DateConverter.dateToMillis(mStartDateTime);
 
+            //Creazione dell'evento con i dati inseriti
             Event event = Event.Builder.create(mTitle, mDescription, dateTimeStart,
                     mCurrentPlanner.email).withTag(mTag).withAddress(mAddress)
                     .withImage(mImageUri).withPrice(progress).build();
 
-            //controllo strano. inutile
+            //Se è presente la data di fine
             if(mEndDateTime != null) {
                 String dateTimeEnd = DateConverter.dateToMillis(mEndDateTime);
                 event.addEndDate(dateTimeEnd);
             }
-
+            //Se il numero di tickets è maggiore di 0
             if(nTicket > 0) {
                 event.addMaxTicket(nTicket);
             }
 
+            //Creazione di un progress dialog nell'attesa
             final ProgressDialog progressDialog = ProgressDialog.show(this,null,"Salvataggio in corso, attendere",true,false);
             progressDialog.show();
 
-
             CustomRequest createEventRequest = new CustomRequest(
-                    Request.Method.PUT,
-                    url,
-                    event.toJson(),
-                    new Response.Listener<JSONObject>() {
+                    Request.Method.PUT, url, event.toJson(), new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
 
-                            Snackbar.make(view, "Evento creato", Snackbar.LENGTH_SHORT)
-                                    .show();
+                            Snackbar.make(view, "Evento creato", Snackbar.LENGTH_SHORT).show();
 
                             finish();
+
                             progressDialog.dismiss();
                         }
                     },
@@ -393,13 +371,12 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
             VolleyRequest.get(this).add(createEventRequest);
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        } catch (JSONException e) { e.printStackTrace();}
     }
 
-    //endregion
+    //Endregion
 
+    //Region picker date e time
     @Override
     public void onTimeSet(RadialPickerLayout view, int hour, int minute, int second) {
 
@@ -408,6 +385,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         String time = DateConverter.timeFromCalendar(dateCalendar);
 
+        //In base all'id passato, si setta l'ora di inizio o di fine
         switch (DATE_TIME_SENDER) {
 
             case R.id.event_start_time:
@@ -441,6 +419,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         String date = DateConverter.dateFromCalendar(dateCalendar);
 
+        //In base all'id passato si setta la data di inizio o di fine
         switch (DATE_TIME_SENDER) {
 
             case R.id.event_start_date:
@@ -466,9 +445,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    @Override
-    public void onClick(View v) {}
-
+    /**
+     * Avvio del date picker della data di inizio
+     */
     private void startDatePicker() {
 
         Calendar calendar = Calendar.getInstance();
@@ -483,6 +462,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         startDateDialog.show(getFragmentManager(),"StartDatePickerDialog");
     }
 
+    /**
+     * Avvio della data di fine del date picker
+     */
     private void endDatePicker() {
 
         Calendar calendar = Calendar.getInstance();
@@ -499,25 +481,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         endDateDialog.show(getFragmentManager(),"EndDatePickerDialog");
     }
 
-    private void endTimePicker() {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(mStartDateTime);
-        TimePickerDialog endTimeDialog = TimePickerDialog.newInstance(
-                CreateEventActivity.this,
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-        );
-
-        if(mEndDate != null && mEndDate.equals(mStartDate))
-            endTimeDialog.setMinTime(new Timepoint(calendar.get(Calendar.HOUR_OF_DAY)+1, calendar.get(Calendar.MINUTE)));
-
-        endTimeDialog.setThemeDark(true);
-        endTimeDialog.show(getFragmentManager(),"EndTimePickerDialog");
-
-    }
-
+    /**
+     * Avvio del time picker dell'ora di inizio
+     */
     private void startTimePicker() {
 
         Calendar calendar = Calendar.getInstance();
@@ -537,7 +503,34 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-    //region Carica immagine
+    /**
+     * Avvio del time picker dell'ora di fine
+     */
+    private void endTimePicker() {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(mStartDateTime);
+        TimePickerDialog endTimeDialog = TimePickerDialog.newInstance(
+                CreateEventActivity.this,
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                true
+        );
+
+        if(mEndDate != null && mEndDate.equals(mStartDate))
+            endTimeDialog.setMinTime(new Timepoint(calendar.get(Calendar.HOUR_OF_DAY)+1, calendar.get(Calendar.MINUTE)));
+
+        endTimeDialog.setThemeDark(true);
+        endTimeDialog.show(getFragmentManager(),"EndTimePickerDialog");
+
+    }
+
+    @Override
+    public void onClick(View v) {}
+
+    //Endregion
+
+    //Region selezione dell'immagine
 
     private void selectImage() {
 
@@ -580,18 +573,18 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         startActivityForResult(Intent.createChooser(intent, "Select File"), SELECT_FILE);
     }
 
-    //Permessi per scattare una foto/scegliere un'immagine dalla galleria e per accedere alla location
+    //Endregion
+
+    //Region fetch/scatta immagine + upload sul server
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(userChoosenTask.equals("Take Photo"))
-                        cameraIntent();
-                    else if(userChoosenTask.equals("Choose from Library"))
-                        galleryIntent();
-                } else {
-                    //Codice per negare i permessi
+                    if(userChoosenTask.equals("Take Photo")) cameraIntent();
+
+                    else if(userChoosenTask.equals("Choose from Library")) galleryIntent();
                 }
                 break;
         }
@@ -617,12 +610,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    /*Risultato della scelta dell'immagine in base al codice che ritorna:
-      - se ritorna "SELECT_FILE" si richiama il metodo per la scelta dalla galleria
-      - se ritorna "REQUEST_CAMERA" si richiama il metodo per la scelta dalla fotocamera
-      E gestione del caso della risoluzione automatica dell'errore in caso di non avvenuta connessione
-      ai LocationServices
-     */
+    //Risultato della scelta dell'immagine in base al codice che ritorna:
+    //se ritorna "SELECT_FILE" si richiama il metodo per la scelta dalla galleria
+    //se ritorna "REQUEST_CAMERA" si richiama il metodo per la scelta dalla fotocamera
+    //e gestione del caso della risoluzione automatica dell'errore in caso di non avvenuta connessione
+    //ai LocationServices
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -664,8 +656,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    //Risultato dell'immagine scelta dalla galleria
-    @SuppressWarnings("deprecation")
+    /**
+     * Risultato dell'immagine scelta dalla galleria
+     * @param data intent che deriva dal risultato della Activity
+     */
     private void onSelectFromGalleryResult(Intent data) {
 
         mImageName = String.valueOf(new Date().getTime());
@@ -684,7 +678,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    //Risultato dell'immagine scattata dalla fotocamera
+    /**
+     * Risultato dell'immagine scattata dalla fotocamera
+     * @param data intent che deriva dal risultato della Activity
+     */
     private void onCaptureImageResult(Intent data) {
 
         mImageName = String.valueOf(new Date().getTime());
@@ -698,36 +695,130 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    public void selectAddress(final View view) {
-        Intent intent = new Intent(this, MapEventActivity.class);
-        startActivityForResult(intent, REQUEST_ADDRESS);
+    /**
+     * Caricamento dell'immagine sul server
+     * @param toUploadFile File preso dalla galleria del dispositivo o scattato dalla fotocamera
+     */
+    private void uploadImage(File toUploadFile) {
+
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
+                .appendPath("img").appendPath(mImageName).getUri();
+
+        final ProgressDialog loading = ProgressDialog.show(this, "Immagine dell'evento", "Caricamento in corso..", false, false);
+
+        MultipartRequest mMultipartRequest = new MultipartRequest(url, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Snackbar errorSnackbar = Snackbar.make(view,
+                        "Errore nel caricamento dell'immagine", Snackbar.LENGTH_LONG);
+
+                errorSnackbar.getView().setBackgroundColor(ContextCompat
+                        .getColor(getApplicationContext(), R.color.lightRed));
+
+                errorSnackbar.show();
+
+                loading.dismiss();
+
+
+            }
+        }, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                Snackbar successSnackbar = Snackbar.make(startDate, "Immagine caricata!",
+                        Snackbar.LENGTH_SHORT);
+
+                successSnackbar.getView().setBackgroundColor(ContextCompat
+                        .getColor(getApplicationContext(), R.color.lightGreen));
+
+                successSnackbar.show();
+
+                mImageUri = response;
+                loading.dismiss();
+
+            }
+        },toUploadFile,"filename");
+
+        VolleyRequest.get(this).add(mMultipartRequest);
     }
 
-    public void expandablePrice(View view) {
-        expandableLayout = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
-        expandableLayout.toggle();
-        if(expandableLayout.isExpanded()) {
-            ((Button) view).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ticket, 0, R.drawable.ic_arrow_right, 0);
-        }
-        else {
-            ((Button) view).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ticket, 0, R.drawable.ic_arrow_down, 0);
-        }
+    //Endregion
+
+    //Region Google Maps API
+
+    /**
+     * Creazione dell'oggetto nel quale si passano le informazioni relative ai servizi da inizializzare
+     */
+    private void setGoogleServices() {
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+
+                //Interfaccia per ricevere notifiche sulla connessione ai Google Play Services
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+
+                    int CAUSE_SERVICE_DISCONNECTED = 1;
+                    int CAUSE_NETWORK_LOST = 2;
+
+                    @Override
+                    public void onConnected(Bundle bundle) {
+
+                        manageLocationPermission();
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int i) {}
+                })
+
+                //Interfaccia per gestire eventuali errori legati al ciclo di vita del GoogleApiClient
+                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+
+                    //ConnectionResult: oggetto per accedere a strumenti per la risoluzione dei problemi
+                    @Override
+                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+                        //Se è in corso una risoluzione dei problemi, si esce subito
+                        if (mResolvingError) { return;}
+
+                        //Se la connessione non è andata a buon fine, si controlla se ha una risoluzione
+                        else if (connectionResult.hasResolution()) {
+
+                            try {
+
+                                mResolvingError = true;
+
+                                //Si richiama un metodo nel quale è presente un Intent e si passa
+                                //un requestCode per riconoscere la risposta che ritorna
+                                connectionResult.startResolutionForResult(CreateEventActivity.this,
+                                        REQUEST_RESOLVE_ERROR);
+
+                            } catch (IntentSender.SendIntentException e) {
+
+                                mGoogleApiClient.connect();
+                            }
+                        } else {
+
+                            mResolvingError = true;
+                        }
+                    }
+                })
+                .build();
     }
 
-    //Si inizia la connessione ai servizi
     @Override
     protected void onStart() {
-        super.onStart();
-        //Per evitare cicli continui in caso di fase di risoluzione di un problema
-        if (!mResolvingError) {
 
-            mGoogleApiClient.connect();
-        }
+        super.onStart();
+
+        //Per evitare cicli continui in caso di fase di risoluzione di un problema
+        if (!mResolvingError) { mGoogleApiClient.connect();}
     }
 
-    //Disconnessione ai servizi
     @Override
     protected void onStop() {
+
+        //Disconnessione ai servizi
         mGoogleApiClient.disconnect();
         super.onStop();
     }
@@ -735,14 +826,16 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         //Per evitare che in caso di chiusura inaspettata dell'app, si perda il valore di mResolvingError
         outState.putBoolean(RESOLVING_ERROR_STATE_KEY, mResolvingError);
 
     }
 
-    /*Nel caso in cui non si ha uno strumento per la risoluzione dei problemi, si richiama questa classe
-          dove viene fatto visualizzare un Dialog di errore attraverso un Singleton
-         */
+    /**
+     * Nel caso in cui non si ha uno strumento per la risoluzione dei problemi, si richiama questa classe
+     * dove viene fatto visualizzare un Dialog di errore attraverso un Singleton
+     */
     public static class ErrorDialogFragment extends DialogFragment {
 
         public ErrorDialogFragment() {
@@ -766,6 +859,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     private void onDialogDismissed() {}
 
+    /**
+     * Gestione dei permessi per accedere alla location
+     */
     public void manageLocationPermission() {
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -831,24 +927,34 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    //Richiesta di aggiornamento della Location
+    /**
+     * Richiesta di aggiornamento della Location
+     */
     public void startLocationListener() {
         updateLocation();
     }
 
-    //Informazione di Location inoltrata una sola volta ed aggiornata esplicitamente dopo un'azione
+    /**
+     * Informazione di Location inoltrata una sola volta ed aggiornata esplicitamente dopo un'azione
+     */
     private void updateLocation() {
 
         //Richiesta di Location
         LocationRequest locationRequest = LocationRequest.create()
+
                 //Ha impatto sulle risorse utilizzate dall'app (influenza consumo batteria)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+
                 //Per ottenere una sola informazione di Location si passa 1
                 .setNumUpdates(1)
+
                 //Tempo oltre il quale la richiesta non ha più valore e viene rimossa
                 .setExpirationDuration(500L);
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat
+                .checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -858,6 +964,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
         //Ricezione e memorizzazione del risultato sulla location
         LocationServices.FusedLocationApi
                 .requestLocationUpdates(mGoogleApiClient, locationRequest, new LocationListener() {
@@ -872,29 +979,31 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 });
     }
 
-    //Geocoder per la ricezione della posizione dell'user
+    /**
+     * Geocoder per la ricezione della posizione dell'user
+     * @param location posizione dell'user
+     */
     public void getGeocodeLocation(final Location location) {
 
         if (location != null) {
+
             //Si controlla se il server del servizio di Geocoder è attivo
             if(Geocoder.isPresent()) {
 
-                /*Accesso al servizio in un Thread separato da quello principale.
-                  Tra i parametri si passa il numero di risultati che si vogliono ricevere (1)
-                 */
+                //Accesso al servizio in un Thread separato da quello principale.
+                //Tra i parametri si passa il numero di risultati che si vogliono ricevere (1)
                 final GeoCoderAsyncTask geoCoderAsyncTask =
                         new GeoCoderAsyncTask(this,MAX_GEOCODER_RESULTS);
 
                 geoCoderAsyncTask.execute(location);
 
-            } else {
             }
-
-        } else {
         }
     }
 
-    //Specializzazione dell'AsyncTask del Geocoder
+    /**
+     * Classe con la specializzazione del Geocoder asynctask
+     */
     public class GeoCoderAsyncTask extends AsyncTask<Location, Object, List<Address>> {
 
         private int mMaxResult;
@@ -906,7 +1015,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             this.mMaxResult = MAX_GEOCODE_RESULT;
         }
 
-        //List di Address è la classe che contiene i vari risultati del Geocoder
         @Override
         protected List<android.location.Address> doInBackground(Location... params) {
 
@@ -937,54 +1045,20 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             return geoAddress;
         }
 
-        //Per la visualizzazione della lista di location (in questo caso 1) sulla UI
         @Override
-        protected void onPostExecute(List<android.location.Address> addresses) {}
+        protected void onPostExecute(List<android.location.Address> addresses) {
+            //Per la visualizzazione della lista di location (in questo caso 1) sulla UI
+        }
     }
 
-    private void uploadImage(File toUploadFile) {
-
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.EVENT)
-                .appendPath("img").appendPath(mImageName).getUri();
-
-        final ProgressDialog loading = ProgressDialog.show(this, "Immagine dell'evento", "Caricamento in corso..", false, false);
-
-        MultipartRequest mMultipartRequest = new MultipartRequest(url, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-                Snackbar errorSnackbar = Snackbar.make(view,
-                        "Errore nel caricamento dell'immagine", Snackbar.LENGTH_LONG);
-
-                errorSnackbar.getView().setBackgroundColor(ContextCompat
-                        .getColor(getApplicationContext(), R.color.lightRed));
-
-                errorSnackbar.show();
-
-                loading.dismiss();
-
-
-            }
-            }, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-
-                    Snackbar successSnackbar = Snackbar.make(startDate, "Immagine caricata!",
-                            Snackbar.LENGTH_SHORT);
-
-                    successSnackbar.getView().setBackgroundColor(ContextCompat
-                            .getColor(getApplicationContext(), R.color.lightGreen));
-
-                    successSnackbar.show();
-
-                    mImageUri = response;
-                    loading.dismiss();
-
-                }
-            },toUploadFile,"filename");
-
-        VolleyRequest.get(this).add(mMultipartRequest);
+    /**
+     * Prelevare indirizzo che proviene dalla MapActivity
+     * @param view view della Activity
+     */
+    public void selectAddress(final View view) {
+        Intent intent = new Intent(this, MapEventActivity.class);
+        startActivityForResult(intent, REQUEST_ADDRESS);
     }
 
-    //endregion
+    //Endregion
 }

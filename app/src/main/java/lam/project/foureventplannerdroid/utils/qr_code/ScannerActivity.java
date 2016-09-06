@@ -8,14 +8,18 @@ import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 public class ScannerActivity extends Activity implements ZBarScannerView.ResultHandler {
+
     private ZBarScannerView mScannerView;
     private final String TAG = ScannerActivity.class.getName();
 
     @Override
     public void onCreate(Bundle state) {
+
         super.onCreate(state);
+
         //Inizializza programmaticamente lo scanner view
-        mScannerView = new ZBarScannerView(this);    // Programmatically initialize the scanner view
+        mScannerView = new ZBarScannerView(this);
+
         //Setta lo scanner come content view
         setContentView(mScannerView);
     }
@@ -23,6 +27,7 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
     //Avvia la camera al resume della Activity
     @Override
     public void onResume() {
+
         super.onResume();
         mScannerView.setResultHandler(this);
         mScannerView.startCamera();
@@ -31,6 +36,7 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
     //Ferma la camera al pause della Activity
     @Override
     public void onPause() {
+
         super.onPause();
         mScannerView.stopCamera();
     }

@@ -20,9 +20,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
- * Created by Vale on 28/08/2016.
+ * Richiesta Volley dei files (immagini)
  */
-
 public class MultipartRequest extends Request<String> {
 
     private MultipartEntity entity = new MultipartEntity();
@@ -34,8 +33,9 @@ public class MultipartRequest extends Request<String> {
     private final File mFilePart;
     private final String mStringPart;
 
-    public MultipartRequest(String url, Response.ErrorListener errorListener, Response.Listener<String> listener, File file, String stringPart)
-    {
+    public MultipartRequest(String url, Response.ErrorListener errorListener,
+                            Response.Listener<String> listener, File file, String stringPart) {
+
         super(Method.PUT, url, errorListener);
 
         mListener = listener;
@@ -44,8 +44,8 @@ public class MultipartRequest extends Request<String> {
         buildMultipartEntity();
     }
 
-    private void buildMultipartEntity()
-    {
+    private void buildMultipartEntity() {
+
         entity.addPart(FILE_PART_NAME, new FileBody(mFilePart));
         try
         {
@@ -64,8 +64,8 @@ public class MultipartRequest extends Request<String> {
     }
 
     @Override
-    public byte[] getBody() throws AuthFailureError
-    {
+    public byte[] getBody() throws AuthFailureError {
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try
         {
@@ -79,9 +79,9 @@ public class MultipartRequest extends Request<String> {
     }
 
     @Override
-    protected Response<String> parseNetworkResponse(NetworkResponse response)
-    {
-        String jsonString = null;
+    protected Response<String> parseNetworkResponse(NetworkResponse response) {
+
+        String jsonString;
 
         try {
             jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
@@ -90,14 +90,10 @@ public class MultipartRequest extends Request<String> {
 
             return Response.success(jsonObject.getString("filename"), HttpHeaderParser.parseCacheHeaders(response));
 
-        } catch (UnsupportedEncodingException e) {
-            return Response.error(new ParseError(e));
-
-
-        } catch (JSONException e) {
-            return Response.error(new ParseError(e));
-
         }
+        catch (UnsupportedEncodingException e) { return Response.error(new ParseError(e)); }
+
+        catch (JSONException e) { return Response.error(new ParseError(e));}
 
     }
 

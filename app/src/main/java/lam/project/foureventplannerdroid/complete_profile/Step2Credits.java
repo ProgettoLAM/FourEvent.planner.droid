@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,15 +19,11 @@ import org.json.JSONObject;
 import lam.project.foureventplannerdroid.MainActivity;
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Planner;
-import lam.project.foureventplannerdroid.utils.PlannerManager;
+import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
-
-/**
- * Created by Vale on 11/08/2016.
- */
 
 public class Step2Credits extends AbstractStep {
 
@@ -40,7 +35,6 @@ public class Step2Credits extends AbstractStep {
         return inflater.inflate(R.layout.step2_credits, container, false);
     }
 
-
     @Override
     public String name() {
         return null;
@@ -49,25 +43,29 @@ public class Step2Credits extends AbstractStep {
     @Override
     public void onNext() {
 
+        //Si riprende l'utente precedentemente creato nello step 1
         mCreatedPlanner = getStepDataFor(1).getParcelable(Planner.Keys.USER);
 
         String uri = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
                 .appendEncodedPath(mCreatedPlanner.email)
                 .getUri();
 
+        //Se l'utente esiste si salva nel server
         if(mCreatedPlanner != null) {
 
             try {
 
-                CustomRequest request = new CustomRequest(Request.Method.POST,uri, mCreatedPlanner.toJson(),
-
+                CustomRequest request = new CustomRequest(Request.Method.POST, uri,
+                        mCreatedPlanner.toJson(),
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
 
+                                //Completamento dei 2 step e salvataggio dell'utente ultimato
                                 StepManager.get(getContext()).setStep(StepManager.COMPLETE);
                                 PlannerManager.get().save(mCreatedPlanner);
 
+                                //Richiamo della MainActivity
                                 Intent intent = new Intent(getContext(), MainActivity.class);
                                 getActivity().finish();
                                 startActivity(intent);
@@ -78,9 +76,12 @@ public class Step2Credits extends AbstractStep {
                             @Override
                             public void onErrorResponse(VolleyError error) {
 
+                                Snackbar snackbar = Snackbar.make(getActivity()
+                                        .findViewById(R.id.container), HandlerManager
+                                        .getInstance().handleError(error), Snackbar.LENGTH_LONG);
 
-                                Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.container), HandlerManager.getInstance().handleError(error), Snackbar.LENGTH_LONG);
-                                snackbar.getView().setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lightRed));
+                                snackbar.getView().setBackgroundColor(ContextCompat
+                                        .getColor(getContext(), R.color.lightRed));
                                 snackbar.show();
                             }
                         }
@@ -88,10 +89,7 @@ public class Step2Credits extends AbstractStep {
 
                 VolleyRequest.get(getContext()).add(request);
 
-            } catch (JSONException e) {
-
-                e.printStackTrace();
-            }
+            } catch (JSONException e) { e.printStackTrace();}
         }
     }
 

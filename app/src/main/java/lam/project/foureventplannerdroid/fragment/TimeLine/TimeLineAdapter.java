@@ -1,4 +1,4 @@
-package lam.project.foureventplannerdroid.fragment.TimeLine;
+package lam.project.foureventplannerdroid.fragment.timeLine;
 
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
@@ -11,10 +11,6 @@ import java.util.List;
 
 import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Record;
-
-/**
- * Created by spino on 22/08/16.
- */
 
 public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineViewHolder> {
 
@@ -42,16 +38,21 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineViewHolder> {
 
         Record record = mFeedList.get(position);
 
-        holder.mType.setText(record.mType);
+        String title = record.mEvent == null ? record.mType : record.mType+" : "+record.mEvent;
+
+        //Si setta il titolo e la data del record
+        holder.mType.setText(title);
         holder.mDate.setText(record.mDate);
 
         String amount = "";
 
+        //Se il tipo di record è una ricarica, l'importo sarà positivo e si cambia il colore
         if(record.mType.equals(Record.Keys.RECHARGE)) {
 
             amount += "+"+record.mAmount;
             holder.mAmount.setTextColor(Color.parseColor("#4BAE4F"));
 
+            //Se il record indica un pagamento, l'importo sarà negativo e si cambia il colore
         } else {
 
             amount += record.mAmount;

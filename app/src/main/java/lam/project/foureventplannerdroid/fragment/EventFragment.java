@@ -37,9 +37,6 @@ import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 import lam.project.foureventplannerdroid.utils.recyclerview.EventTouchHelper;
 
-/**
- * Created by Vale on 21/08/2016.
- */
 
 public class EventFragment extends Fragment {
 
@@ -57,8 +54,7 @@ public class EventFragment extends Fragment {
     public EventFragment() {}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         setModel();
 
@@ -66,7 +62,13 @@ public class EventFragment extends Fragment {
 
     }
 
+    /**
+     * Metodo per inizializzare gli elementi del fragment
+     * @param view del fragment
+     * @return la view completa di tutti i campi
+     */
     private View initView(View view) {
+
         setTitle();
 
         mSadImageEmoticon = (ImageView) view.findViewById(R.id.events_sad_emoticon);
@@ -75,6 +77,7 @@ public class EventFragment extends Fragment {
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.events_swipe_refresh_layout);
 
+        //Allo swipe refresh della recycler view, si setta la lista di eventi
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -100,18 +103,19 @@ public class EventFragment extends Fragment {
 
         mRecyclerView.setAdapter(mAdapter);
 
-        // Setup ItemTouchHelper
+        //Callback del touch di un item, attaccandolo ad una recycler view
         ItemTouchHelper.Callback callback = new EventTouchHelper(mAdapter, getActivity());
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(mRecyclerView);
 
+        //Animazione della progress bar, al caricamento della recycler view
         ObjectAnimator animation = ObjectAnimator.ofInt (mProgressBar, "progress", 0, 500);
         animation.setDuration (1000);
         animation.setInterpolator (new DecelerateInterpolator());
         animation.start ();
 
 
-        //mostro progress bar e nascondo tutto il resto
+        //Mostro la progress bar e nascondo tutto il resto
         mProgressBar.setVisibility(View.VISIBLE);
 
         mRecyclerView.setVisibility(View.INVISIBLE);
@@ -122,8 +126,12 @@ public class EventFragment extends Fragment {
 
     }
 
+    /**
+     * Si setta la lista degli eventi, richiamandoli dal server
+     */
     private void setModel(){
 
+        //Creo l'url della richiesta
         String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER).appendPath(FourEventUri.Keys.EVENT)
                 .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
 
@@ -132,14 +140,16 @@ public class EventFragment extends Fragment {
                     @Override
                     public void onResponse(List<Event> response) {
 
+                        //Rimpiazzo il modello con tutti gli eventi e li ordino dal più recente
                         mModel.clear();
                         mModel.addAll(response);
                         Collections.reverse(mModel);
 
                         mAdapter.notifyDataSetChanged();
 
+                        //Se lo swipe refresh è attivo, si disattiva
                         if(mSwipeRefreshLayout.isRefreshing()) {
-                            //setModel();
+
                             mSwipeRefreshLayout.setRefreshing(false);
                         }
 
@@ -150,8 +160,7 @@ public class EventFragment extends Fragment {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-
-                        mEventNotFound.setText(HandlerManager.getInstance().handleError(error));
+                        mEventNotFound.setText(R.string.events_not_found);
                         showAndHideViews();
 
                     }
@@ -160,40 +169,39 @@ public class EventFragment extends Fragment {
         VolleyRequest.get(getContext()).add(request);
     }
 
+    /**
+     * Metodo per mostrare/nascondere gli elementi del fragment (progress bar e recycler view)
+     */
     public final void showAndHideViews() {
 
-        //nascondo sempre la progress bar
+        //Nascondo sempre la progress bar
         mProgressBar.setVisibility(View.INVISIBLE);
         mProgressBar.clearAnimation();
 
         if(mModel != null && mModel.size() > 0) {
 
-            //mostro la recyclerview
+            //Mostro la recycler view
             mRecyclerView.setVisibility(View.VISIBLE);
 
-            //nascondo icone e testo
+            //Nascondo icone e testo degli eventi non trovati
             mSadImageEmoticon.setVisibility(View.INVISIBLE);
             mEventNotFound.setVisibility(View.INVISIBLE);
 
         } else {
 
-            //nascondo la recyclerview
+            //Nascondo la recycler view
             mRecyclerView.setVisibility(View.INVISIBLE);
 
-            //mostro icone e testo
+            //Mostro icone e testo degli eenti non trovati
             mSadImageEmoticon.setVisibility(View.VISIBLE);
             mEventNotFound.setVisibility(View.VISIBLE);
         }
 
     }
 
-    @Override
-    public void onResume() {
-
-        setModel();
-        super.onResume();
-    }
-
+    /**
+     * Si setta il titolo del fragment
+     */
     private void setTitle () {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(NAME);
     }

@@ -10,6 +10,9 @@
     <!-- Altro -->
     <string name="male">M</string>
     <string name="female">F</string>
+    <string name="male_complete">Maschio</string>
+    <string name="female_complete">Femmina</string>
+    <string name="city">Italia</string>
     <string name="euro">\u20ac</string>
     <string name="create_title">Titolo</string>
     <string name="create_tag">Categoria :</string>

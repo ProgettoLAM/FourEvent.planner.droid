@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import java.math.BigDecimal;
 
 /**
- * Created by spino on 29/07/16.
+ * Classe che rappresenta il modello del planner, con i relativi campi
  */
 public class Planner implements Parcelable{
 
@@ -27,10 +27,11 @@ public class Planner implements Parcelable{
 
     public float balance;
 
+    public String image;
 
     private Planner(final String email, final String name,
                     final String birthDate, final String location, final String role, final String gender,
-                    final float balance){
+                    final float balance, final String image){
 
         this.email = email;
         this.name = name;
@@ -39,19 +40,8 @@ public class Planner implements Parcelable{
         this.role = role;
         this.gender = gender;
         this.balance = balance;
+        this.image = image;
     }
-
-    public static final Creator<Planner> CREATOR = new Creator<Planner>() {
-        @Override
-        public Planner createFromParcel(Parcel in) {
-            return new Planner(in);
-        }
-
-        @Override
-        public Planner[] newArray(int size) {
-            return new Planner[size];
-        }
-    };
 
     public void updateBalance(float amount) {
 
@@ -83,6 +73,25 @@ public class Planner implements Parcelable{
         return this;
     }
 
+    public Planner updateImage(String image) {
+        this.image = image;
+        return this;
+    }
+
+    //Region metodi parcelable
+
+    public static final Creator<Planner> CREATOR = new Creator<Planner>() {
+        @Override
+        public Planner createFromParcel(Parcel in) {
+            return new Planner(in);
+        }
+
+        @Override
+        public Planner[] newArray(int size) {
+            return new Planner[size];
+        }
+    };
+
     protected Planner(Parcel in) {
 
         email = in.readString();
@@ -104,7 +113,7 @@ public class Planner implements Parcelable{
 
         present = in.readByte() == Keys.PRESENT;
         if(present) {
-           location = in.readString();
+            location = in.readString();
         }
         else
             location = null;
@@ -122,84 +131,8 @@ public class Planner implements Parcelable{
         }
         else
             gender = null;
-    }
 
 
-    public static Planner fromJson(final JSONObject jsonObject) throws JSONException{
-
-        final String email = jsonObject.getString(Keys.EMAIL);
-
-        Builder builder = Builder.create(email);
-
-        if (jsonObject.has(Keys.NAME)) {
-            builder.withName(jsonObject.getString(Keys.NAME));
-        }
-
-        if(jsonObject.has(Keys.BIRTH_DATE)){
-
-            builder.withBirthDate(jsonObject.getString(Keys.BIRTH_DATE));
-        }
-
-        if(jsonObject.has(Keys.LOCATION)){
-
-            builder.withLocation(jsonObject.getString(Keys.LOCATION));
-        }
-
-        if(jsonObject.has(Keys.ROLE)){
-
-            builder.withRole(jsonObject.getString(Keys.ROLE));
-        }
-
-        if(jsonObject.has(Keys.GENDER)){
-
-            builder.withGender(jsonObject.getString(Keys.GENDER));
-        }
-
-        final float balance = BigDecimal.valueOf(jsonObject.getDouble(Keys.BALANCE)).floatValue();
-
-        if(balance > 0) {
-
-            builder.withBalance(balance);
-        }
-
-        Planner planner = builder.build();
-
-        return planner;
-    }
-
-    public JSONObject toJson() throws JSONException {
-
-        final JSONObject jsonObject = new JSONObject();
-
-        jsonObject.put(Keys.EMAIL, email);
-        jsonObject.put(Keys.BALANCE,balance);
-
-        if (name != null) {
-
-            jsonObject.put(Keys.NAME, name);
-        }
-
-        if (birthDate != null) {
-
-            jsonObject.put(Keys.BIRTH_DATE, birthDate);
-        }
-
-        if (location != null) {
-
-            jsonObject.put(Keys.LOCATION, location);
-        }
-
-        if (role != null) {
-
-            jsonObject.put(Keys.ROLE, role);
-        }
-
-        if (gender != null) {
-
-            jsonObject.put(Keys.GENDER, gender);
-        }
-
-        return jsonObject;
     }
 
     @Override
@@ -246,7 +179,109 @@ public class Planner implements Parcelable{
         }
         else
             dest.writeByte(Keys.NOT_PRESENT);
+
+        if (image != null) {
+            dest.writeByte(Keys.PRESENT);
+            dest.writeString(image);
+        }
+        else
+            dest.writeByte(Keys.NOT_PRESENT);
     }
+
+    //Endregion
+
+    //Region lettura/scrittura Json
+
+    public static Planner fromJson(final JSONObject jsonObject) throws JSONException{
+
+        final String email = jsonObject.getString(Keys.EMAIL);
+
+        Builder builder = Builder.create(email);
+
+        if (jsonObject.has(Keys.NAME)) {
+            builder.withName(jsonObject.getString(Keys.NAME));
+        }
+
+        if(jsonObject.has(Keys.BIRTH_DATE)){
+
+            builder.withBirthDate(jsonObject.getString(Keys.BIRTH_DATE));
+        }
+
+        if(jsonObject.has(Keys.LOCATION)){
+
+            builder.withLocation(jsonObject.getString(Keys.LOCATION));
+        }
+
+        if(jsonObject.has(Keys.ROLE)){
+
+            builder.withRole(jsonObject.getString(Keys.ROLE));
+        }
+
+        if(jsonObject.has(Keys.GENDER)){
+
+            builder.withGender(jsonObject.getString(Keys.GENDER));
+        }
+
+        final float balance = BigDecimal.valueOf(jsonObject.getDouble(Keys.BALANCE)).floatValue();
+
+        if(balance > 0) {
+
+            builder.withBalance(balance);
+        }
+
+        Planner planner = builder.build();
+
+        if(jsonObject.has(Keys.IMAGE)){
+
+            builder.withImage(jsonObject.getString(Keys.IMAGE));
+        }
+
+        return planner;
+    }
+
+    public JSONObject toJson() throws JSONException {
+
+        final JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put(Keys.EMAIL, email);
+        jsonObject.put(Keys.BALANCE,balance);
+
+        if (name != null) {
+
+            jsonObject.put(Keys.NAME, name);
+        }
+
+        if (birthDate != null) {
+
+            jsonObject.put(Keys.BIRTH_DATE, birthDate);
+        }
+
+        if (location != null) {
+
+            jsonObject.put(Keys.LOCATION, location);
+        }
+
+        if (role != null) {
+
+            jsonObject.put(Keys.ROLE, role);
+        }
+
+        if (gender != null) {
+
+            jsonObject.put(Keys.GENDER, gender);
+        }
+
+        if (image != null) {
+
+            jsonObject.put(Keys.IMAGE, image);
+        }
+
+        return jsonObject;
+    }
+
+    //Endregion
+
+    //Region Keys
 
     public static class Keys{
 
@@ -266,10 +301,16 @@ public class Planner implements Parcelable{
 
         public static final String BALANCE = "balance";
 
+        public static final String IMAGE = "image";
+
         public static final Byte PRESENT = 1;
 
         public static final Byte NOT_PRESENT = 0;
     }
+
+    //Endregion
+
+    //Region Builder
 
     public static class Builder{
 
@@ -287,8 +328,7 @@ public class Planner implements Parcelable{
 
         private float mBalance;
 
-        //TODO completare la classe, aggiungendo i parametri, completare i metodi e usare la classe
-        //TODO parcelable, utilizzare il metodo opzionale anche per trasformazione JSON
+        private String mImage;
 
         private Builder(final String email){
 
@@ -336,8 +376,16 @@ public class Planner implements Parcelable{
             return this;
         }
 
+        public Builder withImage(final String image) {
+
+            this.mImage = image;
+            return this;
+        }
+
         public Planner build(){
-            return new Planner(mEmail,mName,mBirthDate,mLocation, mRole, mGender, mBalance);
+            return new Planner(mEmail,mName,mBirthDate,mLocation, mRole, mGender, mBalance, mImage);
         }
     }
+
+    //Endregion
 }

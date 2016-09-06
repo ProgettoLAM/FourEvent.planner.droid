@@ -16,14 +16,15 @@ import java.util.List;
 
 import lam.project.foureventplannerdroid.model.Record;
 
-/**
- * Created by spino on 22/08/16.
- */
 
+/**
+ * Richiesta Volley per i records
+ */
 public class RecordListRequest extends JsonRequest<List<Record>> {
 
+    public RecordListRequest(String url, String requestBody, Response.Listener<List<Record>> listener,
+                             Response.ErrorListener errorListener) {
 
-    public RecordListRequest(String url, String requestBody, Response.Listener<List<Record>> listener, Response.ErrorListener errorListener) {
         super(Method.GET, url, requestBody, listener, errorListener);
     }
 
@@ -36,6 +37,7 @@ public class RecordListRequest extends JsonRequest<List<Record>> {
             String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
             JSONArray jsonArray = new JSONArray(jsonString);
 
+            //Ogni record preso dal server, viene inserito nella lista di records
             for(int i = 0; i < jsonArray.length(); i++) {
                 final JSONObject item = jsonArray.getJSONObject(i);
                 final Record record = Record.fromJson(item);
@@ -44,12 +46,8 @@ public class RecordListRequest extends JsonRequest<List<Record>> {
 
             return Response.success(records, HttpHeaderParser.parseCacheHeaders(response));
         }
-        catch (UnsupportedEncodingException e) {
-            return Response.error(new ParseError(e));
-        }
-        catch (JSONException je) {
-            return Response.error(new ParseError(je));
+        catch (UnsupportedEncodingException e) { return Response.error(new ParseError(e));}
 
-        }
+        catch (JSONException je) { return Response.error(new ParseError(je));}
     }
 }

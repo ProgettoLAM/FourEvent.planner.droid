@@ -6,9 +6,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-/**
- * Created by Vale on 01/08/2016.
- */
 
 public class VolleyRequest {
 
@@ -56,8 +53,4 @@ public class VolleyRequest {
         mRequestQueue.add(request);
     }
 
-    public interface QueueProvider {
-
-        RequestQueue getRequestQueue();
-    }
 }

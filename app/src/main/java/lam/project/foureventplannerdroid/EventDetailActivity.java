@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,12 +46,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import lam.project.foureventplannerdroid.model.Event;
-import lam.project.foureventplannerdroid.model.Planner;
 import lam.project.foureventplannerdroid.model.Record;
-import lam.project.foureventplannerdroid.utils.PlannerManager;
+import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
+import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
-import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 import lam.project.foureventplannerdroid.utils.qr_code.ScannerActivity;
 
@@ -68,7 +68,6 @@ public class EventDetailActivity extends Activity {
     private Button.OnClickListener listenerButton;
     private TextView detailsParticipation;
     private TextView pricePopular;
-    private TextView priceMessage;
 
     private Event mCurrentEvent;
 
@@ -81,58 +80,53 @@ public class EventDetailActivity extends Activity {
 
     public static String OPEN_FRAGMENT_WALLET = "Portafoglio";
 
-    private ViewGroup mViewGruoup;
+    private ViewGroup mViewGroup;
 
     public static final String AGES = "ages";
     public static final String GENDER_STATS = "gender_stats";
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
 
-        mViewGruoup = (ViewGroup) findViewById(R.id.event_detail_container);
+        initView();
+    }
+
+    /**
+     * Metodo per inizializzare gli elementi della view
+     */
+    private void initView() {
+
+        mViewGroup = (ViewGroup) findViewById(R.id.event_detail_container);
 
         ageChart = (PieChart) findViewById(R.id.age_chart);
         genderChart = (PieChart) findViewById(R.id.gender_chart);
 
         detailsParticipation = (TextView) findViewById(R.id.details_ticket);
         pricePopular = (TextView) findViewById(R.id.price_popular);
-        priceMessage = (TextView) findViewById(R.id.price_message);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         mButtonNFC = (Button) findViewById(R.id.button_nfc);
 
+        //Al click del bottone per la sincronizzazione del NFC
         mButtonNFC.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if(!mNfcAdapter.isEnabled()) {
-
-                    Toast.makeText(v.getContext(),"Perfavore attiva l'NFC e torna indietro per tornare all'applicazione!",Toast.LENGTH_LONG).show();
-
-                    startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
-
-                } else if(mNfcAdapter.isEnabled()) {
-
-                    mIsSearching = true;
-                    mProgressDialog = ProgressDialog.show(v.getContext(),"Ricerca braccialetto","Ricerca braccialetto NFC in corso...",true,true);
-                }
+            public void onClick(View v) {nfcButton();
             }
         });
 
+        //Se l'Nfc non è supportato, si deve utilizzare il codice QR
         if (mNfcAdapter == null) {
-            // Stop here, we definitely need NFC
-            Toast.makeText(this,"NFC non supportato, Utilizzare codice QR",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"NFC non supportato, utilizzare codice QR",Toast.LENGTH_SHORT).show();
         }
 
-        //addData(yDataGender, xDataGender, genderChart);
-        //addData(yDataAge, xDataAge, ageChart);
-
+        //Si salva in una variabile l'evento corrente cliccato dalla recycler view
         mCurrentEvent = getIntent().getParcelableExtra(Event.Keys.EVENT);
 
+        //Listener del numero di biglietti di cui si vuole incrementare
         listenerButton = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,13 +150,34 @@ public class EventDetailActivity extends Activity {
 
     }
 
+
+    //region NFC methods
+
+    private void nfcButton() {
+
+        //Se l'Nfc non è attivo, si reindirizza l'utente alle impostazioni del dispositivo per attivarlo
+        if(!mNfcAdapter.isEnabled()) {
+
+            Toast.makeText(mViewGroup.getContext(),"Perfavore attiva l'NFC e torna indietro per tornare all'applicazione!",
+                    Toast.LENGTH_LONG).show();
+
+            startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+
+        //Altrimenti si inizia la sincronizzazione del tag Nfc
+        } else if(mNfcAdapter.isEnabled()) {
+
+            mIsSearching = true;
+            mProgressDialog = ProgressDialog.show(mViewGroup.getContext(),"Ricerca braccialetto","Ricerca braccialetto NFC in corso...",true,true);
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
 
         super.onNewIntent(intent);
 
+        //Se si sta sincronizzando il tag, si prende e si invia nella lettura Ndef
         if(mIsSearching && intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
-
 
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             new NdefReaderTask().execute(tag);
@@ -172,6 +187,168 @@ public class EventDetailActivity extends Activity {
         }
     }
 
+    private void disableForegroundDispatchSystem() {
+
+        mNfcAdapter.disableForegroundDispatch(this);
+    }
+
+    private void enableForegroundDispatchSystem() {
+
+        Intent intent = new Intent(this, EventDetailActivity.class);
+        intent.setFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,0);
+        IntentFilter[] intentFilters = new IntentFilter[]{};
+
+        mNfcAdapter.enableForegroundDispatch(this,pendingIntent,intentFilters,null);
+    }
+
+    @Override
+    protected void onResume() {
+
+        //Importante che nel onResume l'Activity sia nel foreground, altrimenti lancia un'eccezione
+        enableForegroundDispatchSystem();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+
+        //Importante che sia prima del onPause, altrimenti lancia un'eccezione
+        disableForegroundDispatchSystem();
+        super.onPause();
+    }
+
+    //endregion
+
+    //region NdefReaderTask + gestione risultato
+
+    /**
+     * Classe per la lettura Ndef del tag Nfc
+     */
+    public class NdefReaderTask extends AsyncTask<Tag, Void, String> {
+
+        @Override
+        protected String doInBackground(Tag... params) {
+            Tag tag = params[0];
+
+            Ndef ndef = Ndef.get(tag);
+            if (ndef == null) {
+                // NDEF non è supportato da questo tag
+                return null;
+            }
+
+            NdefMessage ndefMessage = ndef.getCachedNdefMessage();
+
+            NdefRecord[] records = ndefMessage.getRecords();
+            for (NdefRecord ndefRecord : records) {
+                if (ndefRecord.getTnf() == NdefRecord.TNF_WELL_KNOWN && Arrays.equals(ndefRecord.getType(), NdefRecord.RTD_TEXT)) {
+                    try {
+                        return readText(ndefRecord);
+                    } catch (UnsupportedEncodingException e) {
+                        Log.e(TAG, "Unsupported Encoding", e);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private String readText(NdefRecord record) throws UnsupportedEncodingException {
+        /*
+         * See NFC forum specification for "Text Record Type Definition" at 3.2.1
+         *
+         * http://www.nfc-forum.org/specs/
+         *
+         * bit_7 defines encoding
+         * bit_6 reserved for future use, must be 0
+         * bit_5..0 length of IANA language code
+         */
+
+            byte[] payload = record.getPayload();
+
+            // Get the Text Encoding
+            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+
+            // Get the Language Code
+            int languageCodeLength = payload[0] & 0063;
+
+            // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
+            // e.g. "en"
+
+            // Get the Text
+            return new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+
+                showResult(result);
+            }
+        }
+    }
+
+    /**
+     * Risultato della lettura del tag NFC
+     * @param text testo letto
+     */
+    public void showResult(String text) {
+
+        //Creo l'url per la richiesta
+        String url = FourEventUri.Builder.create(FourEventUri.Keys.TICKET)
+                .appendPath("tag")
+                .appendEncodedPath(text)
+                .getUri();
+
+        CustomRequest getTicketDetailRequest = new CustomRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+
+                            //Si inserisce in un array la risposta
+                            JSONArray array = response.getJSONArray("user_checked");
+
+                            Snackbar successSnackbar = Snackbar.make(mButtonNFC,"" + array.length(),
+                                    Snackbar.LENGTH_LONG);
+                            successSnackbar.show();
+
+                        } catch (JSONException e) { e.printStackTrace();}
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        Snackbar successSnackbar = Snackbar.make(mViewGroup,"Errore",Snackbar.LENGTH_LONG);
+                        successSnackbar.show();
+                    }
+                });
+
+        VolleyRequest.get(this).add(getTicketDetailRequest);
+
+    }
+
+    //endregion
+
+    /**
+     * Click del bottone del QR per avviare la fotocamera e scannerizzare il codice dell'user
+     * @param view dell'Activity
+     */
+    public void qrButton(final View view) {
+
+        Intent intent = new Intent(this, ScannerActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Metodo per aggiungere i dati ai due pieChart
+     * @param yData dati dei vari componenti
+     * @param xData label dei componenti
+     * @param mChart nome del chart
+     */
     private void addData(float[] yData, String[] xData, PieChart mChart) {
 
         //Disattivare la rotazione al touch
@@ -213,26 +390,14 @@ public class EventDetailActivity extends Activity {
 
         ArrayList<Integer> colors = new ArrayList<Integer>();
 
-       /* for (int c : ColorTemplate.VORDIPLOM_COLORS)
-            colors.add(c);*/
-
         for (int c : ColorTemplate.JOYFUL_COLORS)
             colors.add(c);
-
-       /* for (int c : ColorTemplate.COLORFUL_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.LIBERTY_COLORS)
-            colors.add(c);
-
-        for (int c : ColorTemplate.PASTEL_COLORS)
-            colors.add(c);*/
 
         colors.add(ColorTemplate.getHoloBlue());
 
         dataSet.setColors(colors);
 
-        //Instanziare l'oggetto PieData
+        //Istanziare l'oggetto PieData
         PieData data = new PieData(xVals, dataSet);
         data.setValueFormatter(new PercentFormatter());
         data.setValueTextSize(12f);
@@ -246,7 +411,6 @@ public class EventDetailActivity extends Activity {
 
         //Update piechart
         mChart.invalidate();
-
 
     }
 
@@ -269,7 +433,7 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar.make(mViewGruoup,error.toString(),Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(mViewGroup,error.toString(),Snackbar.LENGTH_LONG).show();
                     }
                 });
 
@@ -338,19 +502,19 @@ public class EventDetailActivity extends Activity {
         }
     }
 
-    public void qrButton(final View view) {
-        Intent intent = new Intent(this, ScannerActivity.class);
-        startActivity(intent);
-    }
-
     //region premium task
 
+    /**
+     * Metodo per incrementare il numero di biglietti massimi
+     * @param view view dell'Activity
+     */
     public void moreTickets(final View view) {
 
+        //Si crea un dialog tramite il Builder
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
         builder.setTitle("Aumenta il numero dei biglietti");
 
-        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, mViewGruoup, false);
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, mViewGroup, false);
 
         viewInflated.findViewById(R.id.btn_1_ticket).setOnClickListener(listenerButton);
         viewInflated.findViewById(R.id.btn_2_ticket).setOnClickListener(listenerButton);
@@ -369,6 +533,10 @@ public class EventDetailActivity extends Activity {
         dialog = builder.show();
     }
 
+    /**
+     * Metodo per inserire l'evento tra i popolari
+     * @param view view della Activity
+     */
     public void popularEvent(final View view) {
 
         String message;
@@ -423,7 +591,7 @@ public class EventDetailActivity extends Activity {
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
 
-                                        Snackbar snackbarError = Snackbar.make(detailsParticipation, HandlerManager.getInstance().handleError(error),
+                                        Snackbar snackbarError = Snackbar.make(detailsParticipation, HandlerManager.handleError(error),
                                                 Snackbar.LENGTH_LONG);
 
                                         snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
@@ -470,11 +638,15 @@ public class EventDetailActivity extends Activity {
         builder.show();
     }
 
+    /**
+     * Metodo per l'invio di un messaggio ai partecipanti
+     * @param view della Activity
+     */
     public void messageParticipation(final View view) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, mViewGruoup, false);
+        View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, mViewGroup, false);
 
         builder.setView(viewInflated);
 
@@ -497,14 +669,23 @@ public class EventDetailActivity extends Activity {
 
     }
 
+    /**
+     * Metodo per l'acquisto di un numero maggiore di biglietti dell'evento
+     * @param amount importo da pagare
+     * @param numParticipation numero dei partecipanti
+     * @throws JSONException
+     */
     private void buyParticipation(final Float amount, final String numParticipation) throws JSONException {
 
+        //Si salva la somma posseduta dal planner
         final float balance = MainActivity.mCurrentPlanner.balance;
         String maxTicket = "newMax";
         dialog.dismiss();
 
+        //Se il prezzo del numero di biglietti è minore della somma del planner
         if(amount < balance) {
 
+            //Creo un progress dialog nell'attesa
             final ProgressDialog progressDialog = new ProgressDialog(this);
 
             progressDialog.setMessage("Aumento dei biglietti in corso...");
@@ -512,18 +693,20 @@ public class EventDetailActivity extends Activity {
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
 
-
+            //Creo l'url per la richiesta
             String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER).appendPath("maxticket")
                     .appendEncodedPath(MainActivity.mCurrentPlanner.email).getUri();
 
             try {
-
+                //Creo il record scrivendo il prezzo, il titolo, l'email del planner e id dell'evento
                 JSONObject record = Record.Builder
-                        .create(-amount, Record.Keys.BUY_TICKETS+ ": "+mCurrentEvent.mTitle, MainActivity.mCurrentPlanner.email)
+                        .create(-amount, Record.Keys.BUY_TICKETS+ ": "+mCurrentEvent.mTitle,
+                                MainActivity.mCurrentPlanner.email)
                         .withEvent(mCurrentEvent.mId)
                         .build().toJson();
 
-                record.put(maxTicket,300);
+                //Inserisco il numero massimo di biglietti nel record
+                record.put(maxTicket, numParticipation);
 
                 CustomRequest createRecordRequest = new CustomRequest(Request.Method.POST,
                         url, record,
@@ -540,10 +723,11 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar snackbarError = Snackbar.make(mViewGruoup, HandlerManager.getInstance().handleError(error),
+                        Snackbar snackbarError = Snackbar.make(mViewGroup, HandlerManager.getInstance().handleError(error),
                                 Snackbar.LENGTH_LONG);
 
-                        snackbarError.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightRed));
+                        snackbarError.getView().setBackgroundColor(ContextCompat
+                                .getColor(getApplicationContext(), R.color.lightRed));
                         snackbarError.show();
                     }
                 });
@@ -560,25 +744,30 @@ public class EventDetailActivity extends Activity {
 
     //region handle response + error
 
-
+    /**
+     * Gestione della risposta dell'acquisto dei biglietti
+     * @param response risposta dal server
+     * @param numParticipation numero di biglietti scelti
+     * @param amount somma del portafoglio del planner
+     */
     private void handleResponse(JSONObject response, String numParticipation, final float amount) {
 
         try {
-
-            //TODO modificare in questo modo anche wallet per le ricariche
-            //Record insertedRecord = Record.fromJson(response.getJSONObject(Record.Keys.RECORD));
+            //Update dell'importo del portafoglio del planner
             MainActivity.mCurrentPlanner.updateBalance(amount);
 
+            //Si salva il planner con la somma aggiornata
             PlannerManager.get().save(MainActivity.mCurrentPlanner);
 
             dialog.dismiss();
+            //Si setta il nuovo numero massimo di partecipanti
+            detailsParticipation.setText(" / " + numParticipation);
 
-            detailsParticipation.setText("10 / " + numParticipation);
-
-            Snackbar responseSnackBar = Snackbar.make(mViewGruoup,
+            Snackbar responseSnackBar = Snackbar.make(mViewGroup,
                     response.getString("message"), Snackbar.LENGTH_LONG);
 
-            responseSnackBar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
+            responseSnackBar.getView().setBackgroundColor(ContextCompat
+                    .getColor(getApplicationContext(), R.color.lightGreen));
 
             responseSnackBar.show();
 
@@ -590,143 +779,6 @@ public class EventDetailActivity extends Activity {
 
     }
 
-    //endregion
 
-    //region NdefReaderTask + gestione risultato
-
-    @Override
-    protected void onResume() {
-
-        //Importante che nel onResume l'Activity sia nel foreground, altrimenti lancia un'eccezione
-        enableForegroundDispatchSystem();
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-
-        //Importante che sia prima del onPause, altrimenti lancia un'eccezione
-        disableForegroundDispatchSystem();
-        super.onPause();
-    }
-
-    private void enableForegroundDispatchSystem() {
-
-        Intent intent = new Intent(this, EventDetailActivity.class);
-        intent.setFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,0);
-        IntentFilter[] intentFilters = new IntentFilter[]{};
-
-        mNfcAdapter.enableForegroundDispatch(this,pendingIntent,intentFilters,null);
-    }
-
-    private void disableForegroundDispatchSystem() {
-
-        mNfcAdapter.disableForegroundDispatch(this);
-    }
-
-    public class NdefReaderTask extends AsyncTask<Tag, Void, String> {
-
-        @Override
-        protected String doInBackground(Tag... params) {
-            Tag tag = params[0];
-
-            Ndef ndef = Ndef.get(tag);
-            if (ndef == null) {
-                // NDEF is not supported by this Tag.
-                return null;
-            }
-
-            NdefMessage ndefMessage = ndef.getCachedNdefMessage();
-
-            NdefRecord[] records = ndefMessage.getRecords();
-            for (NdefRecord ndefRecord : records) {
-                if (ndefRecord.getTnf() == NdefRecord.TNF_WELL_KNOWN && Arrays.equals(ndefRecord.getType(), NdefRecord.RTD_TEXT)) {
-                    try {
-                        return readText(ndefRecord);
-                    } catch (UnsupportedEncodingException e) {
-                        Log.e(TAG, "Unsupported Encoding", e);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private String readText(NdefRecord record) throws UnsupportedEncodingException {
-        /*
-         * See NFC forum specification for "Text Record Type Definition" at 3.2.1
-         *
-         * http://www.nfc-forum.org/specs/
-         *
-         * bit_7 defines encoding
-         * bit_6 reserved for future use, must be 0
-         * bit_5..0 length of IANA language code
-         */
-
-            byte[] payload = record.getPayload();
-
-            // Get the Text Encoding
-            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-
-            // Get the Language Code
-            int languageCodeLength = payload[0] & 0063;
-
-            // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
-            // e.g. "en"
-
-            // Get the Text
-            return new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-
-                showResult(result);
-            }
-        }
-    }
-
-    public void showResult(String text) {
-
-        String url = FourEventUri.Builder.create(FourEventUri.Keys.TICKET)
-                .appendPath("tag")
-                .appendEncodedPath(text)
-                .getUri();
-
-        CustomRequest getTicketDetailRequest = new CustomRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        try {
-
-                            JSONArray array = response.getJSONArray("user_checked");
-
-                            //Toast.makeText(this,array.length(),Toast.LENGTH_LONG).show();
-                            Snackbar successSnackbar = Snackbar.make(mButtonNFC,""+array.length(),Snackbar.LENGTH_LONG);
-                            successSnackbar.show();
-
-                        } catch (JSONException e) {
-
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                        Snackbar successSnackbar = Snackbar.make(mViewGruoup,HandlerManager.getInstance().handleError(error),Snackbar.LENGTH_LONG);
-                        successSnackbar.show();
-                    }
-                });
-
-        VolleyRequest.get(this).add(getTicketDetailRequest);
-
-    }
     //endregion
 }
-

@@ -19,23 +19,29 @@ import lam.project.foureventplannerdroid.model.Event;
 
 
 /**
- * Created by Vale on 29/07/2016.
+ * Richiesta Volley degli eventi
  */
-
 public class EventListRequest extends JsonRequest<List<Event>> {
 
-    public EventListRequest(String url, Response.Listener<List<Event>> listener, Response.ErrorListener errorListener) {
+
+    public EventListRequest(String url, Response.Listener<List<Event>> listener,
+                            Response.ErrorListener errorListener) {
         super(Request.Method.GET, url, null, listener, errorListener);
     }
 
     @Override
     protected Response<List<Event>> parseNetworkResponse(NetworkResponse response) {
+
         List<Event> events = new LinkedList<>();
+
         try {
+
             String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
             JSONArray jsonArray = new JSONArray(jsonString);
 
+            //Aggiunta di tutti gli eventi presi dal server nella lista di eventi
             for(int i = 0; i < jsonArray.length(); i++) {
+
                 final JSONObject item = jsonArray.getJSONObject(i);
                 final Event event = Event.fromJson(item);
                 events.add(event);
@@ -43,12 +49,8 @@ public class EventListRequest extends JsonRequest<List<Event>> {
 
             return Response.success(events, HttpHeaderParser.parseCacheHeaders(response));
         }
-        catch (UnsupportedEncodingException e) {
-            return Response.error(new ParseError(e));
-        }
-        catch (JSONException je) {
-            return Response.error(new ParseError(je));
+        catch (UnsupportedEncodingException e) { return Response.error(new ParseError(e));}
 
-        }
+        catch (JSONException je) { return Response.error(new ParseError(je));}
     }
 }
