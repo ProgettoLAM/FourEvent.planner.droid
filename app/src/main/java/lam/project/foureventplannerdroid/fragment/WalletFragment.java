@@ -56,7 +56,6 @@ public class WalletFragment extends Fragment {
     private LinkedList<Record> mDataList = new LinkedList<>();
     private TextView mTxtBalance;
 
-    private AlertDialog.Builder builder;
     private Button.OnClickListener rechargeButtonListener;
 
     private final static float MIN_VAL = 0.0f;
@@ -200,7 +199,7 @@ public class WalletFragment extends Fragment {
     private void rechargeButton() {
 
         //Creazione di un dialog tramite un Builder
-        builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Ricarica il portafoglio");
 
         View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.dialog_recharge,
