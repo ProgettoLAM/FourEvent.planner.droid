@@ -427,6 +427,9 @@ public class EventDetailActivity extends Activity {
 
     }
 
+    /**
+     * Metodo che si collega al server per prendere i dettagli dei partecipanti all'evento
+     */
     private void getMoreDetails() {
 
         String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
@@ -453,20 +456,28 @@ public class EventDetailActivity extends Activity {
         VolleyRequest.get(this).add(getEventDetails);
     }
 
+    /**
+     * Gestione della risposta alla chiamata al server per ricevere i dettagli degli utenti
+     * @param response risposta del server
+     */
     private void refreshView(JSONObject response) {
 
-        try{
+        try {
 
+            //Si prelevano tutti i partecipanti all'evento
             Event event = Event.fromJson(response);
             event.mParticipation = response.getJSONArray(Event.Keys.PARTICIPATION).length();
 
             int checkedUsers = 0;
+
+            //Se l'evento ha utenti che già hanno fatto il check-in, si salva il loro numero
             if(response.has(Event.Keys.CHECKED))
                 checkedUsers = response.getJSONArray(Event.Keys.CHECKED).length();
 
             String checked = String.valueOf(checkedUsers);
             String participation = String.valueOf(event.mParticipation);
 
+            //Se l'evento è a pagamento si inserisce il numero dei biglietti massimi
             if(!event.isFree()) {
 
                 final String separator = " / ";
@@ -483,6 +494,7 @@ public class EventDetailActivity extends Activity {
             detailsParticipation.setText(participation);
             detailCheckIn.setText(checked);
 
+
             setChartsByResponse(response);
 
         } catch (JSONException e) {
@@ -491,6 +503,9 @@ public class EventDetailActivity extends Activity {
         }
     }
 
+    /**
+     * Metodo per disabilitare il bottone se l'evento è già stato inserito tra i popolari
+     */
     private void enableDisablePopularButton() {
 
         if(mCurrentEvent.isPopular()) {
@@ -500,29 +515,41 @@ public class EventDetailActivity extends Activity {
         }
     }
 
+    /**
+     * Metodo per settare i dati relativi al sesso e all'età dei partecipanti
+     * @param response risposta dal server
+     * @throws JSONException
+     */
     private void setChartsByResponse(JSONObject response) throws JSONException {
 
+        //Sesso dei partecipanti
         JSONArray jsonGenders = response.getJSONArray(GENDER_STATS);
 
         for(int i=0; i<jsonGenders.length(); i++) {
 
+            //Si prende l'id (M o F) ed il numero di ognuno
             JSONObject gender = jsonGenders.getJSONObject(i);
 
             String id = gender.getString("_id");
 
             float count = gender.getInt("count");
+
             if(id.equals("M"))
                 yDataGender[0] = count*10;
 
             else
                 yDataGender[1] = count*10;
         }
+
+        //Si richiama il metodo per la creazione del chart
         addData(yDataGender, xDataGender, genderChart);
 
+        //Età dei partecipanti
         JSONArray jsonAges = response.getJSONArray(AGES);
 
         //{"16-24", "25-35", ">35"}
         int age;
+
         for(int i=0; i<jsonAges.length(); i++){
 
             age = jsonAges.getInt(i);
@@ -541,6 +568,7 @@ public class EventDetailActivity extends Activity {
         yDataAge[1] = yDataAge[1]*10;
         yDataAge[2] = yDataAge[2]*10;
 
+        //Si richiama il metodo per la creazione del chart
         addData(yDataAge,xDataAge,ageChart);
     }
 
