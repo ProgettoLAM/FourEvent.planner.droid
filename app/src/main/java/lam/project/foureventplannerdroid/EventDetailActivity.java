@@ -3,6 +3,7 @@ package lam.project.foureventplannerdroid;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -91,11 +92,15 @@ public class EventDetailActivity extends Activity {
     private String[] xDataAge = {"16-24", "25-35", ">35"};
     private String[] xDataGender = {"Maschi", "Femmine"};
 
+    private Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
+
+        mContext = this;
 
         initView();
     }
@@ -130,6 +135,8 @@ public class EventDetailActivity extends Activity {
         if (mNfcAdapter == null) {
 
             Toast.makeText(this,"NFC non supportato, utilizzare codice QR",Toast.LENGTH_SHORT).show();
+            mButtonNFC.setEnabled(false);
+            mButtonNFC.setAlpha(0.5f);
 
         } else {
 
@@ -628,7 +635,6 @@ public class EventDetailActivity extends Activity {
         viewInflated.findViewById(R.id.btn_1_ticket).setOnClickListener(listenerButton);
         viewInflated.findViewById(R.id.btn_2_ticket).setOnClickListener(listenerButton);
         viewInflated.findViewById(R.id.btn_3_ticket).setOnClickListener(listenerButton);
-        viewInflated.findViewById(R.id.btn_4_ticket).setOnClickListener(listenerButton);
 
         builder.setView(viewInflated);
 
@@ -770,12 +776,63 @@ public class EventDetailActivity extends Activity {
 
         View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_message, mViewGroup, false);
 
+        final EditText message = (EditText) viewInflated.findViewById(R.id.message);
+
         builder.setView(viewInflated);
 
         builder.setPositiveButton("Invia", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
+                String text = message.getText().toString();
+
+                String url = FourEventUri.Builder.create(FourEventUri.Keys.PLANNER)
+                        .appendPath("sendmessage").appendPath(mCurrentEvent.mId).getUri();
+
+                try {
+                    final JSONObject message = new JSONObject("{'text': '"+text+"'}");
+
+                    CustomRequest sendMessageRequest = new CustomRequest(Request.Method.POST, url, message,
+                            new Response.Listener<JSONObject>() {
+
+                                @Override
+                                public void onResponse(JSONObject response) {
+
+                                    try {
+
+                                        Snackbar snackbar = Snackbar.make(view, response.getString(String.valueOf(message)),
+                                                Snackbar.LENGTH_LONG);
+                                        snackbar.getView().setBackgroundColor(ContextCompat
+                                                .getColor(getApplicationContext(), R.color.lightGreen));
+                                        snackbar.show();
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            },
+                            new Response.ErrorListener() {
+
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+                                    Snackbar snackbar = Snackbar.make(view, HandlerManager.handleError(error),
+                                            Snackbar.LENGTH_LONG);
+
+                                    snackbar.getView().setBackgroundColor(ContextCompat
+                                            .getColor(getApplicationContext(), R.color.lightRed));
+                                    snackbar.show();
+
+                                }
+                            });
+
+                    VolleyRequest.get(mContext).add(sendMessageRequest);
+
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -837,7 +894,7 @@ public class EventDetailActivity extends Activity {
                             @Override
                             public void onResponse(JSONObject response) {
 
-                                handleResponse(response, numParticipation, amount);
+                                handleResponse(amount);
 
                             }
                         }, new Response.ErrorListener() {
@@ -895,11 +952,9 @@ public class EventDetailActivity extends Activity {
 
     /**
      * Gestione della risposta dell'acquisto dei biglietti
-     * @param response risposta dal server
-     * @param numParticipation numero di biglietti scelti
      * @param amount somma del portafoglio del planner
      */
-    private void handleResponse(JSONObject response, String numParticipation, final float amount) {
+    private void handleResponse(final float amount) {
 
             //Update dell'importo del portafoglio del planner
             MainActivity.mCurrentPlanner.updateBalance(amount);
@@ -917,6 +972,9 @@ public class EventDetailActivity extends Activity {
                     .getColor(getApplicationContext(), R.color.lightGreen));
 
             responseSnackBar.show();
+
+            getMoreDetails();
+
 
     }
 
