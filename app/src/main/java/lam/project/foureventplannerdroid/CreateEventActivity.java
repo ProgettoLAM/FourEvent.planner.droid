@@ -331,7 +331,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             //Creazione dell'evento con i dati inseriti
             Event event = Event.Builder.create(mTitle, mDescription, dateTimeStart,
                     mCurrentPlanner.email).withTag(mTag).withAddress(mAddress)
-                    .withImage(mImageUri).withPrice(progress).build();
+                    .withImage(mImageUri).withPrice(progress).withIsPopular(false).build();
 
             //Se è presente la data di fine
             if(mEndDateTime != null) {

@@ -547,7 +547,9 @@ public class EventDetailActivity extends Activity {
         String positiveListenerText;
         final int price = Integer.parseInt(pricePopular.getText().toString());
 
-        if (price <= MainActivity.mCurrentPlanner.balance) {
+        //Si controlla che il prezzo sia minore della somma del portafoglio del planner e che
+        //l'evento non sia già tra i popolari
+        if (price <= MainActivity.mCurrentPlanner.balance && !mCurrentEvent.isPopular()) {
 
             message = "Pubblicizzare l'evento ha un costo di " + price + "€." +
                     "\n\nHai un totale di " + MainActivity.mCurrentPlanner.balance + " €.\nVuoi pubblicizzarlo?";
@@ -580,9 +582,11 @@ public class EventDetailActivity extends Activity {
                                         Snackbar snackbar = Snackbar.make(detailsParticipation, "Evento inserito tra i popolari!",
                                                 Snackbar.LENGTH_LONG);
 
+                                        //Si setta l'evento a popolare
+                                        mCurrentEvent.updateIsPopular();
+
                                         snackbar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
                                         snackbar.show();
-
                                     }
                                 },
 
@@ -607,8 +611,17 @@ public class EventDetailActivity extends Activity {
                 }
             };
 
-        } else {
+        //Se l'evento è già tra i popolari
+        } else if(mCurrentEvent.isPopular()) {
 
+            title = "Avviso";
+            message = "L'evento è già tra i popolari!";
+
+            positiveListenerText = null;
+            positiveListener = null;
+        }
+        //Se non si ha abbastanza credito per acquistarlo
+        else {
             title = "Credito insufficiente";
             message = "Non hai abbastanza crediti per pubblicizzare l'evento, ricarica il portafoglio!!";
 

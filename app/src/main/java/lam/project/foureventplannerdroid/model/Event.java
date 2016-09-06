@@ -46,10 +46,12 @@ public class Event implements Parcelable{
 
     private final String mAuthor;
 
+    private boolean mIsPopular;
+
     private Event(final String id, final String title, final String description, final String startDate,
                   final String endDate, final String tag, final String address, final float latitude,
                   final float longitude, final String price, final int participation, final String image,
-                  final int maxTic, final String author, final Double distance){
+                  final int maxTic, final String author, final Double distance, final boolean isPopular){
 
         this.mId = id;
         this.mTitle = title;
@@ -66,6 +68,7 @@ public class Event implements Parcelable{
         this.mMaxTicket = maxTic;
         this.mAuthor = author;
         this.mDistance = distance;
+        this.mIsPopular = isPopular;
 
     }
 
@@ -92,6 +95,11 @@ public class Event implements Parcelable{
 
         return mDistance != null;
     }
+    public boolean updateIsPopular() { return this.mIsPopular = !mIsPopular;}
+
+    public boolean isPopular() {
+        return this.mIsPopular;
+    }
 
     //region metodi parcelable
 
@@ -113,7 +121,7 @@ public class Event implements Parcelable{
         if(present) {
 
             mId = in.readString();
-        }else{
+        } else{
             mId = null;
         }
 
@@ -126,6 +134,7 @@ public class Event implements Parcelable{
         mLongitude = in.readFloat();
         mPrice = in.readString();
         mImage = in.readString();
+        mIsPopular = in.readByte() != 0;
 
         present = in.readByte() == Keys.PRESENT;
         if(present) {
@@ -200,6 +209,8 @@ public class Event implements Parcelable{
         else
             dest.writeByte(Keys.NOT_PRESENT);
 
+        dest.writeByte((byte) (mIsPopular ? 1 : 0));
+
         dest.writeString(mAuthor);
     }
 
@@ -226,12 +237,17 @@ public class Event implements Parcelable{
         final float latitude = BigDecimal.valueOf(coordinates.getDouble(1)).floatValue();
         final float longitude = BigDecimal.valueOf(coordinates.getDouble(0)).floatValue();
 
+        boolean isPopular = false;
+
+        if(jsonObject.has(Keys.POPULAR)) {
+            isPopular = jsonObject.getBoolean(Keys.POPULAR);
+        }
+
         Builder builder = Builder.create(title, description, startDate,author).withTag(tag).withAddress(address)
-                .withLocation(latitude,longitude).withPrice(price).withImage(image);
+                .withLocation(latitude,longitude).withPrice(price).withImage(image).withIsPopular(isPopular);
 
         if(jsonObject.has(Keys.END_DATE)) {
 
-            //TODO
             builder.withEndDate(DateConverter.dateFromMillis(jsonObject.getLong(Keys.END_DATE)));
         }
 
@@ -253,7 +269,6 @@ public class Event implements Parcelable{
 
             builder.withDistance(jsonObject.getDouble(Keys.DISTANCE) / 1000);
         }
-
 
         return builder.build();
     }
@@ -313,6 +328,7 @@ public class Event implements Parcelable{
         static final String MAX_TICKETS = "tickets";
         static final String IMAGE = "image";
         static final String AUTHOR = "author";
+        static final String POPULAR = "popular";
         static final String DISTANCE = "distance";
 
         public static final String PARTICIPATION = "user_participations";
@@ -344,6 +360,7 @@ public class Event implements Parcelable{
         private int mMaxTicket;
         private String mAuthor;
         private Double mDistance;
+        private boolean mIsPopular;
 
 
         private Builder(final String title, final String description, final String startDate, final String author){
@@ -414,10 +431,16 @@ public class Event implements Parcelable{
             return this;
         }
 
+       public Builder withIsPopular(final boolean isPopular) {
+            this.mIsPopular = isPopular;
+            return this;
+        }
+
         public Event build(){
 
             return new Event(mId,mTitle, mDescription, mStartDate, mEndDate, mTag, mAddress, mLatitude,
-                            mLongitude, mPrice, mParticipation, mImage, mMaxTicket,mAuthor, mDistance);
+                            mLongitude, mPrice, mParticipation, mImage, mMaxTicket,mAuthor, mDistance,
+                            mIsPopular);
         }
     }
 
