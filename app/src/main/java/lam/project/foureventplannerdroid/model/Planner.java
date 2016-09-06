@@ -7,6 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+
+import lam.project.foureventplannerdroid.utils.DateConverter;
 
 /**
  * Classe che rappresenta il modello del planner, con i relativi campi
@@ -204,7 +207,7 @@ public class Planner implements Parcelable{
 
         if(jsonObject.has(Keys.BIRTH_DATE)){
 
-            builder.withBirthDate(jsonObject.getString(Keys.BIRTH_DATE));
+            builder.withBirthDate(DateConverter.dateFromMillis(jsonObject.getLong(Keys.BIRTH_DATE)));
         }
 
         if(jsonObject.has(Keys.LOCATION)){
@@ -253,7 +256,14 @@ public class Planner implements Parcelable{
 
         if (birthDate != null) {
 
-            jsonObject.put(Keys.BIRTH_DATE, birthDate);
+            try{
+
+                jsonObject.put(Keys.BIRTH_DATE, DateConverter.toMillis(birthDate));
+
+            } catch (ParseException e) {
+
+                e.printStackTrace();
+            }
         }
 
         if (location != null) {
