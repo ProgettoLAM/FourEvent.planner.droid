@@ -191,7 +191,7 @@ public class WalletFragment extends Fragment {
         }
     }
 
-    //Region ricarica portafoglio
+    //region ricarica portafoglio
 
     /**
      * Fab per ricaricare il portafoglio di un importo specifico
@@ -348,5 +348,5 @@ public class WalletFragment extends Fragment {
         } catch (ParseException e) { e.printStackTrace();}
     }
 
-    //Endregion
+    //endregion
 }

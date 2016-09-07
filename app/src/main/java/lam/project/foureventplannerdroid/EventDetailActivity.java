@@ -50,6 +50,8 @@ import java.util.Arrays;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.model.Record;
 import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
+import lam.project.foureventplannerdroid.utils.qr_code.IntentIntegrator;
+import lam.project.foureventplannerdroid.utils.qr_code.IntentResult;
 import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
@@ -76,6 +78,8 @@ public class EventDetailActivity extends Activity {
     private Event mCurrentEvent;
     private int maxTickets;
     private boolean mNfcGO;
+
+    private String mTickedId;
 
     private ViewGroup mViewGroup;
 
@@ -157,16 +161,9 @@ public class EventDetailActivity extends Activity {
                     String value = ((Button) v).getText().toString().split(" ")[0];
                     Float amount = Float.parseFloat(value);
                     String numParticipation = (String) v.getTag();
-                    String splitTickets = numParticipation.split(" ")[0];
 
-                    if(Integer.parseInt(splitTickets) <= maxTickets) {
+                    buyParticipation(amount, numParticipation);
 
-                        enableDisableMaxTicketButton(v);
-                    }
-                    else {
-
-                        buyParticipation(amount, numParticipation);
-                    }
 
                 }
                 catch (JSONException ex) {
@@ -179,8 +176,7 @@ public class EventDetailActivity extends Activity {
 
     }
 
-
-    //region NFC methods
+    //region NFC e QR methods
 
     private void nfcButton() {
 
@@ -198,6 +194,18 @@ public class EventDetailActivity extends Activity {
             mIsSearching = true;
             mProgressDialog = ProgressDialog.show(mViewGroup.getContext(),"Ricerca braccialetto","Ricerca braccialetto NFC in corso...",true,true);
         }
+    }
+
+    /**
+     * Click del bottone del QR per avviare la fotocamera e scannerizzare il codice dell'user
+     * @param view dell'Activity
+     */
+    public void qrButton(final View view) {
+
+        Intent data = new Intent(this,ScannerActivity.class);
+        data.putExtra("SCAN_MODE", "QR_CODE_MODE");
+        startActivityForResult(data, 0);
+
     }
 
     @Override
@@ -256,7 +264,7 @@ public class EventDetailActivity extends Activity {
 
     //endregion
 
-    //region NdefReaderTask + gestione risultato
+    //region NdefReaderTask + gestione risultato NFC o QR
 
     /**
      * Classe per la lettura Ndef del tag Nfc
@@ -324,8 +332,23 @@ public class EventDetailActivity extends Activity {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        //Se dalla Scanner Activity del QR ritorna questo codice, si cattura il risultato
+        if (requestCode == 0) {
+
+            if (resultCode == RESULT_OK) {
+
+                mTickedId = data.getStringExtra("SCAN_RESULT");
+                showResult(mTickedId);
+
+            }
+        }
+    }
+
     /**
-     * Risultato della lettura del tag NFC
+     * Risultato della lettura del tag NFC o del codice QR
      * @param text testo letto
      */
     public void showResult(String text) {
@@ -363,7 +386,7 @@ public class EventDetailActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-                        Snackbar errorSnackbar = Snackbar.make(mViewGroup,"Errore",Snackbar.LENGTH_LONG);
+                        Snackbar errorSnackbar = Snackbar.make(mViewGroup,HandlerManager.handleError(error),Snackbar.LENGTH_LONG);
                         errorSnackbar.show();
                     }
                 });
@@ -374,15 +397,6 @@ public class EventDetailActivity extends Activity {
 
     //endregion
 
-    /**
-     * Click del bottone del QR per avviare la fotocamera e scannerizzare il codice dell'user
-     * @param view dell'Activity
-     */
-    public void qrButton(final View view) {
-
-        Intent intent = new Intent(this, ScannerActivity.class);
-        startActivity(intent);
-    }
 
     /**
      * Metodo per aggiungere i dati ai due pieChart
@@ -632,9 +646,40 @@ public class EventDetailActivity extends Activity {
 
         View viewInflated = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_tickets, mViewGroup, false);
 
-        viewInflated.findViewById(R.id.btn_1_ticket).setOnClickListener(listenerButton);
-        viewInflated.findViewById(R.id.btn_2_ticket).setOnClickListener(listenerButton);
-        viewInflated.findViewById(R.id.btn_3_ticket).setOnClickListener(listenerButton);
+        TextView ticket1 = (TextView) viewInflated.findViewById(R.id.ticket_one);
+        TextView ticket2 = (TextView) viewInflated.findViewById(R.id.ticket_two);
+        TextView ticket3 = (TextView) viewInflated.findViewById(R.id.ticket_three);
+
+        String ticket_one = ticket1.getText().toString().split(" ")[0];
+        String ticket_two = ticket2.getText().toString().split(" ")[0];
+        String ticket_three = ticket3.getText().toString().split(" ")[0];
+
+
+        if(Integer.parseInt(ticket_one) <= maxTickets) {
+
+            enableDisableMaxTicketButton(viewInflated.findViewById(R.id.btn_1_ticket));
+        }
+        else {
+            viewInflated.findViewById(R.id.btn_1_ticket).setOnClickListener(listenerButton);
+
+        }
+        if(Integer.parseInt(ticket_two) <= maxTickets) {
+
+            enableDisableMaxTicketButton(viewInflated.findViewById(R.id.btn_2_ticket));
+        }
+        else {
+            viewInflated.findViewById(R.id.btn_2_ticket).setOnClickListener(listenerButton);
+
+        }
+        if(Integer.parseInt(ticket_three) <= maxTickets) {
+
+            enableDisableMaxTicketButton(viewInflated.findViewById(R.id.btn_3_ticket));
+        }
+        else {
+            viewInflated.findViewById(R.id.btn_3_ticket).setOnClickListener(listenerButton);
+
+        }
+
 
         builder.setView(viewInflated);
 

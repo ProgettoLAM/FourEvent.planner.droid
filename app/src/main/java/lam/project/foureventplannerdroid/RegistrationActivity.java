@@ -145,7 +145,7 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
-    //Region nuova activity
+    //region nuova activity
 
     public void goToLogin(final View view) {
 
@@ -245,5 +245,5 @@ public class RegistrationActivity extends AppCompatActivity {
         return !(password2.equals("") || !password.equals(password2));
     }
 
-    //Endregion
+    //endregion
 }

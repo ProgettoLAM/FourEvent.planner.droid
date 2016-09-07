@@ -12,6 +12,7 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/ticket_one"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="100 biglietti"
@@ -40,6 +41,7 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/ticket_two"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="300 biglietti"
@@ -68,6 +70,7 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/ticket_three"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="500 biglietti"
