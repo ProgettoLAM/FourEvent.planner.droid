@@ -156,7 +156,7 @@ public class ProfileFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(NAME);
     }
 
-    //Region cambio della password
+    //region cambio della password
 
     /**
      * Update della password, al click dell'icona corrispondente
@@ -238,9 +238,9 @@ public class ProfileFragment extends Fragment {
             }
         };
 
-        //Endregion
+        //endregion
 
-        //Region negativeListener
+        //region negativeListener
 
         DialogInterface.OnClickListener negativeListener = new DialogInterface.OnClickListener() {
             @Override
@@ -250,7 +250,7 @@ public class ProfileFragment extends Fragment {
             }
         };
 
-        //Endregion
+        //endregion
 
         builder.setPositiveButton("Ok", positiveListener);
         builder.setNegativeButton("Cancella", negativeListener);
@@ -300,9 +300,9 @@ public class ProfileFragment extends Fragment {
             return true;
     }
 
-    //Endregion
+    //endregion
 
-    //Region intent salvataggio dell'immagine
+    //region intent salvataggio dell'immagine
 
     private void selectImage() {
 
@@ -349,9 +349,9 @@ public class ProfileFragment extends Fragment {
         startActivityForResult(Intent.createChooser(intent, "Select File"), SELECT_FILE);
     }
 
-    //Endregion
+    //endregion
 
-    //Region fetch/scatta immagine + upload del server
+    //region fetch/scatta immagine + upload del server
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -475,6 +475,6 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    //Endregion
+    //endregion
 }
 

@@ -100,7 +100,7 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
         mapFragment.getMapAsync(this);
     }
 
-    //Region Google Maps
+    //region Google Maps
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -223,7 +223,7 @@ public class MapEventActivity extends AppCompatActivity implements OnMapReadyCal
 
     }
 
-    //Endregion
+    //endregion
 
     @Override
     protected void onRestart() {
