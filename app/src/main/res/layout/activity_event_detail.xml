@@ -202,15 +202,17 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layout_checkin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@id/layout_premium">
+        android:layout_below="@id/layout_premium"
+        android:visibility="gone">
 
         <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/tickets_premium"
