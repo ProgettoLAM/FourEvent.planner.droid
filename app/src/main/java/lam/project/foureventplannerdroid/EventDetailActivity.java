@@ -699,9 +699,12 @@ public class EventDetailActivity extends Activity {
 
                                         //Si setta l'evento a popolare
                                         mCurrentEvent.updateIsPopular();
+                                        enableDisablePopularButton();
 
                                         snackbar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
                                         snackbar.show();
+
+
                                     }
                                 },
 

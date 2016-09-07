@@ -95,7 +95,7 @@ public class Event implements Parcelable{
 
         return mDistance != null;
     }
-    public boolean updateIsPopular() { return this.mIsPopular = !mIsPopular;}
+    public boolean updateIsPopular() { return this.mIsPopular = true;}
 
     public boolean isPopular() {
         return this.mIsPopular;
