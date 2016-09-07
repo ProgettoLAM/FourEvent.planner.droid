@@ -63,7 +63,6 @@ import lam.project.foureventplannerdroid.utils.DateConverter;
 import lam.project.foureventplannerdroid.utils.shared_preferences.ImageManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
-import lam.project.foureventplannerdroid.utils.Utility;
 import lam.project.foureventplannerdroid.utils.connection.MultipartRequest;
 import lam.project.foureventplannerdroid.utils.connection.VolleyRequest;
 
@@ -550,16 +549,16 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                boolean result = Utility.checkPermission(CreateEventActivity.this);
+
                 if (items[item].equals("Scatta una foto")) {
                     userChoosenTask = "Scatta una foto";
-                    if(result)
-                        cameraIntent();
+
+                    cameraIntent();
 
                 } else if (items[item].equals("Scegli dalla galleria")) {
                     userChoosenTask = "Scegli dalla galleria";
-                    if(result)
-                        galleryIntent();
+
+                    galleryIntent();
 
                 } else if (items[item].equals("Annulla")) {
                     dialog.dismiss();
@@ -584,39 +583,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     //Endregion
 
     //Region fetch/scatta immagine + upload sul server
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(userChoosenTask.equals("Take Photo")) cameraIntent();
-
-                    else if(userChoosenTask.equals("Choose from Library")) galleryIntent();
-                }
-                break;
-        }
-
-        if (requestCode == REQUEST_ACCESS_LOCATION) {
-
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                startLocationListener();
-            } else {
-
-                new AlertDialog.Builder(this)
-                        .setTitle("Title")
-                        .setMessage("Message")
-                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                finish();
-                            }
-                        }).create().show();
-            }
-        }
-    }
 
     //Risultato della scelta dell'immagine in base al codice che ritorna:
     //se ritorna "SELECT_FILE" si richiama il metodo per la scelta dalla galleria

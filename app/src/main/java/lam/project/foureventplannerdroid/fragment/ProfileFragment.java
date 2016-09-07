@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -36,7 +35,6 @@ import lam.project.foureventplannerdroid.R;
 import lam.project.foureventplannerdroid.model.Planner;
 import lam.project.foureventplannerdroid.utils.shared_preferences.ImageManager;
 import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
-import lam.project.foureventplannerdroid.utils.Utility;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
 import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
@@ -314,20 +312,17 @@ public class ProfileFragment extends Fragment {
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                boolean result = Utility.checkPermission(getContext());
                 if (items[item].equals("Scatta una foto")) {
 
                     userChoosenTask = "Scatta una foto";
 
-                    if(result)
-                        cameraIntent();
+                    cameraIntent();
 
                 } else if (items[item].equals("Scegli dalla galleria")) {
 
                     userChoosenTask = "Scegli dalla galleria";
 
-                    if(result)
-                        galleryIntent();
+                    galleryIntent();
 
                 } else if (items[item].equals("Annulla")) {
                     dialog.dismiss();
@@ -352,20 +347,6 @@ public class ProfileFragment extends Fragment {
     //Endregion
 
     //Region fetch/scatta immagine + upload del server
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    if (userChoosenTask.equals("Take Photo")) cameraIntent();
-
-                    else if (userChoosenTask.equals("Choose from Library")) galleryIntent();
-                }
-                break;
-        }
-    }
 
     //Risultato della scelta dell'immagine in base al codice che ritorna:
     //se ritorna "SELECT_FILE" si richiama il metodo per la scelta dalla galleria

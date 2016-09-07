@@ -803,7 +803,7 @@ public class EventDetailActivity extends Activity {
 
                                     try {
 
-                                        Snackbar snackbar = Snackbar.make(view, response.getString(String.valueOf(message)),
+                                        Snackbar snackbar = Snackbar.make(mViewGroup, response.getString("meresponse.getString(\"message\")ssage"),
                                                 Snackbar.LENGTH_LONG);
                                         snackbar.getView().setBackgroundColor(ContextCompat
                                                 .getColor(getApplicationContext(), R.color.lightGreen));
@@ -820,7 +820,7 @@ public class EventDetailActivity extends Activity {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
 
-                                    Snackbar snackbar = Snackbar.make(view, HandlerManager.handleError(error),
+                                    Snackbar snackbar = Snackbar.make(mViewGroup, HandlerManager.handleError(error),
                                             Snackbar.LENGTH_LONG);
 
                                     snackbar.getView().setBackgroundColor(ContextCompat
