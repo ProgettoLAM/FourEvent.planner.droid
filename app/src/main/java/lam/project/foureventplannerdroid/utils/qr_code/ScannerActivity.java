@@ -1,6 +1,7 @@
 package lam.project.foureventplannerdroid.utils.qr_code;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -47,6 +48,21 @@ public class ScannerActivity extends Activity implements ZBarScannerView.ResultH
 
         Log.v(TAG, rawResult.getContents()); // Stampa i risultati dello scan
         Log.v(TAG, rawResult.getBarcodeFormat().getName()); // Stampa il format dello scan
+
+        Intent intent = new Intent();
+
+        if(rawResult.getContents() == null) {
+
+            setResult(Activity.RESULT_CANCELED, intent);
+        }
+
+        else {
+            intent.putExtra("SCAN_RESULT", rawResult.getContents());
+            setResult(Activity.RESULT_OK, intent);
+
+        }
+
+        finish();
 
         //Se si desidera fare il resume dello scanning (riavviarlo dopo aver catturato il risultato)
         mScannerView.resumeCameraPreview(this);
