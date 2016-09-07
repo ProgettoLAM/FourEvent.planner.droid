@@ -141,7 +141,7 @@ public class EventDetailActivity extends Activity {
         } else {
 
             mNfcGO = true;
-            enableForegroundDispatchSystem();
+            //enableForegroundDispatchSystem();
         }
 
         //Si salva in una variabile l'evento corrente cliccato dalla recycler view
