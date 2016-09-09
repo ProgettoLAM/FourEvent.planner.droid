@@ -11,7 +11,7 @@ import org.json.JSONObject;
  */
 public class HandlerManager {
 
-    private final static String MESSAGE = "Message";
+    private final static String MESSAGE = "message";
     private final static String EXCEPTION = "Exception";
 
     public static String handleError (VolleyError error) {
