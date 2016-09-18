@@ -50,8 +50,6 @@ import java.util.Arrays;
 import lam.project.foureventplannerdroid.model.Event;
 import lam.project.foureventplannerdroid.model.Record;
 import lam.project.foureventplannerdroid.utils.connection.HandlerManager;
-import lam.project.foureventplannerdroid.utils.qr_code.IntentIntegrator;
-import lam.project.foureventplannerdroid.utils.qr_code.IntentResult;
 import lam.project.foureventplannerdroid.utils.shared_preferences.PlannerManager;
 import lam.project.foureventplannerdroid.utils.connection.CustomRequest;
 import lam.project.foureventplannerdroid.utils.connection.FourEventUri;
