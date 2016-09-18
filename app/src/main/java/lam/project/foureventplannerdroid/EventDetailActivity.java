@@ -744,6 +744,12 @@ public class EventDetailActivity extends Activity {
                                         mCurrentEvent.updateIsPopular();
                                         enableDisablePopularButton();
 
+                                        //Update dell'importo del portafoglio del planner
+                                        MainActivity.mCurrentPlanner.updateBalance(price);
+
+                                        //Si salva il planner con la somma aggiornata
+                                        PlannerManager.get().save(MainActivity.mCurrentPlanner);
+
                                         snackbar.getView().setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGreen));
                                         snackbar.show();
 
